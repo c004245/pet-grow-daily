@@ -81,6 +81,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.androidx.core.splashscreen)
+
 
 
 }

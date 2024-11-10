@@ -11,7 +11,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navOptions
+import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowdailyTheme
 
@@ -37,8 +40,18 @@ internal fun MainScreen(
                 ) {
                     splashNavGraph(
                         navigateToHome = {
+                            val navOptions = navOptions {
+                                popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                            navigator.navigateToHome(navOptions = navOptions)
 
                         }
+                    )
+                    homeNavGraph(
+                        paddingValues = paddingValues
                     )
                 }
             }

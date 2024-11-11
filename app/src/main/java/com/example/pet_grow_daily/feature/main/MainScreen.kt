@@ -33,7 +33,8 @@ import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
-import com.example.pet_grow_daily.ui.theme.PetgrowdailyTheme
+import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import kotlinx.coroutines.coroutineScope
 
 @Composable
 internal fun MainScreen(
@@ -75,22 +76,6 @@ internal fun MainScreen(
                 }
             }
         },
-//        floatingActionButton = {
-//            FloatingActionButton(
-//                onClick = { },
-//                containerColor = Color(0xFF5B64E9), // 버튼의 배경 색상
-//                contentColor = Color.White,
-//                modifier = Modifier
-//                    .offset(y = (-16).dp) //
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_add_floating),
-//                    contentDescription = "Add Icon"
-//                )
-//            }
-//
-//        },
-//        floatingActionButtonPosition = FabPosition.Center,
         bottomBar = {
             CustomBottomBar()
         }
@@ -125,7 +110,10 @@ fun CustomBottomBar() {
             // 두 번째 아이템
             IconButton(
                 modifier = Modifier.weight(1f),
-                onClick = { /* TODO: Add action for second item */ }) {
+                onClick = {
+
+
+                }) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_total),
@@ -154,7 +142,7 @@ fun CustomBottomBar() {
 @Preview
 @Composable
 fun MainScreenPreview() {
-    PetgrowdailyTheme {
+    PetgrowTheme {
         MainScreen()
     }
 }

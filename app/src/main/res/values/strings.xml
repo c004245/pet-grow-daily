@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">pet-grow-daily</string>
+    <string name="text_today_grow_title">오늘의 성장</string>
 </resources>

@@ -2,4 +2,7 @@
     <string name="app_name">pet-grow-daily</string>
     <string name="text_today_grow_title">오늘의 성장</string>
     <string name="text_not_today_grow">오늘의 기록이 없어요.</string>
+    <string name="text_picture_add">사진</string>
+    <string name="text_category_add">카테고리</string>
+    <string name="text_emotion_add">감정</string>
 </resources>

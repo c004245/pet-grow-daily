@@ -41,6 +41,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
@@ -131,18 +132,15 @@ internal fun MainScreen(
 
 @Composable
 fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
-    BottomAppBar(
-
-    ) {
+    BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 첫 번째 아이템
             IconButton(
                 modifier = Modifier.weight(1f),
-                onClick = { /* TODO: Add action for first item */ }) {
+                onClick = { }) {
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
@@ -153,7 +151,6 @@ fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
                 }
             }
 
-            // 두 번째 아이템
             IconButton(
                 modifier = Modifier.weight(1f),
                 onClick =
@@ -169,10 +166,9 @@ fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
                 }
             }
 
-            // 세 번째 아이템
             IconButton(
                 modifier = Modifier.weight(1f),
-                onClick = { /* TODO: Add action for third item */ }) {
+                onClick = { }) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_total),
@@ -185,22 +181,6 @@ fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
     }
 }
 
-@Composable
-fun BottomSheetContent(onCloseClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "This is a bottom sheet!",
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onCloseClick) {
-            Text("Close")
-        }
-    }
-}
 
 @Preview
 @Composable

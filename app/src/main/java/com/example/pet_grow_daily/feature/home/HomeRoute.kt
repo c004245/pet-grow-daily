@@ -68,7 +68,8 @@ fun HomeScreen(
             }
         )
         EmptyTodayGrowRecordWidget(
-            modifier = Modifier.padding(40.dp)
+            modifier = Modifier.padding(40.dp),
+            isFullHeight = true
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -89,6 +90,8 @@ fun HomeScreen(
 @Composable
 fun EmptyTodayGrowRecordWidget(
     modifier: Modifier = Modifier,
+    isFullHeight: Boolean = false,
+    height: Dp = 278.dp,
     borderColor: Color = grayDE,
     borderWidth: Dp = 2.dp,
     cornerRadius: Dp = 16.dp,
@@ -97,7 +100,7 @@ fun EmptyTodayGrowRecordWidget(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .then(if (isFullHeight) Modifier.fillMaxHeight() else Modifier.height(height))
             .background(Color.White)
             .drawBehind {
                 val strokeWidth = borderWidth.toPx()

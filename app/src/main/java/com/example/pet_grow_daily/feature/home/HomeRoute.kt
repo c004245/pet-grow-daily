@@ -31,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
+import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
@@ -74,7 +75,10 @@ fun HomeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "오늘의 기록이 없어요.",
+                    text = stringResource(id = R.string.text_not_today_grow),
+                    style = PetgrowTheme.typography.medium,
+                    color = gray86
+
                 )
             }
         }
@@ -92,7 +96,8 @@ fun EmptyTodayGrowRecordWidget(
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth().fillMaxHeight()
+            .fillMaxWidth()
+            .fillMaxHeight()
             .background(Color.White)
             .drawBehind {
                 val strokeWidth = borderWidth.toPx()

@@ -25,7 +25,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
+import com.example.pet_grow_daily.core.designsystem.theme.grayAD
 import com.example.pet_grow_daily.feature.home.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
@@ -37,34 +39,27 @@ fun BottomSheetContent(onCloseClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        AddGrowAppBar()
+        AddGrowAppBar(currentStep)
         Spacer(modifier = Modifier.height(24.dp))
         when (currentStep) {
-            Step.PHOTO ->
+            Step.PHOTO -> PhotoSelectionScreen(
+                onPhotoSelected = { currentStep = Step.CATEGORY }
+            )
+            Step.CATEGORY -> CategorySelectionScreen(
+                onCategorySelected = { currentStep = Step.EMOTION }
+            )
+            Step.EMOTION -> EmotionSelectionScreen(
+                onEmotionSelected = { onCloseClick() }
+            )
+
         }
 
     }
 }
 
-/**
- * EmptyTodayGrowRecordWidget(
- *             modifier = Modifier.padding(top = 24.dp)
- *         ) {
- *             Box(
- *                 modifier = Modifier.fillMaxSize(),
- *                 contentAlignment = Alignment.Center
- *             ) {
- *                 Icon(
- *                     painter = painterResource(id = R.drawable.ic_background_album),
- *                     contentDescription = "background_album"
- *                 )
- *
- *             }
- *         }
- *
- */
+
 @Composable
-fun AddGrowAppBar() {
+fun AddGrowAppBar(currentStep: Step) {
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -72,7 +67,8 @@ fun AddGrowAppBar() {
         Text(
             modifier = Modifier.wrapContentWidth(),
             text = stringResource(id = R.string.text_picture_add),
-            style = PetgrowTheme.typography.bold
+            style = PetgrowTheme.typography.bold,
+            color = if (currentStep == Step.PHOTO) black21 else grayAD
         )
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
@@ -83,7 +79,9 @@ fun AddGrowAppBar() {
         Text(
             modifier = Modifier.wrapContentWidth(),
             text = stringResource(id = R.string.text_category_add),
-            style = PetgrowTheme.typography.bold
+            style = PetgrowTheme.typography.bold,
+            color = if (currentStep == Step.CATEGORY) black21 else grayAD
+
         )
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
@@ -93,21 +91,73 @@ fun AddGrowAppBar() {
         Text(
             modifier = Modifier.wrapContentWidth(),
             text = stringResource(id = R.string.text_emotion_add),
-            style = PetgrowTheme.typography.bold
+            style = PetgrowTheme.typography.bold,
+            color = if (currentStep == Step.EMOTION) black21 else grayAD
         )
     }
 }
 
 @Composable
 fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
+//    EmptyTodayGrowRecordWidget(
+//        modifier = Modifier.padding(top = 24.dp)
+//    ) {
+//        Box(
+//            modifier = Modifier.fillMaxSize(),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Icon(
+//                painter = painterResource(id = R.drawable.ic_background_album),
+//                contentDescription = "background_album"
+//
+//            )
+//
+//        }
+//    }
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text("사진을 선택하세요")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onPhotoSelected) {
+            Text("사진 선택 완료")
+        }
+    }
 }
 
 @Composable
 fun CategorySelectionScreen(onCategorySelected: () -> Unit) {
-    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text("카테고리를 선택하세요")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onCategorySelected) {
+            Text("카테고리 선택 완료")
+        }
+    }
 }
-)
+
+@Composable
+fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text("감정을 선택하세요")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onEmotionSelected) {
+            Text("감정 선택 완료")
+        }
+    }
+}
+
 enum class Step {
     PHOTO,
     CATEGORY,

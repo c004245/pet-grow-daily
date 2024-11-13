@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -91,16 +92,17 @@ fun HomeScreen(
 fun EmptyTodayGrowRecordWidget(
     modifier: Modifier = Modifier,
     isFullHeight: Boolean = false,
-    height: Dp = 278.dp,
     borderColor: Color = grayDE,
     borderWidth: Dp = 2.dp,
     cornerRadius: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
+    val screenWidthDp = with(LocalDensity.current) { LocalContext.current.resources.displayMetrics.widthPixels.toDp() }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (isFullHeight) Modifier.fillMaxHeight() else Modifier.height(height))
+            .then(if (isFullHeight) Modifier.fillMaxHeight() else Modifier.height(screenWidthDp))
             .background(Color.White)
             .drawBehind {
                 val strokeWidth = borderWidth.toPx()

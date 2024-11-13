@@ -97,66 +97,6 @@ fun AddGrowAppBar(currentStep: Step) {
     }
 }
 
-@Composable
-fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
-//    EmptyTodayGrowRecordWidget(
-//        modifier = Modifier.padding(top = 24.dp)
-//    ) {
-//        Box(
-//            modifier = Modifier.fillMaxSize(),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Icon(
-//                painter = painterResource(id = R.drawable.ic_background_album),
-//                contentDescription = "background_album"
-//
-//            )
-//
-//        }
-//    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text("사진을 선택하세요")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onPhotoSelected) {
-            Text("사진 선택 완료")
-        }
-    }
-}
-
-@Composable
-fun CategorySelectionScreen(onCategorySelected: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text("카테고리를 선택하세요")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onCategorySelected) {
-            Text("카테고리 선택 완료")
-        }
-    }
-}
-
-@Composable
-fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text("감정을 선택하세요")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onEmotionSelected) {
-            Text("감정 선택 완료")
-        }
-    }
-}
 
 enum class Step {
     PHOTO,

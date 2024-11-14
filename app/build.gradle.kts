@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.core.splashscreen)
 
+    implementation(libs.coil.compose)
 
 
 }

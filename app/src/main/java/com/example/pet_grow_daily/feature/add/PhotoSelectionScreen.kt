@@ -1,6 +1,11 @@
 package com.example.pet_grow_daily.feature.add
 
+import android.app.Activity
+import android.content.Intent
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,13 +29,22 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
@@ -37,38 +52,62 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.home.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import java.io.File
 
 
 @Composable
 fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
+
+    var selectedImageUri by remember { mutableStateOf<String?>(null) }
+
+    val galleryLauncher  =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            selectedImageUri = uri?.toString() // Save the selected gallery image URI
+
+        }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(580.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            EmptyTodayGrowRecordWidget(
-                modifier = Modifier.padding(top = 24.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Selected Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            } else {
+                EmptyTodayGrowRecordWidget(
+                    modifier = Modifier.padding(top = 24.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_background_album),
-                        contentDescription = "background_album"
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_background_album),
+                            contentDescription = "background_album"
 
-                    )
+                        )
 
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            ChoosePhotoSelectWidget(onPhotoSelected)
+            ChoosePhotoSelectWidget(
+                onPhotoSelected = {
+                    galleryLauncher.launch("image/*") // Open the gallery to select an image
+                },
+            )
             Spacer(modifier = Modifier.height(16.dp))
-        }
+
 //        Button(
 //            onClick = { onPhotoSelected() },
 //            modifier = Modifier
@@ -86,72 +125,40 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
 //                fontSize = 14.sp
 //            )
 //        }
+        }
     }
-
 }
 
 @Composable
 fun ChoosePhotoSelectWidget(onPhotoSelected: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onPhotoSelected()
+
+            }
+            .height(56.dp)
+            .background(color = grayf1, shape = RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
             modifier = Modifier
-                .clickable {
-                    Log.d("HWO", "clicked")
-                }
-                .weight(1f)
-                .height(56.dp)
-                .background(color = grayf1, shape = RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
+                .wrapContentWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            Image(
+                painter = painterResource(id = R.drawable.ic_picture_album),
+                contentDescription = "camera"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
                 modifier = Modifier.wrapContentWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_picture_camera),
-                    contentDescription = "camera"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    modifier = Modifier.wrapContentWidth(),
-                    text = stringResource(id = R.string.text_picture),
-                    fontSize = 12.sp,
-                    style = PetgrowTheme.typography.bold,
-                    color = black21
-                )
-            }
-
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .clickable {
-
-                }
-                .weight(1f)
-                .height(56.dp)
-                .background(color = grayf1, shape = RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                modifier = Modifier
-                    .wrapContentWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_picture_album),
-                    contentDescription = "camera"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    modifier = Modifier.wrapContentWidth(),
-                    text = stringResource(id = R.string.text_gallery),
-                    fontSize = 12.sp,
-                    style = PetgrowTheme.typography.bold,
-                    color = black21
-                )
-            }
-
+                text = stringResource(id = R.string.text_gallery),
+                fontSize = 12.sp,
+                style = PetgrowTheme.typography.bold,
+                color = black21
+            )
         }
     }
 }

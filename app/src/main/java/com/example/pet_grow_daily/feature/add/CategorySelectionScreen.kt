@@ -1,8 +1,13 @@
 package com.example.pet_grow_daily.feature.add
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -21,11 +26,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -37,54 +48,155 @@ import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.grayAD
 import com.example.pet_grow_daily.core.designsystem.theme.grayf1
+import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun CategorySelectionScreen(onCategorySelected: () -> Unit) {
+
+    var currentCategory by remember { mutableStateOf(CategoryType.SNACK) }
+
     val categoryItems = listOf(
-        CategoryItemData("간식", R.drawable.ic_water),
-        CategoryItemData("물 마시기", R.drawable.ic_water),
-        CategoryItemData("약 먹기", R.drawable.ic_water),
-        CategoryItemData("목욕", R.drawable.ic_water),
-        CategoryItemData("병원", R.drawable.ic_water),
-        CategoryItemData("산책", R.drawable.ic_water),
-        CategoryItemData("수면", R.drawable.ic_water),
-        CategoryItemData("실내놀이", R.drawable.ic_water),
-        CategoryItemData("실외놀이", R.drawable.ic_water),
-        CategoryItemData("이벤트", R.drawable.ic_water),
-        CategoryItemData("기타", R.drawable.ic_water)
+        CategoryItemData(
+            "간식",
+            R.drawable.ic_snack_select,
+            R.drawable.ic_snack_unselect,
+            CategoryType.SNACK
+        ),
+        CategoryItemData(
+            "물 마시기",
+            R.drawable.ic_water_select,
+            R.drawable.ic_water_unselect,
+            CategoryType.WATER
+        ),
+        CategoryItemData(
+            "약 먹기",
+            R.drawable.ic_medicine_select,
+            R.drawable.ic_medicine_unselect,
+            CategoryType.MEDICINE
+        ),
+        CategoryItemData(
+            "목욕",
+            R.drawable.ic_bath_select,
+            R.drawable.ic_bath_unselect,
+            CategoryType.BATH
+        ),
+        CategoryItemData(
+            "병원",
+            R.drawable.ic_hospital_select,
+            R.drawable.ic_hospital_unselect,
+            CategoryType.HOSPITAL
+        ),
+        CategoryItemData(
+            "산책",
+            R.drawable.ic_outwork_select,
+            R.drawable.ic_outwork_unselect,
+            CategoryType.OUT_WORK
+        ),
+        CategoryItemData(
+            "수면",
+            R.drawable.ic_sleep_select,
+            R.drawable.ic_sleep_unselect,
+            CategoryType.SLEEP
+        ),
+        CategoryItemData(
+            "실내놀이",
+            R.drawable.ic_inplay_select,
+            R.drawable.ic_inplay_unselect,
+            CategoryType.IN_PLAY
+        ),
+        CategoryItemData(
+            "실외놀이",
+            R.drawable.ic_outplay_select,
+            R.drawable.ic_outplay_unselect,
+            CategoryType.OUT_PLAY
+        ),
+        CategoryItemData(
+            "이벤트",
+            R.drawable.ic_event_select,
+            R.drawable.ic_event_unselect,
+            CategoryType.EVENT
+        ),
+        CategoryItemData(
+            "기타",
+            R.drawable.ic_etc_select,
+            R.drawable.ic_etc_unselect,
+            CategoryType.ETC
+        )
     )
-    Column(
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(580.dp)
-
+            .padding(16.dp)
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4),
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+
         ) {
-            items(categoryItems) { item ->
-                CategoryGridItem(item = item, onClick = { onCategorySelected() })
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(categoryItems) { item ->
+                    CategoryGridItem(
+                        item = item,
+                        isSelected = item.categoryType == currentCategory,
+                        onCategoryClick = {
+                            currentCategory =
+                                if (currentCategory == item.categoryType) CategoryType.NONE else item.categoryType
+
+
+                        })
+                }
             }
         }
+        Button(
+            onClick = { onCategorySelected() },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = purple6C
+            )
+        ) {
+            Text(
+                text = stringResource(id = R.string.text_next),
+                style = PetgrowTheme.typography.bold,
+                color = Color.White,
+                fontSize = 14.sp
+            )
+        }
+
+
     }
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CategoryGridItem(item: CategoryItemData, onClick: () -> Unit) {
+fun CategoryGridItem(item: CategoryItemData, isSelected: Boolean, onCategoryClick: () -> Unit) {
+    val backgroundColor = if (isSelected) purple6C else grayf1 // 선택된 경우 배경색 변경
+    val shape = RoundedCornerShape(16.dp)
+
+
     Surface(
         modifier = Modifier
             .aspectRatio(1f)
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(16.dp),
-        color = grayf1
+            .clip(shape)
+            .combinedClickable(
+                onClick = onCategoryClick,
+                indication = LocalIndication.current,
+                interactionSource = remember { MutableInteractionSource() }
+
+            ),
+        shape = shape,
+        color = backgroundColor
     ) {
         Column(
             modifier = Modifier
@@ -94,22 +206,40 @@ fun CategoryGridItem(item: CategoryItemData, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = item.iconRes),
+                painter = painterResource(id = if (isSelected) item.selectIcon else item.unselectIcon),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
-                colorFilter = ColorFilter.tint(Color.Black)
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = item.name,
                 fontSize = 12.sp,
                 style = PetgrowTheme.typography.medium,
-                color = black21
+                color = if(isSelected) Color.White else black21
             )
         }
     }
 }
 
 
+data class CategoryItemData(
+    val name: String,
+    val selectIcon: Int,
+    val unselectIcon: Int,
+    val categoryType: CategoryType
+)
 
-data class CategoryItemData(val name: String, val iconRes: Int)
+enum class CategoryType {
+    SNACK,
+    WATER,
+    MEDICINE,
+    BATH,
+    HOSPITAL,
+    OUT_WORK,
+    SLEEP,
+    IN_PLAY,
+    OUT_PLAY,
+    EVENT,
+    ETC,
+    NONE
+}

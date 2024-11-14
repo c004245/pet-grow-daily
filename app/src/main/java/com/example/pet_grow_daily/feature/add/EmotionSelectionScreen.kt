@@ -90,7 +90,7 @@ fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
                 items(emotionItems) { item ->
                     EmotionGridItem(item = item,
                     isSelected = item.emotionType == currentEmotion,
-                        onClick = {
+                        onEmotionClick = {
                             currentEmotion = if (currentEmotion == item.emotionType) EmotionType.NONE else item.emotionType // 선택 상태 토글
 
 
@@ -155,7 +155,7 @@ fun MemoTextField() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EmotionGridItem(item: EmotionItemData, isSelected: Boolean, onClick: () -> Unit) {
+fun EmotionGridItem(item: EmotionItemData, isSelected: Boolean, onEmotionClick: () -> Unit) {
     val backgroundColor = if (isSelected) purple6C else grayf1 // 선택된 경우 배경색 변경
     val shape = RoundedCornerShape(16.dp)
 
@@ -164,7 +164,7 @@ fun EmotionGridItem(item: EmotionItemData, isSelected: Boolean, onClick: () -> U
             .aspectRatio(1f)
             .clip(shape)
             .combinedClickable(
-                onClick = onClick,
+                onClick = onEmotionClick,
                 indication = LocalIndication.current,
                 interactionSource = remember { MutableInteractionSource() }
             ),
@@ -179,7 +179,7 @@ fun EmotionGridItem(item: EmotionItemData, isSelected: Boolean, onClick: () -> U
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = if (isSelected) item.selectIcon else  item.unselectIcon),
+                painter = painterResource(id = if (isSelected) item.selectIcon else item.unselectIcon),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp)
             )

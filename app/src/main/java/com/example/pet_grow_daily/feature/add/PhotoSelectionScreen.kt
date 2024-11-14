@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +36,11 @@ import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(580.dp)
+    ) {
         EmptyTodayGrowRecordWidget(
             modifier = Modifier.padding(top = 24.dp)
         ) {
@@ -54,10 +61,12 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
         ChoosePhotoSelectWidget(onPhotoSelected)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally).clickable {
-                Log.d("HWO", "CLICKed.")
-                onPhotoSelected()
-            },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clickable {
+                    Log.d("HWO", "CLICKed.")
+                    onPhotoSelected()
+                },
             text = stringResource(id = R.string.text_no_picture),
             style = PetgrowTheme.typography.bold,
             color = gray86

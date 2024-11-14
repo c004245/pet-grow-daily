@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,26 +36,36 @@ import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 @Composable
 fun BottomSheetContent(onCloseClick: () -> Unit) {
     var currentStep by remember { mutableStateOf(Step.PHOTO) }
+    val sheetHeight = 580.dp
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(sheetHeight)
             .padding(horizontal = 16.dp)
     ) {
         AddGrowAppBar(currentStep)
         Spacer(modifier = Modifier.height(24.dp))
-        when (currentStep) {
-            Step.PHOTO -> PhotoSelectionScreen(
-                onPhotoSelected = { currentStep = Step.CATEGORY }
-            )
-            Step.CATEGORY -> CategorySelectionScreen(
-                onCategorySelected = { currentStep = Step.EMOTION }
-            )
-            Step.EMOTION -> EmotionSelectionScreen(
-                onEmotionSelected = { onCloseClick() }
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .verticalScroll(rememberScrollState())
+        ) {
+            when (currentStep) {
+                Step.PHOTO -> PhotoSelectionScreen(
+                    onPhotoSelected = { currentStep = Step.CATEGORY }
+                )
+
+                Step.CATEGORY -> CategorySelectionScreen(
+                    onCategorySelected = { currentStep = Step.EMOTION }
+                )
+
+                Step.EMOTION -> EmotionSelectionScreen(
+                    onEmotionSelected = { onCloseClick() }
+                )
+
+            }
 
         }
-
     }
 }
 

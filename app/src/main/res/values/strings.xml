@@ -5,7 +5,6 @@
     <string name="text_picture_add">사진</string>
     <string name="text_category_add">카테고리</string>
     <string name="text_emotion_add">감정</string>
-    <string name="text_no_picture">사진 넣지 않기</string>
     <string name="text_picture">사진 촬영</string>
     <string name="text_gallery">갤러리에서 선택</string>
     <string name="text_record_save">기록 저장</string>

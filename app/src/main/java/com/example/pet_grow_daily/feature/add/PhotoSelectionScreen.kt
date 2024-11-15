@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +51,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
+import com.example.pet_grow_daily.core.designsystem.theme.purpleC4
 import com.example.pet_grow_daily.feature.home.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import java.io.File
@@ -57,13 +59,11 @@ import java.io.File
 
 @Composable
 fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
-
     var selectedImageUri by remember { mutableStateOf<String?>(null) }
 
-    val galleryLauncher  =
+    val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             selectedImageUri = uri?.toString() // Save the selected gallery image URI
-
         }
 
     Box(
@@ -76,14 +76,20 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             if (selectedImageUri != null) {
-                AsyncImage(
-                    model = selectedImageUri,
-                    contentDescription = "Selected Image",
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(8.dp))
-                )
+                        .background(Color.White) // Optional: 동일한 배경색 설정
+                ) {
+                    AsyncImage(
+                        model = selectedImageUri,
+                        contentDescription = "Selected Image",
+                        modifier = Modifier.fillMaxSize(), // Box의 크기를 채움
+                        contentScale = ContentScale.Crop // 이미지를 강제로 잘라서 크기 맞춤
+                    )
+                }
             } else {
                 EmptyTodayGrowRecordWidget(
                     isFullHeight = false,
@@ -111,14 +117,21 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
         }
         Button(
-            onClick = { onPhotoSelected() },
+            onClick = {
+                if (selectedImageUri != null) onPhotoSelected() },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = purple6C
-            )
+            colors = if (selectedImageUri != null) {
+                ButtonDefaults.buttonColors(
+                    containerColor = purple6C
+                )
+            } else {
+                ButtonDefaults.buttonColors(
+                    containerColor = purpleC4
+                )
+            }
         ) {
             Text(
                 text = stringResource(id = R.string.text_next),
@@ -127,7 +140,7 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
                 fontSize = 14.sp
             )
         }
-        }
+    }
 
 }
 

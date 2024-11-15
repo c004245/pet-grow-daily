@@ -70,6 +70,7 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(580.dp)
+            .padding(start = 16.dp, bottom = 16.dp, end = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -85,7 +86,8 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
                 )
             } else {
                 EmptyTodayGrowRecordWidget(
-                    modifier = Modifier.padding(top = 24.dp)
+                    isFullHeight = false,
+                    modifier = Modifier.padding(top = 8.dp)
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -107,26 +109,26 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
                 },
             )
             Spacer(modifier = Modifier.height(16.dp))
-
-//        Button(
-//            onClick = { onPhotoSelected() },
-//            modifier = Modifier
-//                .align(Alignment.BottomCenter)
-//                .fillMaxWidth(),
-//            shape = RoundedCornerShape(8.dp),
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = purple6C
-//            )
-//        ) {
-//            Text(
-//                text = stringResource(id = R.string.text_next),
-//                style = PetgrowTheme.typography.bold,
-//                color = Color.White,
-//                fontSize = 14.sp
-//            )
-//        }
         }
-    }
+        Button(
+            onClick = { onPhotoSelected() },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = purple6C
+            )
+        ) {
+            Text(
+                text = stringResource(id = R.string.text_next),
+                style = PetgrowTheme.typography.bold,
+                color = Color.White,
+                fontSize = 14.sp
+            )
+        }
+        }
+
 }
 
 @Composable

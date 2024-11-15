@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -97,12 +98,17 @@ fun EmptyTodayGrowRecordWidget(
     cornerRadius: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
-    val screenWidthDp = with(LocalDensity.current) { LocalContext.current.resources.displayMetrics.widthPixels.toDp() }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (isFullHeight) Modifier.fillMaxHeight() else Modifier.height(screenWidthDp))
+            .then(
+                if (isFullHeight) {
+                    Modifier.fillMaxHeight()
+                } else {
+                    Modifier.aspectRatio(1f) // Set height equal to screenWidthDp for 1:1 aspect ratio
+                }
+            )
             .background(Color.White)
             .drawBehind {
                 val strokeWidth = borderWidth.toPx()
@@ -119,5 +125,4 @@ fun EmptyTodayGrowRecordWidget(
     ) {
         content()
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.add
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,11 @@ fun BottomSheetContent(onCloseClick: () -> Unit) {
             .height(sheetHeight)
             .padding(horizontal = 16.dp)
     ) {
-        AddGrowAppBar(currentStep)
+        AddGrowAppBar(currentStep,
+            onClickPhoto = { currentStep = Step.PHOTO },
+            onClickCategory = { currentStep = Step.CATEGORY },
+            onClickEmotion = { currentStep = Step.EMOTION }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         Box(
             modifier = Modifier
@@ -71,17 +76,27 @@ fun BottomSheetContent(onCloseClick: () -> Unit) {
 
 
 @Composable
-fun AddGrowAppBar(currentStep: Step) {
+fun AddGrowAppBar(
+    currentStep: Step,
+    onClickPhoto: () -> Unit,
+    onClickCategory: () -> Unit,
+    onClickEmotion: () -> Unit
+) {
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier
+                .wrapContentWidth()
+                .clickable {
+                    onClickPhoto()
+                },
             text = stringResource(id = R.string.text_picture_add),
             style = PetgrowTheme.typography.bold,
-            color = if (currentStep == Step.PHOTO) black21 else grayAD
-        )
+            color = if (currentStep == Step.PHOTO) black21 else grayAD,
+
+            )
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
             painter = painterResource(id = R.drawable.ic_left_arrow),
@@ -89,7 +104,11 @@ fun AddGrowAppBar(currentStep: Step) {
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier
+                .wrapContentWidth()
+                .clickable {
+                    onClickCategory()
+                },
             text = stringResource(id = R.string.text_category_add),
             style = PetgrowTheme.typography.bold,
             color = if (currentStep == Step.CATEGORY) black21 else grayAD
@@ -101,7 +120,11 @@ fun AddGrowAppBar(currentStep: Step) {
             contentDescription = "arrow"
         )
         Text(
-            modifier = Modifier.wrapContentWidth(),
+            modifier = Modifier
+                .wrapContentWidth()
+                .clickable {
+                    onClickEmotion()
+                },
             text = stringResource(id = R.string.text_emotion_add),
             style = PetgrowTheme.typography.bold,
             color = if (currentStep == Step.EMOTION) black21 else grayAD

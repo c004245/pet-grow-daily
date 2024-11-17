@@ -12,6 +12,7 @@ serialization = "1.5.1"
 accompanist = "0.24.2-alpha"
 androidxComposeNavigation = "2.8.0"
 androidxCoreSplash = "1.0.1"
+androidxRoom = "2.6.1"
 
 
 ## Hilt
@@ -57,6 +58,10 @@ hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-comp
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxCoreSplash" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidxRoom" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidxRoom" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidxRoom" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

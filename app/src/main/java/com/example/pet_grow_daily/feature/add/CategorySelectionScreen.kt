@@ -52,7 +52,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun CategorySelectionScreen(onCategorySelected: () -> Unit) {
+fun CategorySelectionScreen(onCategorySelected: (CategoryType) -> Unit) {
 
     var currentCategory by remember { mutableStateOf(CategoryType.SNACK) }
 
@@ -156,7 +156,7 @@ fun CategorySelectionScreen(onCategorySelected: () -> Unit) {
             }
         }
         Button(
-            onClick = { onCategorySelected() },
+            onClick = { onCategorySelected(currentCategory) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),

@@ -56,9 +56,10 @@ import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
+fun EmotionSelectionScreen(onEmotionSelected: (EmotionType, String) -> Unit) {
 
     var currentEmotion by remember { mutableStateOf(EmotionType.HAPPY) }
+    var memoText by remember { mutableStateOf("") }
     val emotionItems = listOf(
         EmotionItemData(R.drawable.ic_happy_select, R.drawable.ic_happy_unselect, EmotionType.HAPPY),
         EmotionItemData(R.drawable.ic_sad_select, R.drawable.ic_sad_unselect, EmotionType.SAD),
@@ -99,11 +100,14 @@ fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            MemoTextField()
+            MemoTextField(
+                text = memoText,
+                onTextChange = { memoText = it }
+            )
         }
 
         Button(
-            onClick = {},
+            onClick = { onEmotionSelected(currentEmotion, memoText) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
@@ -125,7 +129,7 @@ fun EmotionSelectionScreen(onEmotionSelected: () -> Unit) {
 }
 
 @Composable
-fun MemoTextField() {
+fun MemoTextField(text: String, onTextChange: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,8 +138,8 @@ fun MemoTextField() {
             .padding(horizontal = 8.dp)
     ) {
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = text,
+            onValueChange = onTextChange,
             label = { Text("메모(선택)") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),

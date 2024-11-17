@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.add
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,15 +58,21 @@ fun BottomSheetContent(onCloseClick: () -> Unit) {
         ) {
             when (currentStep) {
                 Step.PHOTO -> PhotoSelectionScreen(
-                    onPhotoSelected = { currentStep = Step.CATEGORY }
+                    onPhotoSelected = { photoUrl ->
+                        Log.d("HWO", "Photo Url -> $photoUrl")
+                        currentStep = Step.CATEGORY }
                 )
 
                 Step.CATEGORY -> CategorySelectionScreen(
-                    onCategorySelected = { currentStep = Step.EMOTION }
+                    onCategorySelected = { categoryType ->
+                        Log.d("HWO", "Category Type -> $categoryType")
+                        currentStep = Step.EMOTION }
                 )
 
                 Step.EMOTION -> EmotionSelectionScreen(
-                    onEmotionSelected = { onCloseClick() }
+                    onEmotionSelected = {emotionType, memo ->
+                        Log.d("HWO", "Emotion Type -> $emotionType -- $memo")
+                        onCloseClick() }
                 )
 
             }

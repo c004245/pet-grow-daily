@@ -58,7 +58,7 @@ import java.io.File
 
 
 @Composable
-fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
+fun PhotoSelectionScreen(onPhotoSelected: (String) -> Unit) {
     var selectedImageUri by remember { mutableStateOf<String?>(null) }
 
     val galleryLauncher =
@@ -118,7 +118,7 @@ fun PhotoSelectionScreen(onPhotoSelected: () -> Unit) {
         }
         Button(
             onClick = {
-                if (selectedImageUri != null) onPhotoSelected() },
+                if (selectedImageUri != null) onPhotoSelected(selectedImageUri.toString()) },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),

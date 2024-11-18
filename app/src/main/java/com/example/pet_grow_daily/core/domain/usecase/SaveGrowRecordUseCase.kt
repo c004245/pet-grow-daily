@@ -8,6 +8,6 @@ class SaveGrowRecordUseCase @Inject constructor(
     private val growRepository: GrowRepository
 ){
     suspend operator fun invoke(growRecord: GrowRecord) =
-        growRepository.saveRecord(growRecord)
+        growRepository.saveGrowRecord(growRecord)
 
 }

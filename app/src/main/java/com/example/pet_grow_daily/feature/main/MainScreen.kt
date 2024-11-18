@@ -51,6 +51,9 @@ import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,9 +74,9 @@ internal fun MainScreen(
             if (isSuccess) {
                 Toast.makeText(context, "저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 coroutineScope.launch {
-                        sheetState.hide()
-                    }
-                    isSheetOpen = false
+                    sheetState.hide()
+                }
+                isSheetOpen = false
             } else {
                 Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -81,54 +84,55 @@ internal fun MainScreen(
     }
 
 
-        Scaffold(
-            content = { paddingValues ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+    Scaffold(
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                NavHost(
+                    navController = navigator.navController,
+                    startDestination = navigator.startDestination,
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
                 ) {
-                    NavHost(
-                        navController = navigator.navController,
-                        startDestination = navigator.startDestination,
-                        enterTransition = { EnterTransition.None },
-                        exitTransition = { ExitTransition.None },
-                        popEnterTransition = { EnterTransition.None },
-                        popExitTransition = { ExitTransition.None }
-                    ) {
-                        splashNavGraph(
-                            navigateToHome = {
-                                val navOptions = navOptions {
-                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
+                    splashNavGraph(
+                        navigateToHome = {
+                            val navOptions = navOptions {
+                                popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                    inclusive = true
                                 }
-                                navigator.navigateToHome(navOptions = navOptions)
-
+                                launchSingleTop = true
                             }
-                        )
-                        homeNavGraph(
-                            paddingValues = paddingValues
-                        )
-                    }
-                }
-            },
-            bottomBar = {
-                CustomBottomBar(
-                    onTestClick = {
-                                  viewModel.getGrowRecord()
-                    },
-                    onSelectBottomClick = {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                        isSheetOpen = true
-                    }
+                            navigator.navigateToHome(navOptions = navOptions)
 
-                )
+                        }
+                    )
+                    homeNavGraph(
+                        paddingValues = paddingValues
+                    )
+                }
             }
-        )
+        },
+        bottomBar = {
+            CustomBottomBar(
+                onTestClick = {
+
+                    viewModel.getGrowRecord(getTodayDate())
+                },
+                onSelectBottomClick = {
+                    coroutineScope.launch {
+                        sheetState.show()
+                    }
+                    isSheetOpen = true
+                }
+
+            )
+        }
+    )
     if (isSheetOpen) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -137,21 +141,21 @@ internal fun MainScreen(
             sheetState = sheetState
         ) {
             BottomSheetContent(
-                onCloseClick =  { record ->
+                onCloseClick = { record ->
                     viewModel.saveGrowRecord(record)
                 }
             )
         }
     }
 
-    }
-
+}
 
 
 @Composable
 fun CustomBottomBar(
     onTestClick: () -> Unit,
-    onSelectBottomClick: () -> Unit) {
+    onSelectBottomClick: () -> Unit
+) {
     BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -177,8 +181,8 @@ fun CustomBottomBar(
             IconButton(
                 modifier = Modifier.weight(1f),
                 onClick =
-                    onSelectBottomClick
-                ) {
+                onSelectBottomClick
+            ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_total),
@@ -201,6 +205,11 @@ fun CustomBottomBar(
             }
         }
     }
+}
+
+fun getTodayDate(): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return sdf.format(Date())
 }
 
 

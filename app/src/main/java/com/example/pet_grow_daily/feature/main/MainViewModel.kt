@@ -1,9 +1,11 @@
 package com.example.pet_grow_daily.feature.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pet_grow_daily.core.data.repository.grow.GrowRepository
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
+import com.example.pet_grow_daily.core.domain.usecase.GetTodayGrowRecordUseCase
 import com.example.pet_grow_daily.core.domain.usecase.SaveGrowRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,15 +20,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val saveGrowRecordUseCase: SaveGrowRecordUseCase
+    private val saveGrowRecordUseCase: SaveGrowRecordUseCase,
+    private val getTodayGrowRecordUseCase: GetTodayGrowRecordUseCase
 ) : ViewModel() {
     private val _saveDoneEvent = MutableSharedFlow<Boolean>()
     val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
 
 
-    fun getGrowRecord() {
-
+    fun getGrowRecord(todayDate: String) {
+        viewModelScope.launch {
+            getTodayGrowRecordUseCase(todayDate).collect {
+                Log.d("HWO", "getGrowRecord -> ${it.map { it.categoryType }}")
+            }
+        }
     }
+
     fun saveGrowRecord(growRecord: GrowRecord) {
         flow {
             emit(saveGrowRecordUseCase(growRecord))

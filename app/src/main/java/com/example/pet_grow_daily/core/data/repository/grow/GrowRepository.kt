@@ -5,5 +5,7 @@ import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import kotlinx.coroutines.flow.Flow
 
 interface GrowRepository {
-    suspend fun saveRecord(growRecord: GrowRecord)
+    suspend fun saveGrowRecord(growRecord: GrowRecord)
+
+    suspend fun getTodayGrowRecord(todayDate: String): Flow<List<GrowRecord>>
 }

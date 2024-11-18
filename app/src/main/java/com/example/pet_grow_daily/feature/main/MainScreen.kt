@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.main
 
+import android.widget.Toast
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,12 +60,26 @@ internal fun MainScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-
-
     var isSheetOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.saveDoneEvent.collect { isSuccess ->
+            if (isSuccess) {
+                Toast.makeText(context, "저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    isSheetOpen = false
+            } else {
+                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
         Scaffold(
             content = { paddingValues ->
@@ -99,6 +116,9 @@ internal fun MainScreen(
             },
             bottomBar = {
                 CustomBottomBar(
+                    onTestClick = {
+                                  viewModel.getGrowRecord()
+                    },
                     onSelectBottomClick = {
                         coroutineScope.launch {
                             sheetState.show()
@@ -119,11 +139,6 @@ internal fun MainScreen(
             BottomSheetContent(
                 onCloseClick =  { record ->
                     viewModel.saveGrowRecord(record)
-
-//                    coroutineScope.launch {
-//                        sheetState.hide()
-//                    }
-//                    isSheetOpen = false
                 }
             )
         }
@@ -134,7 +149,9 @@ internal fun MainScreen(
 
 
 @Composable
-fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
+fun CustomBottomBar(
+    onTestClick: () -> Unit,
+    onSelectBottomClick: () -> Unit) {
     BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -143,7 +160,10 @@ fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
         ) {
             IconButton(
                 modifier = Modifier.weight(1f),
-                onClick = { }) {
+                onClick = {
+                    onTestClick()
+
+                }) {
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
@@ -158,7 +178,6 @@ fun CustomBottomBar(onSelectBottomClick: () -> Unit) {
                 modifier = Modifier.weight(1f),
                 onClick =
                     onSelectBottomClick
-
                 ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(

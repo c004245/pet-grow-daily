@@ -12,8 +12,7 @@ class GrowRepositoryImpl @Inject constructor(
     private val growRecordDao: GrowRecordDao
 ): GrowRepository {
 
-
     override suspend fun saveRecord(growRecord: GrowRecord) {
-
+        growRecordDao.insertGrowRecord(growRecord)
     }
 }

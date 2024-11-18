@@ -19,17 +19,21 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val saveGrowRecordUseCase: SaveGrowRecordUseCase
-): ViewModel() {
+) : ViewModel() {
     private val _saveDoneEvent = MutableSharedFlow<Boolean>()
     val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
 
+
+    fun getGrowRecord() {
+
+    }
     fun saveGrowRecord(growRecord: GrowRecord) {
         flow {
             emit(saveGrowRecordUseCase(growRecord))
         }.onEach {
-
+            _saveDoneEvent.emit(true)
         }.catch {
-
+            _saveDoneEvent.emit(false)
         }.launchIn(viewModelScope)
 
     }

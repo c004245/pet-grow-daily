@@ -1,6 +1,8 @@
 package com.example.pet_grow_daily.feature.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,9 +15,17 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -23,8 +33,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -36,6 +49,7 @@ import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTo
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import kotlin.math.absoluteValue
 
 @Composable
 fun HomeRoute(
@@ -54,6 +68,14 @@ fun HomeRoute(
 fun HomeScreen(
     paddingValues: PaddingValues
 ) {
+
+    val imageList = listOf(
+        R.drawable.ic_background_dummy,
+        R.drawable.ic_background_dummy,
+        R.drawable.ic_background_dummy,
+        R.drawable.ic_background_dummy,
+        R.drawable.ic_background_dummy,
+    )
     val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
@@ -69,22 +91,23 @@ fun HomeScreen(
 
             }
         )
-        EmptyTodayGrowRecordWidget(
-            modifier = Modifier.padding(40.dp),
-            isFullHeight = true
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(id = R.string.text_not_today_grow),
-                    style = PetgrowTheme.typography.medium,
-                    color = gray86
-
-                )
-            }
-        }
+        CustomTodayGrowViewPager(items = imageList)
+//        EmptyTodayGrowRecordWidget(
+//            modifier = Modifier.padding(40.dp),
+//            isFullHeight = true
+//        ) {
+//            Box(
+//                modifier = Modifier.fillMaxSize(),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(
+//                    text = stringResource(id = R.string.text_not_today_grow),
+//                    style = PetgrowTheme.typography.medium,
+//                    color = gray86
+//
+//                )
+//            }
+//        }
 
     }
 }
@@ -124,5 +147,53 @@ fun EmptyTodayGrowRecordWidget(
         contentAlignment = Alignment.Center
     ) {
         content()
+    }
+}
+
+
+@Composable
+fun CustomTodayGrowViewPager(items: List<Int>) {
+
+    val listState = rememberLazyListState()
+
+    val currentPage by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val visibleItems = layoutInfo.visibleItemsInfo
+            if (visibleItems.isNotEmpty()) {
+                visibleItems.minByOrNull {
+                    (it.offset + it.size / 2 - layoutInfo.viewportEndOffset / 2).absoluteValue
+                }?.index ?: 0
+            } else 0
+        }
+    }
+    LazyRow(
+        state = listState,
+        contentPadding = PaddingValues(horizontal = 40.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        itemsIndexed(items) { index, item ->
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .graphicsLayer {
+                        val scale = 1f - (currentPage - index).absoluteValue * 0.15f
+                        scaleX = scale
+                        scaleY = scale
+                    }
+                    .padding(16.dp)
+                    .fillParentMaxWidth(0.8f)
+                    .aspectRatio(1f)
+
+            ) {
+                Image(
+                    painter = painterResource(id = item), // 이미지 리소스
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
     }
 }

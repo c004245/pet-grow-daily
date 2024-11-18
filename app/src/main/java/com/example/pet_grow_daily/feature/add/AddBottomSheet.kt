@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayAD
@@ -36,8 +37,13 @@ import com.example.pet_grow_daily.feature.home.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun BottomSheetContent(onCloseClick: () -> Unit) {
+fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
     var currentStep by remember { mutableStateOf(Step.PHOTO) }
+    var photoUrl by remember { mutableStateOf("") }
+    var categoryType by remember { mutableStateOf(CategoryType.SNACK) }
+    var emotionType by remember { mutableStateOf(EmotionType.HAPPY) }
+    var memo by remember { mutableStateOf("") }
+
     val sheetHeight = 580.dp
     Column(
         modifier = Modifier
@@ -58,21 +64,36 @@ fun BottomSheetContent(onCloseClick: () -> Unit) {
         ) {
             when (currentStep) {
                 Step.PHOTO -> PhotoSelectionScreen(
-                    onPhotoSelected = { photoUrl ->
+                    onPhotoSelected = { selectPhotoUrl ->
                         Log.d("HWO", "Photo Url -> $photoUrl")
-                        currentStep = Step.CATEGORY }
+                        photoUrl = selectPhotoUrl
+                        currentStep = Step.CATEGORY
+                    }
                 )
 
                 Step.CATEGORY -> CategorySelectionScreen(
-                    onCategorySelected = { categoryType ->
-                        Log.d("HWO", "Category Type -> $categoryType")
-                        currentStep = Step.EMOTION }
+                    onCategorySelected = { selectCategoryType ->
+                        Log.d("HWO", "Category Type -> $selectCategoryType")
+                        categoryType = selectCategoryType
+                        currentStep = Step.EMOTION
+                    }
                 )
 
                 Step.EMOTION -> EmotionSelectionScreen(
-                    onEmotionSelected = {emotionType, memo ->
-                        Log.d("HWO", "Emotion Type -> $emotionType -- $memo")
-                        onCloseClick() }
+                    onEmotionSelected = { selectEmotionType, selectMemo ->
+                        Log.d("HWO", "Emotion Type -> $selectEmotionType -- $selectMemo")
+                        emotionType = selectEmotionType
+                        memo = selectMemo
+
+                        val record = GrowRecord(
+                            photoUrl = photoUrl,
+                            categoryType = categoryType,
+                            emotionType = emotionType,
+                            memo = memo,
+                            timeStamp = System.currentTimeMillis()
+                        )
+                        onCloseClick(record)
+                    }
                 )
 
             }

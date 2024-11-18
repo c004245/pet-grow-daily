@@ -41,6 +41,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
@@ -116,11 +117,13 @@ internal fun MainScreen(
             sheetState = sheetState
         ) {
             BottomSheetContent(
-                onCloseClick = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                    }
-                    isSheetOpen = false
+                onCloseClick =  { record ->
+                    viewModel.saveGrowRecord(record)
+
+//                    coroutineScope.launch {
+//                        sheetState.hide()
+//                    }
+//                    isSheetOpen = false
                 }
             )
         }

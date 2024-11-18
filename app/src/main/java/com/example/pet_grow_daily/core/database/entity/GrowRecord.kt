@@ -2,13 +2,15 @@ package com.example.pet_grow_daily.core.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.pet_grow_daily.feature.add.CategoryType
+import com.example.pet_grow_daily.feature.add.EmotionType
 
 @Entity
 data class GrowRecord(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val photoUrl: String,
-    val categoryType: String,
-    val emotionType: String,
+    val categoryType: CategoryType,
+    val emotionType: EmotionType,
     val memo: String,
     val timeStamp: Long
 )

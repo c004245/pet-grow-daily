@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +39,14 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.pet_grow_daily.R
@@ -175,10 +178,17 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
             } else 0
         }
     }
+
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val itemWidth = screenWidth - (2 * 40.dp) - 16.dp
+
     LazyRow(
         state = listState,
-        contentPadding = PaddingValues(horizontal = 40.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(
+            start = (screenWidth - itemWidth) / 2,
+            end = (screenWidth - itemWidth) / 2
+        ),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
@@ -190,19 +200,20 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
                         scaleX = scale
                         scaleY = scale
                     }
-                    .padding(16.dp)
-                    .fillParentMaxWidth(0.8f)
+                    .width(itemWidth) // 아이템의 너비
                     .wrapContentHeight()
                     .shadow(
                         elevation = 12.dp,
-                        shape = RoundedCornerShape(8.dp),
-                        clip = false
+                        shape = RoundedCornerShape(16.dp),
+                        clip = true
                     )
                     .background(Color.White, RoundedCornerShape(8.dp))
 
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                 ) {
                     Image(
                         painter = painterResource(id = item), // 이미지 리소스
@@ -211,12 +222,11 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f) // 1:1 비율
-                            .clip(RoundedCornerShape(12.dp)) //
+                            .clip(RoundedCornerShape(16.dp)) //
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     TodayCardDescription()
-
-
+                    
                 }
             }
         }
@@ -226,7 +236,9 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
 @Composable
 fun TodayCardDescription() {
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp).wrapContentHeight(),
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .wrapContentHeight(),
 
         ) {
         Row(
@@ -264,7 +276,8 @@ fun TodayCardDescription() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Box(
-            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
                 .background(grayF8)
                 .align(Alignment.CenterHorizontally)
         ) {

@@ -3,6 +3,8 @@ package com.example.pet_grow_daily.feature.main
 import android.widget.Toast
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +14,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -35,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -156,54 +163,70 @@ fun CustomBottomBar(
     onTestClick: () -> Unit,
     onSelectBottomClick: () -> Unit
 ) {
-    BottomAppBar {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .height(80.dp)
+    ) {
+        Surface(
+            color = Color.White,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(56.dp)
         ) {
-            IconButton(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    onTestClick()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.clickable {
 
-                }) {
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    }.weight(1f)
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_daily_grow),
-                        contentDescription = "Today's Growth"
+                        contentDescription = "Today's Growth",
+                        tint = Color(0xFF7B61FF) // 보라색
                     )
-                    Text("오늘의 성장")
+                    Text(
+                        "오늘의 성장",
+                        style = PetgrowTheme.typography.bold,
+                        color = Color(0xFF7B61FF)
+                    )
                 }
-            }
-
-            IconButton(
-                modifier = Modifier.weight(1f),
-                onClick =
-                onSelectBottomClick
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // 오른쪽 탭
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable { }
+                        .weight(1f)
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_total),
-                        contentDescription = "Total View"
+                        contentDescription = "Collect",
+                        tint = Color.Black
                     )
-                    Text("토탈 뷰")
-                }
-            }
-
-            IconButton(
-                modifier = Modifier.weight(1f),
-                onClick = { }) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_total),
-                        contentDescription = "Profile"
+                    Text(
+                        "모아보기",
+                        style = PetgrowTheme.typography.medium,
+                        color = Color.Black
                     )
-                    Text("프로필")
                 }
             }
         }
+        Image(
+            painter = painterResource(id = R.drawable.ic_add_tab), 
+            contentDescription = "Center Button",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = -28.dp)
+                .size(80.dp)
+                .clickable { onSelectBottomClick() }
+        )
     }
 }
 

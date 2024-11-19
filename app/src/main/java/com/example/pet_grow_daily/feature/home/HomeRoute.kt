@@ -226,7 +226,7 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     TodayCardDescription()
-                    
+
                 }
             }
         }

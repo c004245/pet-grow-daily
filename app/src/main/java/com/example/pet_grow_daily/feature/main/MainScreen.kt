@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,8 +48,9 @@ import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
-import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
+import com.example.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
+import com.example.pet_grow_daily.feature.total.navigation.totalNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -100,18 +102,14 @@ internal fun MainScreen(
                     popExitTransition = { ExitTransition.None }
                 ) {
                     splashNavGraph(
-                        navigateToHome = {
-                            val navOptions = navOptions {
-                                popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                            navigator.navigateToHome(navOptions = navOptions)
-
+                        navigateToDailyGrow = {
+                            navigate(navigator, SelectTab.DAILYGROW)
                         }
                     )
-                    homeNavGraph(
+                    dailyGrowNavGraph(
+                        paddingValues = paddingValues
+                    )
+                    totalNavGraph(
                         paddingValues = paddingValues
                     )
                 }
@@ -119,14 +117,17 @@ internal fun MainScreen(
         },
         bottomBar = {
             CustomBottomBar(
-//                onTestClick = {
-//                    viewModel.getGrowRecord(getTodayDate())
-//                },
                 onSelectBottomClick = {
                     coroutineScope.launch {
                         sheetState.show()
                     }
                     isSheetOpen = true
+                },
+                onDailyGrowClick = {
+                    navigate(navigator, SelectTab.DAILYGROW)
+                },
+                onTotalClick = {
+                    navigate(navigator, SelectTab.TOTAL)
                 }
 
             )
@@ -149,10 +150,25 @@ internal fun MainScreen(
 
 }
 
+fun navigate(navigator: MainNavigator, selectTab: SelectTab) {
+    val navOptions = navOptions {
+        popUpTo(navigator.navController.graph.findStartDestination().id) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+    if (selectTab == SelectTab.DAILYGROW) {
+        navigator.navigateToDailyGrow(navOptions = navOptions)
+    } else {
+        navigator.navigateToTotal(navOptions = navOptions)
+    }
+}
 
 @Composable
 fun CustomBottomBar(
-    onSelectBottomClick: () -> Unit
+    onSelectBottomClick: () -> Unit,
+    onDailyGrowClick: () -> Unit,
+    onTotalClick: () -> Unit,
 ) {
     var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
 
@@ -174,11 +190,13 @@ fun CustomBottomBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // "오늘의 성장" 탭
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clickable { selectedTab = SelectTab.DAILYGROW }
+                        .clickable {
+                            selectedTab = SelectTab.DAILYGROW
+                            onDailyGrowClick()
+                        }
                         .weight(1f)
                 ) {
                     Icon(
@@ -192,17 +210,18 @@ fun CustomBottomBar(
                         contentDescription = "Today's Growth",
                     )
                     Text(
-                        "오늘의 성장",
+                        text = stringResource(id = R.string.text_today_grow_title),
                         style = PetgrowTheme.typography.bold,
                         color = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21
                     )
                 }
-
-                // "모아보기" 탭
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clickable { selectedTab = SelectTab.TOTAL }
+                        .clickable {
+                            selectedTab = SelectTab.TOTAL
+                            onTotalClick()
+                        }
                         .weight(1f)
                 ) {
                     Icon(
@@ -216,7 +235,7 @@ fun CustomBottomBar(
                         contentDescription = "Collect",
                     )
                     Text(
-                        "모아보기",
+                        text = stringResource(id = R.string.text_total_title),
                         style = PetgrowTheme.typography.medium,
                         color = if (selectedTab == SelectTab.TOTAL) purple6C else black21
                     )

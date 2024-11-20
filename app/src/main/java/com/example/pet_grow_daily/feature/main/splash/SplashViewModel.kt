@@ -20,7 +20,7 @@ class SplashViewModel @Inject constructor(
     fun showSplash() {
         viewModelScope.launch {
             delay(SPLASH_DURATION)
-            _sideEffects.emit(SplashSideEffect.NavigateToHome)
+            _sideEffects.emit(SplashSideEffect.NavigateToDailyGrow)
         }
     }
 

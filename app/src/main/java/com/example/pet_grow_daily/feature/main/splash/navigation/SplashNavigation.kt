@@ -7,11 +7,11 @@ import com.example.pet_grow_daily.feature.main.splash.SplashScreen
 import kotlinx.serialization.Serializable
 
 fun NavGraphBuilder.splashNavGraph(
-    navigateToHome: () -> Unit
+    navigateToDailyGrow: () -> Unit
 ) {
     composable<Splash> {
         SplashScreen(
-            navigateToHome = navigateToHome
+            navigateToDailyGrow = navigateToDailyGrow
         )
     }
 }

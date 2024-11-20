@@ -1,5 +1,5 @@
 package com.example.pet_grow_daily.feature.main.splash
 
 sealed class SplashSideEffect {
-    data object NavigateToHome: SplashSideEffect()
+    data object NavigateToDailyGrow: SplashSideEffect()
 }

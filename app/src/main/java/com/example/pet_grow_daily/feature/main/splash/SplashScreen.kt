@@ -25,7 +25,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun SplashScreen(
-    navigateToHome: () -> Unit = {},
+    navigateToDailyGrow: () -> Unit = {},
     viewModel: SplashViewModel = hiltViewModel()
 ) {
 
@@ -39,7 +39,7 @@ fun SplashScreen(
         viewModel.sideEffects.flowWithLifecycle(lifecycle = lifecycleOwner.lifecycle)
             .collect { sideEffect ->
                 when (sideEffect) {
-                    is SplashSideEffect.NavigateToHome -> navigateToHome()
+                    is SplashSideEffect.NavigateToDailyGrow -> navigateToDailyGrow()
                 }
             }
     }

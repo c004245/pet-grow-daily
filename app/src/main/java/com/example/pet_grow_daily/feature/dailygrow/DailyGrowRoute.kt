@@ -1,6 +1,5 @@
-package com.example.pet_grow_daily.feature.home
+package com.example.pet_grow_daily.feature.dailygrow
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,20 +59,20 @@ import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlin.math.absoluteValue
 
 @Composable
-fun HomeRoute(
+fun DailyGrowRoute(
     paddingValues: PaddingValues,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: DailyGrowViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    HomeScreen(
+    DailyGrowScreen(
         paddingValues = paddingValues
     )
 }
 
 @Composable
-fun HomeScreen(
+fun DailyGrowScreen(
     paddingValues: PaddingValues
 ) {
 

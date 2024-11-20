@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,14 +17,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -51,12 +44,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
-import com.example.pet_grow_daily.core.database.entity.GrowRecord
+import com.example.pet_grow_daily.core.designsystem.theme.black21
+import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.home.navigation.homeNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -126,10 +119,9 @@ internal fun MainScreen(
         },
         bottomBar = {
             CustomBottomBar(
-                onTestClick = {
-
-                    viewModel.getGrowRecord(getTodayDate())
-                },
+//                onTestClick = {
+//                    viewModel.getGrowRecord(getTodayDate())
+//                },
                 onSelectBottomClick = {
                     coroutineScope.launch {
                         sheetState.show()
@@ -160,9 +152,10 @@ internal fun MainScreen(
 
 @Composable
 fun CustomBottomBar(
-    onTestClick: () -> Unit,
     onSelectBottomClick: () -> Unit
 ) {
+    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -171,7 +164,8 @@ fun CustomBottomBar(
     ) {
         Surface(
             color = Color.White,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
@@ -180,45 +174,57 @@ fun CustomBottomBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // "오늘의 성장" 탭
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable {
-
-                    }.weight(1f)
+                    modifier = Modifier
+                        .clickable { selectedTab = SelectTab.DAILYGROW }
+                        .weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_daily_grow),
+                        painter = painterResource(
+                            id = if (selectedTab == SelectTab.DAILYGROW) {
+                                R.drawable.ic_dailygrow_select_tab
+                            } else {
+                                R.drawable.ic_dailygrow_unselect_tab
+                            }
+                        ),
                         contentDescription = "Today's Growth",
-                        tint = Color(0xFF7B61FF) // 보라색
                     )
                     Text(
                         "오늘의 성장",
                         style = PetgrowTheme.typography.bold,
-                        color = Color(0xFF7B61FF)
+                        color = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21
                     )
                 }
-                // 오른쪽 탭
+
+                // "모아보기" 탭
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clickable { }
+                        .clickable { selectedTab = SelectTab.TOTAL }
                         .weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_total),
+                        painter = painterResource(
+                            id = if (selectedTab == SelectTab.TOTAL) {
+                                R.drawable.ic_total_select_tab
+                            } else {
+                                R.drawable.ic_total_unselect_tab
+                            }
+                        ),
                         contentDescription = "Collect",
-                        tint = Color.Black
                     )
                     Text(
                         "모아보기",
                         style = PetgrowTheme.typography.medium,
-                        color = Color.Black
+                        color = if (selectedTab == SelectTab.TOTAL) purple6C else black21
                     )
                 }
             }
         }
         Image(
-            painter = painterResource(id = R.drawable.ic_add_tab), 
+            painter = painterResource(id = R.drawable.ic_add_tab),
             contentDescription = "Center Button",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -229,6 +235,7 @@ fun CustomBottomBar(
         )
     }
 }
+
 
 fun getTodayDate(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -242,5 +249,9 @@ fun MainScreenPreview() {
     PetgrowTheme {
         MainScreen()
     }
+}
+
+enum class SelectTab {
+    DAILYGROW, TOTAL
 }
 

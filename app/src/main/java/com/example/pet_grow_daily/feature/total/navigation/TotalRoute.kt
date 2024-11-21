@@ -3,7 +3,10 @@ package com.example.pet_grow_daily.feature.total.navigation
 import android.util.Log
 import android.widget.Space
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,10 +17,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import com.example.pet_grow_daily.core.designsystem.theme.black21
+import com.example.pet_grow_daily.core.designsystem.theme.grayf1
+import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
@@ -40,8 +55,12 @@ fun TotalRoute(
 fun TotalScreen(
     paddingValues: PaddingValues
 ) {
+    val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
     ) {
         CommonTopBar(
             title = {
@@ -55,9 +74,15 @@ fun TotalScreen(
         Column {
             Spacer(modifier = Modifier.height(20.dp))
             TotalMonthly()
+            Spacer(modifier = Modifier.height(8.dp))
             TotalSummary()
-            TotalCategory()
+            Spacer(modifier = Modifier.height(16.dp))
+            TotalCategory(items) { selectedCategory ->
+                Log.d("HWO", "selectedCategory -> $selectedCategory")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             TotalGrowItem()
+
         }
 
     }
@@ -97,15 +122,129 @@ fun TotalMonthly() {
 
 @Composable
 fun TotalSummary() {
-    
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = purple6C, shape = RoundedCornerShape(16.dp)),
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(start = 16.dp, top = 16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                modifier = Modifier.wrapContentWidth(),
+                text = "건빵이의 6월 활동을 알려드릴게요!",
+                style = PetgrowTheme.typography.bold,
+                color = Color.White,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_medicine_select),
+                    contentDescription = "medicine"
+                )
+                Text(
+                    text = "0",
+                    modifier = Modifier.padding(start = 4.dp),
+                    style = PetgrowTheme.typography.medium,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                )
+
+                Spacer(modifier = Modifier.width(24.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_medicine_select),
+                    contentDescription = "medicine"
+                )
+                Text(
+                    text = "0",
+                    modifier = Modifier.padding(start = 4.dp),
+                    style = PetgrowTheme.typography.medium,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                )
+
+                Spacer(modifier = Modifier.width(24.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_medicine_select),
+                    contentDescription = "medicine"
+                )
+                Text(
+                    text = "0",
+                    modifier = Modifier.padding(start = 4.dp),
+                    style = PetgrowTheme.typography.medium,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                )
+
+
+            }
+        }
+
+    }
 }
 
 @Composable
-fun TotalCategory() {
+fun TotalCategory(
+    items: List<String>,
+    onCategorySelected: (String) -> Unit
+) {
+    var selectedItem by remember { mutableStateOf(items.first()) }
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        items(items) { item ->
+            CategoryItem(
+                text = item,
+                isSelected = selectedItem == item,
+                onCategoryClick = {
+                    selectedItem = item
+                    onCategorySelected(item)
+                }
+            )
+        }
+    }
+}
 
+
+@Composable
+fun CategoryItem(
+    text: String,
+    isSelected: Boolean,
+    onCategoryClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(100.dp))
+            .background(if (isSelected) purple6C else grayf1)
+            .clickable(onClick = onCategoryClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = text,
+            color = if (isSelected) Color.White else black21,
+            fontSize = 14.sp,
+            style = PetgrowTheme.typography.bold
+        )
+    }
 }
 
 @Composable
 fun TotalGrowItem() {
 
 }
+
+@Composable
+fun GrowItem(
+

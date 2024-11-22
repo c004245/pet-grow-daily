@@ -84,42 +84,55 @@ fun DailyGrowScreen(
         R.drawable.ic_background_dummy,
     )
     val coroutineScope = rememberCoroutineScope()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        CommonTopBar(
-            title = {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.text_today_grow_title),
-                    style = PetgrowTheme.typography.bold
-                )
-
-            }
-        )
-//        CustomTodayGrowViewPager(
-//            modifier = Modifier.padding(top = 52.dp),
-//            items = imageList
-//        )
-        EmptyTodayGrowRecordWidget(
-            modifier = Modifier.padding(40.dp),
-            isFullHeight = true
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(id = R.string.text_not_today_grow),
-                    style = PetgrowTheme.typography.medium,
-                    color = gray86,
-                    fontSize = 12.sp
+            CommonTopBar(
+                title = {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(id = R.string.text_today_grow_title),
+                        style = PetgrowTheme.typography.bold
+                    )
 
-                )
+                }
+            )
+            //        CustomTodayGrowViewPager(
+            //            modifier = Modifier.padding(top = 52.dp),
+            //            items = imageList
+            //        )
+            EmptyTodayGrowRecordWidget(
+                modifier = Modifier
+                    .padding(40.dp)
+                    .fillMaxSize(),
+                isFullHeight = true
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.text_not_today_grow),
+                        style = PetgrowTheme.typography.medium,
+                        color = gray86,
+                        fontSize = 12.sp
+
+                    )
+                }
             }
         }
 
+        Image(
+            painter = painterResource(id = R.drawable.ic_dailygrow_tooltip),
+            contentDescription = "tooltip",
+            modifier = Modifier
+                .align(Alignment.BottomCenter) // 하단 중앙 정렬
+                .padding(bottom = 16.dp)
+        )
     }
 }
 

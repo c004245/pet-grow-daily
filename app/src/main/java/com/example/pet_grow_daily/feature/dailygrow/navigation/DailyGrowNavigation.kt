@@ -21,4 +21,6 @@ fun NavGraphBuilder.dailyGrowNavGraph(
 }
 
 @Serializable
-data object DailyGrow: MainTabRoute
+data object DailyGrow: MainTabRoute {
+    override val route = "com.example.pet_grow_daily.feature.main.dailygrow.navigation.DailyGrow"
+}

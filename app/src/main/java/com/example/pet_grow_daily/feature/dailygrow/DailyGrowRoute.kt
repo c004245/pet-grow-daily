@@ -98,26 +98,27 @@ fun DailyGrowScreen(
 
             }
         )
-        CustomTodayGrowViewPager(
-            modifier = Modifier.padding(top = 52.dp),
-            items = imageList
-        )
-//        EmptyTodayGrowRecordWidget(
-//            modifier = Modifier.padding(40.dp),
-//            isFullHeight = true
-//        ) {
-//            Box(
-//                modifier = Modifier.fillMaxSize(),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = stringResource(id = R.string.text_not_today_grow),
-//                    style = PetgrowTheme.typography.medium,
-//                    color = gray86
-//
-//                )
-//            }
-//        }
+//        CustomTodayGrowViewPager(
+//            modifier = Modifier.padding(top = 52.dp),
+//            items = imageList
+//        )
+        EmptyTodayGrowRecordWidget(
+            modifier = Modifier.padding(40.dp),
+            isFullHeight = true
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.text_not_today_grow),
+                    style = PetgrowTheme.typography.medium,
+                    color = gray86,
+                    fontSize = 12.sp
+
+                )
+            }
+        }
 
     }
 }

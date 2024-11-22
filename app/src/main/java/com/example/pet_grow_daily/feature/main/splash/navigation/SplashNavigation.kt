@@ -17,4 +17,6 @@ fun NavGraphBuilder.splashNavGraph(
 }
 
 @Serializable
-data object Splash: Route
+data object Splash: Route {
+    override val route = "com.example.pet_grow_daily.feature.main.splash.navigation.Splash"
+}

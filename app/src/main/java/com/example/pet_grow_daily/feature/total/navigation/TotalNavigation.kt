@@ -28,4 +28,7 @@ fun NavGraphBuilder.totalNavGraph(
 
 
 @Serializable
-data object Total: MainTabRoute
+data object Total: MainTabRoute {
+    override val route = "com.example.pet_grow_daily.feature.main.total.navigation.Total"
+
+}

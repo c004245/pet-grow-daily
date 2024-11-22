@@ -43,12 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
+import com.example.pet_grow_daily.feature.main.splash.navigation.Splash
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.feature.total.navigation.totalNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
@@ -70,6 +72,7 @@ internal fun MainScreen(
         skipPartiallyExpanded = true
     )
     var isSheetOpen by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collect { isSuccess ->
@@ -116,21 +119,24 @@ internal fun MainScreen(
             }
         },
         bottomBar = {
-            CustomBottomBar(
-                onSelectBottomClick = {
-                    coroutineScope.launch {
-                        sheetState.show()
+            if (!navigator.isSplashScreen()) {
+                CustomBottomBar(
+                    onSelectBottomClick = {
+                        coroutineScope.launch {
+                            sheetState.show()
+                        }
+                        isSheetOpen = true
+                    },
+                    onDailyGrowClick = {
+                        navigate(navigator, SelectTab.DAILYGROW)
+                    },
+                    onTotalClick = {
+                        navigate(navigator, SelectTab.TOTAL)
                     }
-                    isSheetOpen = true
-                },
-                onDailyGrowClick = {
-                    navigate(navigator, SelectTab.DAILYGROW)
-                },
-                onTotalClick = {
-                    navigate(navigator, SelectTab.TOTAL)
-                }
+                    )
 
-            )
+            }
+
         }
     )
     if (isSheetOpen) {

@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.pet_grow_daily.core.navigation.Route
 import com.example.pet_grow_daily.feature.dailygrow.navigation.DailyGrow
 import com.example.pet_grow_daily.feature.main.splash.navigation.Splash
 import com.example.pet_grow_daily.feature.total.navigation.Total
@@ -33,7 +34,23 @@ class MainNavigator(
     ) {
         navController.navigate(Total, navOptions = navOptions)
     }
+
+    @Composable
+    fun isSplashScreen(): Boolean {
+        val currentRoute = findRouteFromDestination(currentDestination?.route)
+        return currentRoute == Splash
+    }
 }
+
+fun findRouteFromDestination(route: String?): Route? {
+    return when (route) {
+        Splash.route -> Splash
+        DailyGrow.route -> DailyGrow
+        Total.route -> Total
+        else -> null
+    }
+}
+
 
 @Composable
 internal fun rememberMainNavigator(

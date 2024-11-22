@@ -100,7 +100,7 @@ fun TotalScreen(
     }
 
 }
-}
+
 
 @Composable
 fun TotalMonthly(

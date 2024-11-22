@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,8 +40,10 @@ import androidx.compose.ui.unit.sp
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import com.example.pet_grow_daily.core.designsystem.theme.black21
+import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
+import com.example.pet_grow_daily.feature.add.CategoryType
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
@@ -73,23 +77,36 @@ fun TotalScreen(
         )
         Column {
             Spacer(modifier = Modifier.height(20.dp))
-            TotalMonthly()
+            TotalMonthly(
+                onPreviousMonth = {
+
+                },
+                onNextMonth = {
+
+                }
+            )
             Spacer(modifier = Modifier.height(8.dp))
             TotalSummary()
             Spacer(modifier = Modifier.height(16.dp))
-            TotalCategory(items) { selectedCategory ->
-                Log.d("HWO", "selectedCategory -> $selectedCategory")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            TotalGrowItem()
+            TotalCategory(items = items,
+                onCategorySelected = {
 
+                })
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+        TotalGrowItem()
+
     }
+
+}
 }
 
 @Composable
-fun TotalMonthly() {
+fun TotalMonthly(
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
+) {
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -98,7 +115,7 @@ fun TotalMonthly() {
             painter = painterResource(id = R.drawable.ic_total_left_arrow),
             contentDescription = "total_left_arrow",
             modifier = Modifier.clickable {
-                Log.d("HWO", "left arrow")
+                onPreviousMonth()
             }
         )
         Spacer(modifier = Modifier.width(4.dp))
@@ -114,7 +131,7 @@ fun TotalMonthly() {
             painter = painterResource(id = R.drawable.ic_total_right_arrow),
             contentDescription = "total_right_arrow",
             modifier = Modifier.clickable {
-                Log.d("HWO", "right arrow")
+                onNextMonth()
             }
         )
     }
@@ -122,7 +139,6 @@ fun TotalMonthly() {
 
 @Composable
 fun TotalSummary() {
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -242,9 +258,99 @@ fun CategoryItem(
 
 @Composable
 fun TotalGrowItem() {
+    val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        items(items) { item ->
+            GrowItem(onGrowClick = {
+
+            }
+            )
+        }
+    }
 
 }
 
 @Composable
 fun GrowItem(
+//    text: GrowModel,
+    onGrowClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(grayf1)
+            .clickable(onClick = onGrowClick)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .clip(RoundedCornerShape(8.dp))
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_total_dummy),
+                    contentDescription = "total_image"
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                Row(
+                    modifier = Modifier.wrapContentWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_medicine_select),
+                        contentDescription = "medicine"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "간식",
+                        modifier = Modifier.wrapContentWidth(),
+                        style = PetgrowTheme.typography.bold,
+                        color = black21,
+                        fontSize = 14.sp
+                    )
 
+                }
+                Text(
+                    "2022.06.01(일) 14:56",
+                    modifier = Modifier.wrapContentWidth(),
+                    style = PetgrowTheme.typography.medium,
+                    color = gray86,
+                    fontSize = 12.sp
+
+                )
+            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_total_arrow),
+                contentDescription = "fullscreen",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+
+                    }
+            )
+
+        }
+    }
+
+}
+
+
+data class GrowModel(
+    val photoUrl: String,
+    val categoryType: CategoryType,
+    val timeStamp: Long
+)

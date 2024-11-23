@@ -2,6 +2,7 @@ package com.example.pet_grow_daily.feature.dailygrow
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,6 +52,7 @@ import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
@@ -56,6 +60,9 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.core.designsystem.theme.grayF8
 import com.example.pet_grow_daily.core.designsystem.theme.purpleE6
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 @Composable
@@ -66,14 +73,22 @@ fun DailyGrowRoute(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val todayGrowRecords by viewModel.todayGrowRecords.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        viewModel.getGrowRecord(getTodayDate())
+    }
     DailyGrowScreen(
-        paddingValues = paddingValues
+        paddingValues = paddingValues,
+        todayGrowRecords = todayGrowRecords
     )
 }
 
 @Composable
 fun DailyGrowScreen(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    todayGrowRecords: List<GrowRecord>
 ) {
 
     val imageList = listOf(
@@ -101,27 +116,32 @@ fun DailyGrowScreen(
 
                 }
             )
-            //        CustomTodayGrowViewPager(
-            //            modifier = Modifier.padding(top = 52.dp),
-            //            items = imageList
-            //        )
-            EmptyTodayGrowRecordWidget(
-                modifier = Modifier
-                    .padding(40.dp)
-                    .fillMaxSize(),
-                isFullHeight = true
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.text_not_today_grow),
-                        style = PetgrowTheme.typography.medium,
-                        color = gray86,
-                        fontSize = 12.sp
 
-                    )
+            if (todayGrowRecords.isNotEmpty()) {
+                CustomTodayGrowViewPager(
+                    modifier = Modifier.padding(top = 52.dp),
+                    items = imageList
+                )
+            } else {
+
+                EmptyTodayGrowRecordWidget(
+                    modifier = Modifier
+                        .padding(40.dp)
+                        .fillMaxSize(),
+                    isFullHeight = true
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.text_not_today_grow),
+                            style = PetgrowTheme.typography.medium,
+                            color = gray86,
+                            fontSize = 12.sp
+
+                        )
+                    }
                 }
             }
         }
@@ -305,4 +325,9 @@ fun TodayCardDescription() {
         Spacer(modifier = Modifier.height(16.dp))
 
     }
+}
+
+fun getTodayDate(): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return sdf.format(Date())
 }

@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 
 
 fun NavGraphBuilder.dailyGrowNavGraph(
-    paddingValues: PaddingValues,
+    paddingValues: PaddingValues
 ) {
     composable<DailyGrow> {
         DailyGrowRoute(

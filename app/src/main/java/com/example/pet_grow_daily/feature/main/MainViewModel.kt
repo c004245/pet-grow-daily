@@ -21,19 +21,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val saveGrowRecordUseCase: SaveGrowRecordUseCase,
-    private val getTodayGrowRecordUseCase: GetTodayGrowRecordUseCase
 ) : ViewModel() {
     private val _saveDoneEvent = MutableSharedFlow<Boolean>()
     val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
 
-
-    fun getGrowRecord(todayDate: String) {
-        viewModelScope.launch {
-            getTodayGrowRecordUseCase(todayDate).collect {
-                Log.d("HWO", "getGrowRecord -> ${it.map { it.categoryType }}")
-            }
-        }
-    }
 
     fun saveGrowRecord(growRecord: GrowRecord) {
         flow {

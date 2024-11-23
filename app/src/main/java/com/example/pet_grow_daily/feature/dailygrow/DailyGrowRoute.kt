@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.dailygrow
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -60,6 +62,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.core.designsystem.theme.grayF8
 import com.example.pet_grow_daily.core.designsystem.theme.purpleE6
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import com.example.pet_grow_daily.util.getCategoryType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -91,13 +94,6 @@ fun DailyGrowScreen(
     todayGrowRecords: List<GrowRecord>
 ) {
 
-    val imageList = listOf(
-        R.drawable.ic_background_dummy,
-        R.drawable.ic_background_dummy,
-        R.drawable.ic_background_dummy,
-        R.drawable.ic_background_dummy,
-        R.drawable.ic_background_dummy,
-    )
     val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier.fillMaxSize()
@@ -120,10 +116,9 @@ fun DailyGrowScreen(
             if (todayGrowRecords.isNotEmpty()) {
                 CustomTodayGrowViewPager(
                     modifier = Modifier.padding(top = 52.dp),
-                    items = imageList
+                    growRecordItem = todayGrowRecords
                 )
             } else {
-
                 EmptyTodayGrowRecordWidget(
                     modifier = Modifier
                         .padding(40.dp)
@@ -196,7 +191,7 @@ fun EmptyTodayGrowRecordWidget(
 
 
 @Composable
-fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
+fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord>) {
 
     val listState = rememberLazyListState()
 
@@ -225,7 +220,7 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
-        itemsIndexed(items) { index, item ->
+        itemsIndexed(growRecordItem) { index, item ->
             Box(
                 modifier = Modifier
                     .graphicsLayer {
@@ -248,17 +243,13 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
                         .fillMaxWidth()
                         .wrapContentHeight()
                 ) {
-                    Image(
-                        painter = painterResource(id = item), // 이미지 리소스
+                    AsyncImage(
+                        model = item.photoUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f) // 1:1 비율
-                            .clip(RoundedCornerShape(16.dp)) //
-                    )
+                        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(16.dp)))
                     Spacer(modifier = Modifier.height(16.dp))
-                    TodayCardDescription()
+                    TodayCardDescription(item)
 
                 }
             }
@@ -267,7 +258,8 @@ fun CustomTodayGrowViewPager(modifier: Modifier, items: List<Int>) {
 }
 
 @Composable
-fun TodayCardDescription() {
+fun TodayCardDescription(growRecord: GrowRecord) {
+    Log.d("HWO", "growRecord -> ${growRecord.categoryType} -- ${growRecord.emotionType} -- ${growRecord.memo} -- ${growRecord.timeStamp}")
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -280,7 +272,7 @@ fun TodayCardDescription() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "산책", // 제목 텍스트
+                text = getCategoryType(growRecord.categoryType), // 제목 텍스트
                 color = Color.Black,
                 fontSize = 16.sp,
                 style = PetgrowTheme.typography.bold,

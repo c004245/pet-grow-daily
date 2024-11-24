@@ -60,9 +60,12 @@ import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.core.designsystem.theme.grayF8
-import com.example.pet_grow_daily.core.designsystem.theme.purpleE6
+import com.example.pet_grow_daily.core.designsystem.theme.purpleD9
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import com.example.pet_grow_daily.util.formatTimestampToDateTime
+import com.example.pet_grow_daily.util.getCategoryItem
 import com.example.pet_grow_daily.util.getCategoryType
+import com.example.pet_grow_daily.util.getMemoOrRandomQuote
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -247,7 +250,10 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
                         model = item.photoUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(16.dp)))
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp)))
                     Spacer(modifier = Modifier.height(16.dp))
                     TodayCardDescription(item)
 
@@ -283,18 +289,18 @@ fun TodayCardDescription(growRecord: GrowRecord) {
                     .width(24.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(purpleE6),
+                    .background(purpleD9),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_hospital_select),
+                    painter = getCategoryItem(categoryType = growRecord.categoryType),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                 )
             }
         }
         Text(
-            text = "2022.06.01(일) 14:56",
+            text = formatTimestampToDateTime(growRecord.timeStamp),
             color = gray86,
             fontSize = 12.sp,
             style = PetgrowTheme.typography.medium,
@@ -308,7 +314,7 @@ fun TodayCardDescription(growRecord: GrowRecord) {
         ) {
             Text(
                 modifier = Modifier.padding(12.dp),
-                text = "테스트테스트테스트테스트",
+                text = getMemoOrRandomQuote(growRecord.memo),
                 color = black21,
                 fontSize = 12.sp,
                 style = PetgrowTheme.typography.regular

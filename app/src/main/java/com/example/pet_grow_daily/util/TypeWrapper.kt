@@ -1,7 +1,72 @@
 package com.example.pet_grow_daily.util
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.feature.add.CategoryType
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.random.Random
 
+@Composable
+fun getCategoryItem(categoryType: CategoryType): Painter {
+    when (categoryType) {
+        CategoryType.SNACK -> {
+            return painterResource(id = R.drawable.ic_snack_dailygrow)
+        }
+
+        CategoryType.WATER -> {
+            return painterResource(id = R.drawable.ic_water_dailygrow)
+        }
+
+        CategoryType.MEDICINE -> {
+            return painterResource(id = R.drawable.ic_medicine_dailygrow)
+        }
+
+        CategoryType.BATH -> {
+            return painterResource(id = R.drawable.ic_bath_dailygrow)
+        }
+
+        CategoryType.HOSPITAL -> {
+            return painterResource(id = R.drawable.ic_hospital_dailygrow)
+        }
+
+        CategoryType.OUT_WORK -> {
+            return painterResource(id = R.drawable.ic_outwork_dailygrow)
+        }
+
+        CategoryType.SLEEP -> {
+            return painterResource(id = R.drawable.ic_sleep_dailygrow)
+
+        }
+
+        CategoryType.IN_PLAY -> {
+            return painterResource(id = R.drawable.ic_inplay_dailygrow)
+        }
+
+        CategoryType.OUT_PLAY -> {
+            return painterResource(id = R.drawable.ic_outplay_dailygrow)
+        }
+
+        CategoryType.EVENT -> {
+            return painterResource(id = R.drawable.ic_event_dailygrow)
+        }
+
+        CategoryType.ETC -> {
+            return painterResource(id = R.drawable.ic_etc_dailygrow)
+        }
+
+        CategoryType.NONE -> {
+            return painterResource(id = R.drawable.ic_water_dailygrow)
+        }
+
+        else -> {
+            return painterResource(id = R.drawable.ic_water_dailygrow)
+        }
+    }
+}
 fun getCategoryType(categoryType: CategoryType): String {
     when (categoryType) {
         CategoryType.SNACK -> {
@@ -59,3 +124,42 @@ fun getCategoryType(categoryType: CategoryType): String {
     }
 }
 
+fun formatTimestampToDateTime(timestamp: Long): String {
+    val dateFormat = SimpleDateFormat("yyyy.MM.dd(E) HH:mm", Locale.getDefault())
+    val date = Date(timestamp) // Long형 timestamp를 Date로 변환
+    return dateFormat.format(date) // 포맷팅된 문자열 반환
+}
+
+
+fun getMemoOrRandomQuote(memo: String?): String {
+    // 감성적인 문구 리스트
+    val quotes = listOf(
+        "네가 내 하루의 이유가 되어줘서 고마워.",
+        "너와 함께라면 이 세상 어디든 천국이야.",
+        "작은 몸짓으로 내 마음을 가득 채우는 너.",
+        "네가 내게 준 사랑은 말로 다 표현할 수 없어.",
+        "강아지의 꼬리 흔들림은 가장 순수한 행복의 언어야.",
+        "네가 나를 믿어주는 것만으로도 난 충분히 행복해.",
+        "강아지가 주는 사랑은 단순하지만 가장 진실해.",
+        "이 세상에서 가장 귀여운 천사는 네 모습이겠지.",
+        "네가 웃을 때마다 내 심장은 더 빠르게 뛰어.",
+        "너와 함께 걷는 이 길이 나에게는 가장 소중한 순간이야.",
+        "강아지의 포근한 온기만으로 하루가 완벽해져.",
+        "네가 있어 내 삶이 더 따뜻해졌어.",
+        "작은 발로 남긴 네 발자국은 내 인생의 가장 큰 선물이야.",
+        "강아지의 사랑은 조건 없이 모든 걸 감싸 안아줘.",
+        "네가 내 곁에 있는 한, 나는 절대 외롭지 않아.",
+        "강아지와의 하루는 언제나 기적 같아.",
+        "너의 해맑은 웃음이 나를 더 나은 사람으로 만들어줘.",
+        "강아지의 눈빛에는 세상을 다 가진 듯한 평화가 있어.",
+        "너를 바라보는 이 순간이 내겐 가장 행복한 기억이 될 거야.",
+        "네가 나에게 주는 사랑은 세상 그 무엇과도 바꿀 수 없어."
+    )
+
+    // memo가 null이거나 비어있으면 랜덤 문구 반환, 그렇지 않으면 memo 반환
+    return if (memo.isNullOrBlank()) {
+        quotes[Random.nextInt(quotes.size)]
+    } else {
+        memo
+    }
+}

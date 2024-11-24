@@ -21,7 +21,7 @@ class MainNavigator(
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    val startDestination = OnBoarding
+    val startDestination = Splash
 
     fun navigateToDailyGrow(
         navOptions: NavOptions,

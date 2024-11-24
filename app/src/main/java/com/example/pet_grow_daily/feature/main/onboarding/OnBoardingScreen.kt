@@ -51,7 +51,7 @@ fun OnBoardingScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -85,7 +85,7 @@ fun OnBoardingScreen(
         }
         Button(
             onClick = {
-                if (nameText.isNotEmpty()) viewModel.saveDogName(nameText)
+//                if (nameText.isNotEmpty()) viewModel.saveDogName(nameText)
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)

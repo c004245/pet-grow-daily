@@ -7,6 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.example.pet_grow_daily.core.navigation.MainTabRoute
 import com.example.pet_grow_daily.feature.main.MainTab
+import com.example.pet_grow_daily.feature.total.TotalRoute
 import kotlinx.serialization.Serializable
 
 

@@ -8,4 +8,6 @@ interface GrowRepository {
     suspend fun saveGrowRecord(growRecord: GrowRecord)
 
     suspend fun getTodayGrowRecord(todayDate: String): Flow<List<GrowRecord>>
+
+    suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>>
 }

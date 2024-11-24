@@ -21,4 +21,8 @@ class GrowRepositoryImpl @Inject constructor(
         return growRecordDao.getTodayGrowRecord(todayDate)
     }
 
+    override suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>> {
+        return growRecordDao.getMonthlyGrowRecords(month)
+    }
+
 }

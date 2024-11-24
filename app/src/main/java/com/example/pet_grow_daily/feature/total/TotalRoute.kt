@@ -1,4 +1,4 @@
-package com.example.pet_grow_daily.feature.total.navigation
+package com.example.pet_grow_daily.feature.total
 
 import android.util.Log
 import android.widget.Space
@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +39,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pet_grow_daily.R
+import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.gray86
@@ -48,16 +52,25 @@ import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun TotalRoute(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    viewModel: TotalViewModel = hiltViewModel()
 ) {
+
+    val monthlyGrowRecords by viewModel.monthlyGrowRecords.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getMonthlyRecord("11")
+    }
     TotalScreen(
-        paddingValues = paddingValues
+        paddingValues = paddingValues,
+        monthlyGrowRecords = monthlyGrowRecords
     )
 }
 
 @Composable
 fun TotalScreen(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    monthlyGrowRecords: List<GrowRecord>
 ) {
     val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
 
@@ -95,7 +108,7 @@ fun TotalScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        TotalGrowItem()
+        TotalGrowItem(monthlyGrowRecords)
 
     }
 
@@ -107,6 +120,7 @@ fun TotalMonthly(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
+
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -257,15 +271,15 @@ fun CategoryItem(
 }
 
 @Composable
-fun TotalGrowItem() {
-    val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
+fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
+    Log.d("HWO", "TotalGrowItem -> ${monthlyGrowRecords.size}")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        items(items) { item ->
+        items(monthlyGrowRecords) { item ->
             GrowItem(onGrowClick = {
 
             }

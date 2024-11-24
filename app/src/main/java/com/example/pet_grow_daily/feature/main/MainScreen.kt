@@ -50,6 +50,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
+import com.example.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.Splash
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.feature.total.navigation.totalNavGraph
@@ -115,11 +116,18 @@ internal fun MainScreen(
                     totalNavGraph(
                         paddingValues = paddingValues
                     )
+                    onboardingNavGraph(
+                        navigateToDailyGrow = {
+                            navigate(navigator, SelectTab.DAILYGROW)
+                        }
+                    )
+
+
                 }
             }
         },
         bottomBar = {
-            if (!navigator.isSplashScreen()) {
+            if (!navigator.isSplashOrOnBoardingScreen()) {
                 CustomBottomBar(
                     onSelectBottomClick = {
                         coroutineScope.launch {

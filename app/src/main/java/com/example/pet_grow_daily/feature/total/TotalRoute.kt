@@ -54,28 +54,49 @@ import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import com.example.pet_grow_daily.util.LoadGalleryImage
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
 import com.example.pet_grow_daily.util.getCategoryType
+import java.util.Calendar
+import java.util.Calendar.*
 
+val JANUARY_MONTH = 1
+val DECEMBER_MONTH = 12
 @Composable
 fun TotalRoute(
     paddingValues: PaddingValues,
     viewModel: TotalViewModel = hiltViewModel()
 ) {
 
+    val calendar = remember { getInstance() }
+    var currentMonth by remember { mutableStateOf(calendar.get(MONTH) + 1) } // 초기 월 설정
     val monthlyGrowRecords by viewModel.monthlyGrowRecords.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getMonthlyRecord("11")
+    // 현재 월 변경 시 데이터를 갱신
+    LaunchedEffect(currentMonth) {
+        viewModel.getMonthlyRecord(currentMonth.toString())
     }
     TotalScreen(
         paddingValues = paddingValues,
-        monthlyGrowRecords = monthlyGrowRecords
+        monthlyGrowRecords = monthlyGrowRecords,
+        currentMonth = currentMonth, // 현재 월 전달
+        onPreviousMonth = {
+            // 이전 월로 변경
+            calendar.add(MONTH, -1)
+            currentMonth = calendar.get(MONTH) + 1
+        },
+        onNextMonth = {
+            // 다음 월로 변경
+            calendar.add(MONTH, 1)
+            currentMonth = calendar.get(MONTH) + 1
+        }
     )
 }
 
 @Composable
 fun TotalScreen(
     paddingValues: PaddingValues,
-    monthlyGrowRecords: List<GrowRecord>
+    monthlyGrowRecords: List<GrowRecord>,
+    currentMonth: Int,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
 ) {
     val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
 
@@ -96,15 +117,14 @@ fun TotalScreen(
         Column {
             Spacer(modifier = Modifier.height(20.dp))
             TotalMonthly(
-                onPreviousMonth = {
-
-                },
-                onNextMonth = {
-
-                }
+                currentMonth = currentMonth, // 현재 월 전달
+                onPreviousMonth = onPreviousMonth,
+                onNextMonth = onNextMonth
             )
             Spacer(modifier = Modifier.height(8.dp))
-            TotalSummary()
+            TotalSummary(
+                currentMonth = currentMonth, // 현재 월 전달
+            )
             Spacer(modifier = Modifier.height(16.dp))
             TotalCategory(items = items,
                 onCategorySelected = {
@@ -122,10 +142,12 @@ fun TotalScreen(
 
 @Composable
 fun TotalMonthly(
+    currentMonth: Int,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
 
+    Log.d("HWO", "currentMOnth -> $currentMonth")
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -134,13 +156,15 @@ fun TotalMonthly(
             painter = painterResource(id = R.drawable.ic_total_left_arrow),
             contentDescription = "total_left_arrow",
             modifier = Modifier.clickable {
-                onPreviousMonth()
+                if (currentMonth > JANUARY_MONTH) {
+                    onPreviousMonth()
+                }
             }
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             modifier = Modifier.wrapContentWidth(),
-            text = "6월",
+            text = "${currentMonth}월",
             fontSize = 21.sp,
             style = PetgrowTheme.typography.bold,
             color = black21
@@ -150,14 +174,18 @@ fun TotalMonthly(
             painter = painterResource(id = R.drawable.ic_total_right_arrow),
             contentDescription = "total_right_arrow",
             modifier = Modifier.clickable {
-                onNextMonth()
+                if (currentMonth < JANUARY_MONTH) {
+                    onNextMonth()
+                }
             }
         )
     }
 }
 
 @Composable
-fun TotalSummary() {
+fun TotalSummary(
+    currentMonth: Int) {
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -171,7 +199,7 @@ fun TotalSummary() {
         ) {
             Text(
                 modifier = Modifier.wrapContentWidth(),
-                text = "건빵이의 6월 활동을 알려드릴게요!",
+                text = "건빵이의 ${currentMonth}월 활동을 알려드릴게요!",
                 style = PetgrowTheme.typography.bold,
                 color = Color.White,
                 fontSize = 14.sp
@@ -362,10 +390,3 @@ fun GrowItem(
     }
 
 }
-
-
-data class GrowModel(
-    val photoUrl: String,
-    val categoryType: CategoryType,
-    val timeStamp: Long
-)

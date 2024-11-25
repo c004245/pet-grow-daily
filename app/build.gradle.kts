@@ -88,5 +88,7 @@ dependencies {
 
     kapt(libs.androidx.room.compiler)
 
+    implementation(libs.glide.compose)
+
 
 }

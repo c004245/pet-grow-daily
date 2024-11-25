@@ -51,7 +51,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.CategoryType
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
-import com.example.pet_grow_daily.util.LoadImageFromUri
+import com.example.pet_grow_daily.util.LoadGalleryImage
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
 import com.example.pet_grow_daily.util.getCategoryType
 
@@ -312,13 +312,10 @@ fun GrowItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LoadImageFromUri(
-                contentUri = model.photoUrl,
-                modifier = Modifier
-                    .fillMaxWidth()
+            LoadGalleryImage(uri = model.photoUrl,
+                modifier = Modifier.size(39.dp)
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(16.dp))
-            )
+                    .clip(RoundedCornerShape(8.dp)))
 
             Spacer(modifier = Modifier.width(16.dp))
             Column(

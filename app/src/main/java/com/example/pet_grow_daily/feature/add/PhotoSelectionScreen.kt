@@ -41,7 +41,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.core.designsystem.theme.purpleC4
 import com.example.pet_grow_daily.feature.dailygrow.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
-import com.example.pet_grow_daily.util.LoadImageFromUri
+import com.example.pet_grow_daily.util.LoadGalleryImage
 
 
 @Composable
@@ -63,8 +63,8 @@ fun PhotoSelectionScreen(onPhotoSelected: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             if (selectedImageUri != null) {
-                LoadImageFromUri(
-                    contentUri =  selectedImageUri.toString(),
+                LoadGalleryImage(
+                    uri =  selectedImageUri.toString(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)

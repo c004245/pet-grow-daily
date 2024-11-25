@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,9 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.CategoryType
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import com.example.pet_grow_daily.util.LoadImageFromUri
+import com.example.pet_grow_daily.util.formatTimestampToDateTime
+import com.example.pet_grow_daily.util.getCategoryType
 
 @Composable
 fun TotalRoute(
@@ -279,8 +284,8 @@ fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
             .padding(vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        items(monthlyGrowRecords) { item ->
-            GrowItem(onGrowClick = {
+        items(monthlyGrowRecords) { model ->
+            GrowItem(model, onGrowClick = {
 
             }
             )
@@ -291,9 +296,10 @@ fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
 
 @Composable
 fun GrowItem(
-//    text: GrowModel,
+    model: GrowRecord,
     onGrowClick: () -> Unit
 ) {
+    Log.d("HWO", "GrowItem -> ${model.photoUrl}")
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -306,16 +312,14 @@ fun GrowItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            LoadImageFromUri(
+                contentUri = model.photoUrl,
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .clip(RoundedCornerShape(8.dp))
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_total_dummy),
-                    contentDescription = "total_image"
-                )
-            }
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier.weight(1f),
@@ -330,7 +334,7 @@ fun GrowItem(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "간식",
+                        getCategoryType(model.categoryType),
                         modifier = Modifier.wrapContentWidth(),
                         style = PetgrowTheme.typography.bold,
                         color = black21,
@@ -339,7 +343,7 @@ fun GrowItem(
 
                 }
                 Text(
-                    "2022.06.01(일) 14:56",
+                    formatTimestampToDateTime(model.timeStamp),
                     modifier = Modifier.wrapContentWidth(),
                     style = PetgrowTheme.typography.medium,
                     color = gray86,

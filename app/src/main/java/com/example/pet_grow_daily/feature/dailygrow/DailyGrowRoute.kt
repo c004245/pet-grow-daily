@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import coil.compose.AsyncImage
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -62,6 +61,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.core.designsystem.theme.grayF8
 import com.example.pet_grow_daily.core.designsystem.theme.purpleD9
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import com.example.pet_grow_daily.util.LoadImageFromUri
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
 import com.example.pet_grow_daily.util.getCategoryItem
 import com.example.pet_grow_daily.util.getCategoryType
@@ -224,6 +224,7 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
         verticalAlignment = Alignment.Top
     ) {
         itemsIndexed(growRecordItem) { index, item ->
+            Log.d("HWO", "DailyGrowROute -> ${item.photoUrl}")
             Box(
                 modifier = Modifier
                     .graphicsLayer {
@@ -246,14 +247,14 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
                         .fillMaxWidth()
                         .wrapContentHeight()
                 ) {
-                    AsyncImage(
-                        model = item.photoUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                    LoadImageFromUri(
+                        contentUri = item.photoUrl,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp)))
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
                     TodayCardDescription(item)
 

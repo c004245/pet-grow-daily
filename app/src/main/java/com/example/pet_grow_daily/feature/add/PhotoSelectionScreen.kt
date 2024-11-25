@@ -30,12 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.grayf1
@@ -43,6 +41,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.core.designsystem.theme.purpleC4
 import com.example.pet_grow_daily.feature.dailygrow.EmptyTodayGrowRecordWidget
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
+import com.example.pet_grow_daily.util.LoadImageFromUri
 
 
 @Composable
@@ -64,20 +63,14 @@ fun PhotoSelectionScreen(onPhotoSelected: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             if (selectedImageUri != null) {
-                Box(
+                LoadImageFromUri(
+                    contentUri =  selectedImageUri.toString(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White) // Optional: 동일한 배경색 설정
-                ) {
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = "Selected Image",
-                        modifier = Modifier.fillMaxSize(), // Box의 크기를 채움
-                        contentScale = ContentScale.Crop // 이미지를 강제로 잘라서 크기 맞춤
-                    )
-                }
+                        .background(Color.White)
+                )
             } else {
                 EmptyTodayGrowRecordWidget(
                     isFullHeight = false,

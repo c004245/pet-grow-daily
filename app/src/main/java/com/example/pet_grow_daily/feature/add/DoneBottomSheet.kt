@@ -31,34 +31,34 @@ import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun DoneBottomSheet(onDone: () -> Unit, modifier: Modifier = Modifier) {
+fun DoneBottomSheet(onDone: () -> Unit) {
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         isVisible = true
     }
 
-    // 부모 높이에 기반한 최하단 시작 지점 계산
+
     val density = LocalDensity.current
-    val bottomOffsetPx = with(density) { 580.dp.roundToPx() } // 580dp를 px로 변환
+    val screenHeightPx = with(density) { 580.dp.roundToPx() } // dp를 px로 변환
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(580.dp)
             .padding(16.dp)
 
     ) {
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = slideInVertically(
-                initialOffsetY = { bottomOffsetPx },
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )))
-
-        {
+//        AnimatedVisibility(
+//            visible = isVisible,
+//            enter = slideInVertically(
+//                initialOffsetY = { screenHeightPx },
+//                animationSpec = spring(
+//                    dampingRatio = Spring.DampingRatioMediumBouncy,
+//                    stiffness = Spring.StiffnessLow
+//                )))
+//
+//        {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally, // Column 내 아이템들을 수평 중앙으로 정렬
@@ -75,11 +75,9 @@ fun DoneBottomSheet(onDone: () -> Unit, modifier: Modifier = Modifier) {
                     style = PetgrowTheme.typography.bold,
                     color = black21,
                     textAlign = TextAlign.Center, // 텍스트 중앙 정렬
-
-
                 )
             }
 
         }
-    }
+//    }
 }

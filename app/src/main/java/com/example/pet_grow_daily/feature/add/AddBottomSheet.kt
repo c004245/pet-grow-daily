@@ -94,9 +94,7 @@ fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
                                 timeStamp = System.currentTimeMillis()
                             )
                             onCloseClick(record)
-                        },
-                        modifier = Modifier.align(Alignment.BottomCenter) // Bottom에서 시작
-
+                        }
                     )
                 }
 

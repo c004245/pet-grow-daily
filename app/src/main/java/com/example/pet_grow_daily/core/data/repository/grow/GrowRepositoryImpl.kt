@@ -4,13 +4,15 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import com.example.pet_grow_daily.core.database.GrowRecordDao
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
+import com.example.pet_grow_daily.core.datastore.datasource.GrowPreferencesDataSource
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GrowRepositoryImpl @Inject constructor(
-    private val growRecordDao: GrowRecordDao
+    private val growRecordDao: GrowRecordDao,
+    private val growDataSource: GrowPreferencesDataSource
 ): GrowRepository {
 
     override suspend fun saveGrowRecord(growRecord: GrowRecord) {
@@ -25,4 +27,7 @@ class GrowRepositoryImpl @Inject constructor(
         return growRecordDao.getMonthlyGrowRecords(month)
     }
 
+    override suspend fun saveName(name: String) {
+        growDataSource.saveName(name)
+    }
 }

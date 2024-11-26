@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.designsystem.theme.black21
@@ -51,14 +49,10 @@ import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
 import com.example.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
-import com.example.pet_grow_daily.feature.main.splash.navigation.Splash
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.feature.total.navigation.totalNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,6 +102,9 @@ internal fun MainScreen(
                     splashNavGraph(
                         navigateToDailyGrow = {
                             navigate(navigator, SelectTab.DAILYGROW)
+                        },
+                        navigateToOnBoarding = {
+                            navigate(navigator)
                         }
                     )
                     dailyGrowNavGraph(
@@ -164,7 +161,7 @@ internal fun MainScreen(
 
 }
 
-fun navigate(navigator: MainNavigator, selectTab: SelectTab) {
+fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
     val navOptions = navOptions {
         popUpTo(navigator.navController.graph.findStartDestination().id) {
             inclusive = true
@@ -173,8 +170,10 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab) {
     }
     if (selectTab == SelectTab.DAILYGROW) {
         navigator.navigateToDailyGrow(navOptions = navOptions)
-    } else {
+    } else if (selectTab == SelectTab.TOTAL){
         navigator.navigateToTotal(navOptions = navOptions)
+    } else {
+        navigator.navigateToOnBoarding(navOptions = navOptions)
     }
 }
 

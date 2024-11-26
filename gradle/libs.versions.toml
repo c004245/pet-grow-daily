@@ -13,6 +13,8 @@ accompanist = "0.24.2-alpha"
 androidxComposeNavigation = "2.8.0"
 androidxCoreSplash = "1.0.1"
 androidxRoom = "2.6.1"
+androidxDatastore = "1.1.1"
+
 
 ## Hilt
 hilt = "2.51.1"
@@ -62,6 +64,9 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidxRoom" }
 
 glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose"}
+
+androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

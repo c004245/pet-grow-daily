@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.main.onboarding
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -18,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,9 +49,23 @@ fun OnBoardingScreen(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val context = LocalContext.current
+
+
     var nameText by remember {
         mutableStateOf("")
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.saveNameEvent.collect { isSuccess ->
+            if (isSuccess) {
+                navigateToDailyGrow()
+            } else {
+                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -85,7 +102,7 @@ fun OnBoardingScreen(
         }
         Button(
             onClick = {
-//                if (nameText.isNotEmpty()) viewModel.saveDogName(nameText)
+                if (nameText.isNotEmpty()) viewModel.saveDogName(nameText)
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)

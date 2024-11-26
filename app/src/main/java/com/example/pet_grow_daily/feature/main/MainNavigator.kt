@@ -36,6 +36,12 @@ class MainNavigator(
         navController.navigate(Total, navOptions = navOptions)
     }
 
+    fun navigateToOnBoarding(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(OnBoarding, navOptions = navOptions)
+    }
+
     @Composable
     fun isSplashOrOnBoardingScreen(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)

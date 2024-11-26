@@ -50,15 +50,18 @@ import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayf1
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.CategoryType
+import com.example.pet_grow_daily.feature.main.SelectTab
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import com.example.pet_grow_daily.util.LoadGalleryImage
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
+import com.example.pet_grow_daily.util.getCategoryItem
 import com.example.pet_grow_daily.util.getCategoryType
 import java.util.Calendar
 import java.util.Calendar.*
 
 val JANUARY_MONTH = 1
 val DECEMBER_MONTH = 12
+
 @Composable
 fun TotalRoute(
     paddingValues: PaddingValues,
@@ -67,8 +70,10 @@ fun TotalRoute(
 
     val calendar = remember { getInstance() }
     var currentMonth by remember { mutableStateOf(calendar.get(MONTH) + 1) } // 초기 월 설정
+
     val monthlyGrowRecords by viewModel.monthlyGrowRecords.collectAsState()
     val dogName by viewModel.dogName.collectAsState()
+    val topMonthlyCategories by viewModel.topCategories.collectAsState()
 
 
 
@@ -79,19 +84,22 @@ fun TotalRoute(
     LaunchedEffect(currentMonth) {
         viewModel.getMonthlyRecord(currentMonth.toString())
     }
+    // Group state into a single object
+    val totalScreenState = TotalScreenState(
+        dogName = dogName,
+        categories = topMonthlyCategories,
+        monthlyGrowRecords = monthlyGrowRecords,
+        currentMonth = currentMonth
+    )
+
     TotalScreen(
         paddingValues = paddingValues,
-        dogName = dogName,
-
-        monthlyGrowRecords = monthlyGrowRecords,
-        currentMonth = currentMonth, // 현재 월 전달
+        state = totalScreenState,
         onPreviousMonth = {
-            // 이전 월로 변경
             calendar.add(MONTH, -1)
             currentMonth = calendar.get(MONTH) + 1
         },
         onNextMonth = {
-            // 다음 월로 변경
             calendar.add(MONTH, 1)
             currentMonth = calendar.get(MONTH) + 1
         }
@@ -101,9 +109,7 @@ fun TotalRoute(
 @Composable
 fun TotalScreen(
     paddingValues: PaddingValues,
-    dogName: String,
-    monthlyGrowRecords: List<GrowRecord>,
-    currentMonth: Int,
+    state: TotalScreenState,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
@@ -126,14 +132,15 @@ fun TotalScreen(
         Column {
             Spacer(modifier = Modifier.height(20.dp))
             TotalMonthly(
-                currentMonth = currentMonth, // 현재 월 전달
+                currentMonth = state.currentMonth, // 현재 월 전달
                 onPreviousMonth = onPreviousMonth,
                 onNextMonth = onNextMonth
             )
             Spacer(modifier = Modifier.height(8.dp))
             TotalSummary(
-                dogName = dogName,
-                currentMonth = currentMonth, // 현재 월 전달
+                dogName = state.dogName,
+                categories = state.categories,
+                currentMonth = state.currentMonth, // 현재 월 전달
             )
             Spacer(modifier = Modifier.height(16.dp))
             TotalCategory(items = items,
@@ -143,7 +150,7 @@ fun TotalScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        TotalGrowItem(monthlyGrowRecords)
+        TotalGrowItem(state.monthlyGrowRecords)
 
     }
 
@@ -195,7 +202,9 @@ fun TotalMonthly(
 @Composable
 fun TotalSummary(
     dogName: String,
-    currentMonth: Int) {
+    categories: List<CategoryCount>,
+    currentMonth: Int
+) {
 
     Box(
         modifier = Modifier
@@ -216,54 +225,41 @@ fun TotalSummary(
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            LazyRow(
+                modifier = Modifier.padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_medicine_select),
-                    contentDescription = "medicine"
-                )
-                Text(
-                    text = "0",
-                    modifier = Modifier.padding(start = 4.dp),
-                    style = PetgrowTheme.typography.medium,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                )
-
-                Spacer(modifier = Modifier.width(24.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_medicine_select),
-                    contentDescription = "medicine"
-                )
-                Text(
-                    text = "0",
-                    modifier = Modifier.padding(start = 4.dp),
-                    style = PetgrowTheme.typography.medium,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                )
-
-                Spacer(modifier = Modifier.width(24.dp))
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_medicine_select),
-                    contentDescription = "medicine"
-                )
-                Text(
-                    text = "0",
-                    modifier = Modifier.padding(start = 4.dp),
-                    style = PetgrowTheme.typography.medium,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                )
-
-
+                items(categories) { category ->
+                    CategorySummaryItem(category)
+                }
             }
         }
 
+    }
+}
+
+//Summary내에 상위 3개 카테고리 아이템
+@Composable
+fun CategorySummaryItem(category: CategoryCount) {
+    Row(
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = getCategoryItem(category.categoryType, SelectTab.TOTAL),
+            contentDescription = "category image",
+            tint = Color.White,
+            modifier = Modifier.size(24.dp) // Adjust icon size as needed
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = category.count.toString(),
+            style = PetgrowTheme.typography.medium,
+            color = Color.White,
+            fontSize = 12.sp,
+        )
     }
 }
 
@@ -351,11 +347,13 @@ fun GrowItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LoadGalleryImage(uri = model.photoUrl,
+            LoadGalleryImage(
+                uri = model.photoUrl,
                 modifier = Modifier
                     .size(39.dp)
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp)))
+                    .clip(RoundedCornerShape(8.dp))
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
             Column(
@@ -402,3 +400,4 @@ fun GrowItem(
     }
 
 }
+

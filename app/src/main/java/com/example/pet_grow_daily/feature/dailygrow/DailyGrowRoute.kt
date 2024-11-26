@@ -61,6 +61,7 @@ import com.example.pet_grow_daily.core.designsystem.theme.gray86
 import com.example.pet_grow_daily.core.designsystem.theme.grayDE
 import com.example.pet_grow_daily.core.designsystem.theme.grayF8
 import com.example.pet_grow_daily.core.designsystem.theme.purpleD9
+import com.example.pet_grow_daily.feature.main.SelectTab
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import com.example.pet_grow_daily.util.LoadGalleryImage
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
@@ -293,7 +294,7 @@ fun TodayCardDescription(growRecord: GrowRecord) {
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = getCategoryItem(categoryType = growRecord.categoryType),
+                    painter = getCategoryItem(categoryType = growRecord.categoryType, SelectTab.DAILYGROW),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                 )

@@ -5,68 +5,50 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.feature.add.CategoryType
+import com.example.pet_grow_daily.feature.main.SelectTab
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.random.Random
 
 @Composable
-fun getCategoryItem(categoryType: CategoryType): Painter {
-    when (categoryType) {
-        CategoryType.SNACK -> {
-            return painterResource(id = R.drawable.ic_snack_dailygrow)
-        }
-
-        CategoryType.WATER -> {
-            return painterResource(id = R.drawable.ic_water_dailygrow)
-        }
-
-        CategoryType.MEDICINE -> {
-            return painterResource(id = R.drawable.ic_medicine_dailygrow)
-        }
-
-        CategoryType.BATH -> {
-            return painterResource(id = R.drawable.ic_bath_dailygrow)
-        }
-
-        CategoryType.HOSPITAL -> {
-            return painterResource(id = R.drawable.ic_hospital_dailygrow)
-        }
-
-        CategoryType.OUT_WORK -> {
-            return painterResource(id = R.drawable.ic_outwork_dailygrow)
-        }
-
-        CategoryType.SLEEP -> {
-            return painterResource(id = R.drawable.ic_sleep_dailygrow)
-
-        }
-
-        CategoryType.IN_PLAY -> {
-            return painterResource(id = R.drawable.ic_inplay_dailygrow)
-        }
-
-        CategoryType.OUT_PLAY -> {
-            return painterResource(id = R.drawable.ic_outplay_dailygrow)
-        }
-
-        CategoryType.EVENT -> {
-            return painterResource(id = R.drawable.ic_event_dailygrow)
-        }
-
-        CategoryType.ETC -> {
-            return painterResource(id = R.drawable.ic_etc_dailygrow)
-        }
-
-        CategoryType.NONE -> {
-            return painterResource(id = R.drawable.ic_water_dailygrow)
-        }
-
-        else -> {
-            return painterResource(id = R.drawable.ic_water_dailygrow)
-        }
+fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
+    val resourceMap = when (selectTab) {
+        SelectTab.DAILYGROW -> mapOf(
+            CategoryType.SNACK to R.drawable.ic_snack_dailygrow,
+            CategoryType.WATER to R.drawable.ic_water_dailygrow,
+            CategoryType.MEDICINE to R.drawable.ic_medicine_dailygrow,
+            CategoryType.BATH to R.drawable.ic_bath_dailygrow,
+            CategoryType.HOSPITAL to R.drawable.ic_hospital_dailygrow,
+            CategoryType.OUT_WORK to R.drawable.ic_outwork_dailygrow,
+            CategoryType.SLEEP to R.drawable.ic_sleep_dailygrow,
+            CategoryType.IN_PLAY to R.drawable.ic_inplay_dailygrow,
+            CategoryType.OUT_PLAY to R.drawable.ic_outplay_dailygrow,
+            CategoryType.EVENT to R.drawable.ic_event_dailygrow,
+            CategoryType.ETC to R.drawable.ic_etc_dailygrow,
+            CategoryType.NONE to R.drawable.ic_water_dailygrow
+        )
+        SelectTab.TOTAL -> mapOf(
+            CategoryType.SNACK to R.drawable.ic_snack_select,
+            CategoryType.WATER to R.drawable.ic_water_select,
+            CategoryType.MEDICINE to R.drawable.ic_medicine_select,
+            CategoryType.BATH to R.drawable.ic_bath_select,
+            CategoryType.HOSPITAL to R.drawable.ic_hospital_select,
+            CategoryType.OUT_WORK to R.drawable.ic_outwork_select,
+            CategoryType.SLEEP to R.drawable.ic_sleep_select,
+            CategoryType.IN_PLAY to R.drawable.ic_inplay_select,
+            CategoryType.OUT_PLAY to R.drawable.ic_outplay_select,
+            CategoryType.EVENT to R.drawable.ic_event_select,
+            CategoryType.ETC to R.drawable.ic_etc_select,
+            CategoryType.NONE to R.drawable.ic_water_select
+        )
     }
+
+    // 기본값을 설정하여 null 방지
+    val resourceId = resourceMap[categoryType] ?: R.drawable.ic_water_select
+    return painterResource(id = resourceId)
 }
+
 fun getCategoryType(categoryType: CategoryType): String {
     when (categoryType) {
         CategoryType.SNACK -> {

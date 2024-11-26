@@ -26,9 +26,9 @@ class OnBoardingViewModel @Inject constructor(
         flow {
             emit(saveNameUseCase(dogName))
         }.onEach {
-
+            _saveNameEvent.emit(true)
         }.catch {
-
+            _saveNameEvent.emit(false)
         }.launchIn(viewModelScope)
 
     }

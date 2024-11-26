@@ -54,6 +54,7 @@ fun findRouteFromDestination(route: String?): Route? {
         Splash.route -> Splash
         DailyGrow.route -> DailyGrow
         Total.route -> Total
+        OnBoarding.route -> OnBoarding
         else -> null
     }
 }

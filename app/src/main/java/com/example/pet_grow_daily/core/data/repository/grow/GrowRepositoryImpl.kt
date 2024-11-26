@@ -30,4 +30,8 @@ class GrowRepositoryImpl @Inject constructor(
     override suspend fun saveName(name: String) {
         growDataSource.saveName(name)
     }
+
+    override suspend fun getName(): Flow<String> = growDataSource.name
+
+
 }

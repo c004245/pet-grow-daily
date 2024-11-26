@@ -1,6 +1,12 @@
 package com.example.pet_grow_daily.feature.dailygrow
 
 import android.util.Log
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -100,6 +106,16 @@ fun DailyGrowScreen(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
+    
+    val infiniteTransition = rememberInfiniteTransition()
+    val tooltipOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -151,7 +167,7 @@ fun DailyGrowScreen(
             contentDescription = "tooltip",
             modifier = Modifier
                 .align(Alignment.BottomCenter) // 하단 중앙 정렬
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp + tooltipOffset.dp) // 애니메이션 오프셋 추가
         )
     }
 }

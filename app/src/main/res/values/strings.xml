@@ -13,4 +13,5 @@
     <string name="text_next">다음</string>
     <string name="text_onboarding_title">반려견의 성장을 기록해요</string>
     <string name="text_onboarding_description">산책, 급여, 배변 등 반려견의 성장을 기록해요.</string>
+    <string name="text_save_done">오늘의 성장을 기록했어요!</string>
 </resources>

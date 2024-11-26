@@ -78,17 +78,27 @@ fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
                         Log.d("HWO", "Emotion Type -> $selectEmotionType -- $selectMemo")
                         emotionType = selectEmotionType
                         memo = selectMemo
-
-                        val record = GrowRecord(
-                            photoUrl = photoUrl,
-                            categoryType = categoryType,
-                            emotionType = emotionType,
-                            memo = memo,
-                            timeStamp = System.currentTimeMillis()
-                        )
-                        onCloseClick(record)
+                        currentStep = Step.DONE
                     }
                 )
+                Step.DONE -> Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    DoneBottomSheet(
+                        onDone = {
+                            val record = GrowRecord(
+                                photoUrl = photoUrl,
+                                categoryType = categoryType,
+                                emotionType = emotionType,
+                                memo = memo,
+                                timeStamp = System.currentTimeMillis()
+                            )
+                            onCloseClick(record)
+                        },
+                        modifier = Modifier.align(Alignment.BottomCenter) // Bottom에서 시작
+
+                    )
+                }
 
             }
 
@@ -158,5 +168,6 @@ fun AddGrowAppBar(
 enum class Step {
     PHOTO,
     CATEGORY,
-    EMOTION
+    EMOTION,
+    DONE
 }

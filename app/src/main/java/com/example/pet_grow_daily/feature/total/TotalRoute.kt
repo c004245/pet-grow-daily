@@ -68,13 +68,21 @@ fun TotalRoute(
     val calendar = remember { getInstance() }
     var currentMonth by remember { mutableStateOf(calendar.get(MONTH) + 1) } // 초기 월 설정
     val monthlyGrowRecords by viewModel.monthlyGrowRecords.collectAsState()
+    val dogName by viewModel.dogName.collectAsState()
 
-    // 현재 월 변경 시 데이터를 갱신
+
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchDogName()
+    }
+
     LaunchedEffect(currentMonth) {
         viewModel.getMonthlyRecord(currentMonth.toString())
     }
     TotalScreen(
         paddingValues = paddingValues,
+        dogName = dogName,
+
         monthlyGrowRecords = monthlyGrowRecords,
         currentMonth = currentMonth, // 현재 월 전달
         onPreviousMonth = {
@@ -93,6 +101,7 @@ fun TotalRoute(
 @Composable
 fun TotalScreen(
     paddingValues: PaddingValues,
+    dogName: String,
     monthlyGrowRecords: List<GrowRecord>,
     currentMonth: Int,
     onPreviousMonth: () -> Unit,
@@ -123,6 +132,7 @@ fun TotalScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             TotalSummary(
+                dogName = dogName,
                 currentMonth = currentMonth, // 현재 월 전달
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -174,7 +184,7 @@ fun TotalMonthly(
             painter = painterResource(id = R.drawable.ic_total_right_arrow),
             contentDescription = "total_right_arrow",
             modifier = Modifier.clickable {
-                if (currentMonth < JANUARY_MONTH) {
+                if (currentMonth < DECEMBER_MONTH) {
                     onNextMonth()
                 }
             }
@@ -184,6 +194,7 @@ fun TotalMonthly(
 
 @Composable
 fun TotalSummary(
+    dogName: String,
     currentMonth: Int) {
 
     Box(
@@ -199,7 +210,7 @@ fun TotalSummary(
         ) {
             Text(
                 modifier = Modifier.wrapContentWidth(),
-                text = "건빵이의 ${currentMonth}월 활동을 알려드릴게요!",
+                text = "${dogName}에 ${currentMonth}월 활동을 알려드릴게요!",
                 style = PetgrowTheme.typography.bold,
                 color = Color.White,
                 fontSize = 14.sp
@@ -341,7 +352,8 @@ fun GrowItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             LoadGalleryImage(uri = model.photoUrl,
-                modifier = Modifier.size(39.dp)
+                modifier = Modifier
+                    .size(39.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(8.dp)))
 

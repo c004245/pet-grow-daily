@@ -2,6 +2,7 @@ package com.example.pet_grow_daily.core.data.repository.grow
 
 import androidx.annotation.WorkerThread
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
+import com.example.pet_grow_daily.feature.add.CategoryType
 import kotlinx.coroutines.flow.Flow
 
 interface GrowRepository {
@@ -11,6 +12,7 @@ interface GrowRepository {
 
     suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>>
 
+    suspend fun getMonthlyCategoryGrowRecords(categoryType: CategoryType, month: String): Flow<List<GrowRecord>>
     suspend fun saveName(name: String)
 
     suspend fun getName(): Flow<String>

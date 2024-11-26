@@ -78,7 +78,15 @@ fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
                         Log.d("HWO", "Emotion Type -> $selectEmotionType -- $selectMemo")
                         emotionType = selectEmotionType
                         memo = selectMemo
-                        currentStep = Step.DONE
+                        val record = GrowRecord(
+                            photoUrl = photoUrl,
+                            categoryType = categoryType,
+                            emotionType = emotionType,
+                            memo = memo,
+                            timeStamp = System.currentTimeMillis()
+                        )
+                        onCloseClick(record)
+//                        currentStep = Step.DONE
                     }
                 )
                 Step.DONE -> Box(

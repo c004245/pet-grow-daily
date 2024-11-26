@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread
 import com.example.pet_grow_daily.core.database.GrowRecordDao
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
 import com.example.pet_grow_daily.core.datastore.datasource.GrowPreferencesDataSource
+import com.example.pet_grow_daily.feature.add.CategoryType
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,13 @@ class GrowRepositoryImpl @Inject constructor(
 
     override suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>> {
         return growRecordDao.getMonthlyGrowRecords(month)
+    }
+
+    override suspend fun getMonthlyCategoryGrowRecords(
+        categoryType: CategoryType,
+        month: String
+    ): Flow<List<GrowRecord>> {
+        return growRecordDao.getMonthlyCategoryGrowRecords(categoryType, month)
     }
 
     override suspend fun saveName(name: String) {

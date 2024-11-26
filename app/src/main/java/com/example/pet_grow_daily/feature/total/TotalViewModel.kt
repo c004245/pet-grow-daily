@@ -3,6 +3,7 @@ package com.example.pet_grow_daily.feature.total
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
+import com.example.pet_grow_daily.core.domain.usecase.GetMonthlyCategoryGrowRecordsUseCase
 import com.example.pet_grow_daily.core.domain.usecase.GetMonthlyGrowRecordUseCase
 import com.example.pet_grow_daily.core.domain.usecase.GetNameUseCase
 import com.example.pet_grow_daily.feature.add.CategoryType
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TotalViewModel @Inject constructor(
     private val getMonthlyGrowRecordUseCase: GetMonthlyGrowRecordUseCase,
+    private val getMonthlyCategoryGrowRecordsUseCase: GetMonthlyCategoryGrowRecordsUseCase,
     private val getNameUseCase: GetNameUseCase
 ): ViewModel() {
 
@@ -46,6 +48,14 @@ class TotalViewModel @Inject constructor(
 
                 _topMonthlyCategories.value = categoryCounts
             }
+        }
+    }
+
+    fun getMonthlyCategoryGrowRecord(categoryType: CategoryType, month: String) {
+        viewModelScope.launch {
+            getMonthlyCategoryGrowRecordsUseCase(categoryType, month).collect {
+                
+        }
         }
     }
 

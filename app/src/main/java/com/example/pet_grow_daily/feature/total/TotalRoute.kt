@@ -144,7 +144,9 @@ fun TotalScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             TotalCategory(items = items,
-                onCategorySelected = {
+                onCategorySelected = {selectCategory ->
+                    Log.d("HWO", "select Category -> $selectCategory")
+
 
                 })
         }

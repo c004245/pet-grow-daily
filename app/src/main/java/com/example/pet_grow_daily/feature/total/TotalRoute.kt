@@ -56,6 +56,7 @@ import com.example.pet_grow_daily.util.LoadGalleryImage
 import com.example.pet_grow_daily.util.formatTimestampToDateTime
 import com.example.pet_grow_daily.util.getCategoryItem
 import com.example.pet_grow_daily.util.getCategoryType
+import com.example.pet_grow_daily.util.getStringToCategoryType
 import java.util.Calendar
 import java.util.Calendar.*
 
@@ -64,12 +65,12 @@ val DECEMBER_MONTH = 12
 
 @Composable
 fun TotalRoute(
-    paddingValues: PaddingValues,
     viewModel: TotalViewModel = hiltViewModel()
 ) {
 
     val calendar = remember { getInstance() }
     var currentMonth by remember { mutableStateOf(calendar.get(MONTH) + 1) } // 초기 월 설정
+    val defaultCategory = CategoryType.ALL
 
     val monthlyGrowRecords by viewModel.monthlyGrowRecords.collectAsState()
     val dogName by viewModel.dogName.collectAsState()
@@ -79,11 +80,9 @@ fun TotalRoute(
 
     LaunchedEffect(Unit) {
         viewModel.fetchDogName()
+        viewModel.getMonthlyCategoryGrowRecord(defaultCategory, currentMonth.toString())
     }
 
-    LaunchedEffect(currentMonth) {
-        viewModel.getMonthlyRecord(currentMonth.toString())
-    }
     // Group state into a single object
     val totalScreenState = TotalScreenState(
         dogName = dogName,
@@ -93,27 +92,32 @@ fun TotalRoute(
     )
 
     TotalScreen(
-        paddingValues = paddingValues,
         state = totalScreenState,
         onPreviousMonth = {
             calendar.add(MONTH, -1)
             currentMonth = calendar.get(MONTH) + 1
+            viewModel.getMonthlyCategoryGrowRecord(defaultCategory, currentMonth.toString())
         },
+
         onNextMonth = {
             calendar.add(MONTH, 1)
             currentMonth = calendar.get(MONTH) + 1
+        },
+        onCategorySelect = { selectCategoryType ->
+            viewModel.getMonthlyCategoryGrowRecord(selectCategoryType, currentMonth.toString())
         }
     )
 }
 
 @Composable
 fun TotalScreen(
-    paddingValues: PaddingValues,
     state: TotalScreenState,
     onPreviousMonth: () -> Unit,
-    onNextMonth: () -> Unit
+    onNextMonth: () -> Unit,
+    onCategorySelect: (CategoryType) -> Unit
 ) {
-    val items = listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "산책", "운동", "학습", "놀이", "식사", "양치", "잠자기")
+    val items =
+        listOf("전체", "간식", "물 마시기", "약 먹기", "목욕", "병원", "산책", "수면", "실내놀이", "실외놀이", "이벤트", "기타")
 
     Column(
         modifier = Modifier
@@ -144,20 +148,15 @@ fun TotalScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             TotalCategory(items = items,
-                onCategorySelected = {selectCategory ->
-                    Log.d("HWO", "select Category -> $selectCategory")
-
-
+                onCategorySelected = { selectCategory ->
+                    onCategorySelect(getStringToCategoryType(selectCategory))
                 })
         }
 
         Spacer(modifier = Modifier.height(16.dp))
         TotalGrowItem(state.monthlyGrowRecords)
-
     }
-
 }
-
 
 @Composable
 fun TotalMonthly(
@@ -165,8 +164,6 @@ fun TotalMonthly(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
-
-    Log.d("HWO", "currentMOnth -> $currentMonth")
     Row(
         modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -207,7 +204,6 @@ fun TotalSummary(
     categories: List<CategoryCount>,
     currentMonth: Int
 ) {
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -240,7 +236,6 @@ fun TotalSummary(
     }
 }
 
-//Summary내에 상위 3개 카테고리 아이템
 @Composable
 fun CategorySummaryItem(category: CategoryCount) {
     Row(
@@ -314,7 +309,6 @@ fun CategoryItem(
 
 @Composable
 fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
-    Log.d("HWO", "TotalGrowItem -> ${monthlyGrowRecords.size}")
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -324,11 +318,9 @@ fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
         items(monthlyGrowRecords) { model ->
             GrowItem(model, onGrowClick = {
 
-            }
-            )
+            })
         }
     }
-
 }
 
 @Composable
@@ -336,7 +328,6 @@ fun GrowItem(
     model: GrowRecord,
     onGrowClick: () -> Unit
 ) {
-    Log.d("HWO", "GrowItem -> ${model.photoUrl}")
     Box(
         modifier = Modifier
             .fillMaxWidth()

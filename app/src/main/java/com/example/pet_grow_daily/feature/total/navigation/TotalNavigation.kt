@@ -17,13 +17,9 @@ fun NavController.navigateTotal(
     navigate(Total, navOptions = navOptions)
 }
 
-fun NavGraphBuilder.totalNavGraph(
-    paddingValues: PaddingValues
-) {
+fun NavGraphBuilder.totalNavGraph() {
     composable<Total> {
-        TotalRoute(
-            paddingValues = paddingValues
-        )
+        TotalRoute()
     }
 }
 

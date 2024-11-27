@@ -1,5 +1,6 @@
 package com.example.pet_grow_daily.feature.total
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
@@ -13,6 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +23,7 @@ class TotalViewModel @Inject constructor(
     private val getMonthlyGrowRecordUseCase: GetMonthlyGrowRecordUseCase,
     private val getMonthlyCategoryGrowRecordsUseCase: GetMonthlyCategoryGrowRecordsUseCase,
     private val getNameUseCase: GetNameUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _monthlyGrowRecords = MutableStateFlow<List<GrowRecord>>(emptyList())
     val monthlyGrowRecords: StateFlow<List<GrowRecord>> get() = _monthlyGrowRecords
@@ -34,30 +36,32 @@ class TotalViewModel @Inject constructor(
 
 
 
-
-    fun getMonthlyRecord(month: String) {
+    fun getMonthlyCategoryGrowRecord(categoryType: CategoryType, month: String) {
         viewModelScope.launch {
-            getMonthlyGrowRecordUseCase(month).collect { records ->
-                _monthlyGrowRecords.value = records
+            val records = if (categoryType == CategoryType.ALL) {
+                getMonthlyGrowRecordUseCase(month).firstOrNull() ?: emptyList()
+            } else {
+                getMonthlyCategoryGrowRecordsUseCase(categoryType, month).firstOrNull() ?: emptyList()
+            }
 
-                val categoryCounts = records
-                    .groupBy {  it.categoryType }
-                    .map { CategoryCount(it.key, it.value.size) }
-                    .sortedByDescending { it.count }
-                    .take(3)
+            _monthlyGrowRecords.value = records
 
-                _topMonthlyCategories.value = categoryCounts
+            if (categoryType == CategoryType.ALL) {
+                calculateTopCategories(records)
             }
         }
     }
 
-    fun getMonthlyCategoryGrowRecord(categoryType: CategoryType, month: String) {
-        viewModelScope.launch {
-            getMonthlyCategoryGrowRecordsUseCase(categoryType, month).collect {
-                
-        }
-        }
+    private fun calculateTopCategories(records: List<GrowRecord>) {
+        val categoryCounts = records
+            .groupBy { it.categoryType }
+            .map { CategoryCount(it.key, it.value.size) }
+            .sortedByDescending { it.count }
+            .take(3)
+
+        _topMonthlyCategories.value = categoryCounts
     }
+
 
     fun fetchDogName() {
         viewModelScope.launch {

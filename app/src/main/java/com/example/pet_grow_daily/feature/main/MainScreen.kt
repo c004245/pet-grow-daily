@@ -110,9 +110,7 @@ internal fun MainScreen(
                     dailyGrowNavGraph(
                         paddingValues = paddingValues
                     )
-                    totalNavGraph(
-                        paddingValues = paddingValues
-                    )
+                    totalNavGraph()
                     onboardingNavGraph(
                         navigateToDailyGrow = {
                             navigate(navigator, SelectTab.DAILYGROW)

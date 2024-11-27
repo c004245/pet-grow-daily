@@ -28,6 +28,7 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.ETC to R.drawable.ic_etc_dailygrow,
             CategoryType.NONE to R.drawable.ic_water_dailygrow
         )
+
         SelectTab.TOTAL -> mapOf(
             CategoryType.SNACK to R.drawable.ic_snack_select,
             CategoryType.WATER to R.drawable.ic_water_select,
@@ -47,6 +48,63 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
     // 기본값을 설정하여 null 방지
     val resourceId = resourceMap[categoryType] ?: R.drawable.ic_water_select
     return painterResource(id = resourceId)
+}
+
+fun getStringToCategoryType(type: String): CategoryType {
+    when (type) {
+        "전체" -> {
+            return CategoryType.ALL
+        }
+
+        "간식" -> {
+            return CategoryType.SNACK
+        }
+
+        "물 마시기" -> {
+            return CategoryType.WATER
+
+        }
+
+        "약 먹기" -> {
+            return CategoryType.MEDICINE
+        }
+
+        "목욕" -> {
+            return CategoryType.BATH
+        }
+
+        "병원" -> {
+            return CategoryType.HOSPITAL
+        }
+
+        "산책" -> {
+            return CategoryType.OUT_WORK
+        }
+
+        "수면" -> {
+            return CategoryType.SLEEP
+        }
+
+        "실내놀이" -> {
+            return CategoryType.IN_PLAY
+        }
+
+        "실외놀이" -> {
+            return CategoryType.OUT_PLAY
+        }
+
+        "이벤트" -> {
+            return CategoryType.EVENT
+        }
+
+        "기타" -> {
+            return CategoryType.ETC
+        }
+
+        else -> {
+            return CategoryType.NONE
+        }
+    }
 }
 
 fun getCategoryType(categoryType: CategoryType): String {

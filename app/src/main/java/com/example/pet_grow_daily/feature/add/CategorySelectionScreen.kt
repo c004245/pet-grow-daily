@@ -215,7 +215,7 @@ fun CategoryGridItem(item: CategoryItemData, isSelected: Boolean, onCategoryClic
                 text = item.name,
                 fontSize = 12.sp,
                 style = PetgrowTheme.typography.medium,
-                color = if(isSelected) Color.White else black21
+                color = if (isSelected) Color.White else black21
             )
         }
     }
@@ -230,6 +230,7 @@ data class CategoryItemData(
 )
 
 enum class CategoryType {
+    ALL,
     SNACK,
     WATER,
     MEDICINE,

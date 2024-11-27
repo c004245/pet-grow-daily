@@ -23,9 +23,10 @@ interface GrowRecordDao {
     fun getMonthlyGrowRecords(month: String): Flow<List<GrowRecord>>
 
     //카테고리에 해당되는 월 데이터 출력
-    @Query("""SELECT * FROM GrowRecord WHERE strftime('%m', timeStamp / 1000, 'unixepoch', 'localtime') = :month AND categoryType = :categoryType """)
+    @Query("""SELECT * FROM GrowRecord  WHERE strftime('%m', timeStamp / 1000, 'unixepoch', 'localtime') = :month AND categoryType = :categoryType""")
     fun getMonthlyCategoryGrowRecords(
         categoryType: CategoryType,
         month: String
     ): Flow<List<GrowRecord>>
+
 }

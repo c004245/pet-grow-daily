@@ -102,6 +102,8 @@ fun TotalRoute(
         onNextMonth = {
             calendar.add(MONTH, 1)
             currentMonth = calendar.get(MONTH) + 1
+            viewModel.getMonthlyCategoryGrowRecord(defaultCategory, currentMonth.toString())
+
         },
         onCategorySelect = { selectCategoryType ->
             viewModel.getMonthlyCategoryGrowRecord(selectCategoryType, currentMonth.toString())

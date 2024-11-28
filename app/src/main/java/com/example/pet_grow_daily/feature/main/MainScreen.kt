@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -67,6 +68,8 @@ internal fun MainScreen(
         skipPartiallyExpanded = true
     )
     var isSheetOpen by remember { mutableStateOf(false) }
+
+    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
 
 
     LaunchedEffect(Unit) {
@@ -131,12 +134,15 @@ internal fun MainScreen(
                         isSheetOpen = true
                     },
                     onDailyGrowClick = {
+                        selectedTab = SelectTab.DAILYGROW
                         navigate(navigator, SelectTab.DAILYGROW)
                     },
                     onTotalClick = {
+                        selectedTab = SelectTab.TOTAL
                         navigate(navigator, SelectTab.TOTAL)
-                    }
-                    )
+                    },
+                    selectedTab = selectedTab
+                )
 
             }
 
@@ -168,7 +174,7 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
     }
     if (selectTab == SelectTab.DAILYGROW) {
         navigator.navigateToDailyGrow(navOptions = navOptions)
-    } else if (selectTab == SelectTab.TOTAL){
+    } else if (selectTab == SelectTab.TOTAL) {
         navigator.navigateToTotal(navOptions = navOptions)
     } else {
         navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -180,8 +186,9 @@ fun CustomBottomBar(
     onSelectBottomClick: () -> Unit,
     onDailyGrowClick: () -> Unit,
     onTotalClick: () -> Unit,
+    selectedTab: SelectTab
 ) {
-    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
+//    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
 
     Box(
         modifier = Modifier
@@ -205,24 +212,21 @@ fun CustomBottomBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
-                            selectedTab = SelectTab.DAILYGROW
                             onDailyGrowClick()
                         }
                         .weight(1f)
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = if (selectedTab == SelectTab.DAILYGROW) {
-                                R.drawable.ic_dailygrow_select_tab
-                            } else {
-                                R.drawable.ic_dailygrow_unselect_tab
-                            }
+                            id = R.drawable.ic_dailygrow_select_tab
                         ),
+                        tint = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21,
                         contentDescription = "Today's Growth",
                     )
                     Text(
                         text = stringResource(id = R.string.text_today_grow_title),
                         style = PetgrowTheme.typography.bold,
+                        fontSize = 14.sp,
                         color = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21
                     )
                 }
@@ -230,23 +234,21 @@ fun CustomBottomBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
-                            selectedTab = SelectTab.TOTAL
+//                            selectedTab = SelectTab.TOTAL
                             onTotalClick()
                         }
                         .weight(1f)
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = if (selectedTab == SelectTab.TOTAL) {
-                                R.drawable.ic_total_select_tab
-                            } else {
-                                R.drawable.ic_total_unselect_tab
-                            }
+                            id = R.drawable.ic_total_select_tab
                         ),
+                        tint = if (selectedTab == SelectTab.TOTAL) purple6C else black21, // 상태에 따른 색상 변경
                         contentDescription = "Collect",
                     )
                     Text(
                         text = stringResource(id = R.string.text_total_title),
+                        fontSize = 14.sp,
                         style = PetgrowTheme.typography.medium,
                         color = if (selectedTab == SelectTab.TOTAL) purple6C else black21
                     )
@@ -265,9 +267,6 @@ fun CustomBottomBar(
         )
     }
 }
-
-
-
 
 
 @Preview

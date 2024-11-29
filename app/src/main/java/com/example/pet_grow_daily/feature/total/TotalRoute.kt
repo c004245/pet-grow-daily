@@ -1,14 +1,11 @@
 package com.example.pet_grow_daily.feature.total
 
-import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -41,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.pet_grow_daily.R
 import com.example.pet_grow_daily.core.database.entity.GrowRecord
@@ -311,6 +309,8 @@ fun CategoryItem(
 
 @Composable
 fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
+
+    var selectedImageUri by remember { mutableStateOf<String?>(null) }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -319,11 +319,20 @@ fun TotalGrowItem(monthlyGrowRecords: List<GrowRecord>) {
     ) {
         items(monthlyGrowRecords) { model ->
             GrowItem(model, onGrowClick = {
-
+                selectedImageUri = model.photoUrl
             })
         }
     }
+
+    selectedImageUri?.let { uri ->
+        ImageFullScreenPopup(
+            imageUri = uri,
+            onClose =  { selectedImageUri = null}
+        )
+    }
 }
+
+
 
 @Composable
 fun GrowItem(
@@ -394,5 +403,39 @@ fun GrowItem(
         }
     }
 
+}
+
+
+@Composable
+fun ImageFullScreenPopup(imageUri: String, onClose: () -> Unit) {
+    Dialog(onDismissRequest = onClose) { // 팝업 창
+        Box(
+            modifier = Modifier
+                .background(purple6C)
+                .clickable { onClose() }, // 클릭하면 닫기
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // 이미지 로드
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp) // 다이얼로그 내부 여백
+                        .clip(RoundedCornerShape(8.dp)) // 배경 모서리 둥글게
+                        .background(purple6C) // 보라색 배경
+                ) {
+                    // 이미지
+                    LoadGalleryImage(
+                        uri = imageUri,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(8.dp)) // 이미지 모서리 반경
+                            .background(Color.White) // 이미지 배경 흰색으로 설정 (시각적 구분)
+                            .padding(2.dp) // 이미지 내부 공간 확보
+                    )
+                }
+            }
+        }
+    }
 }
 

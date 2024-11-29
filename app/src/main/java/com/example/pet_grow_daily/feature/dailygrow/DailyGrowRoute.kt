@@ -220,13 +220,12 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val visibleItems = layoutInfo.visibleItemsInfo
-            if (visibleItems.isNotEmpty()) {
-                visibleItems.minByOrNull {
-                    (it.offset + it.size / 2 - layoutInfo.viewportEndOffset / 2).absoluteValue
-                }?.index ?: 0
-            } else 0
+            visibleItems.minByOrNull {
+                (it.offset + it.size / 2 - layoutInfo.viewportEndOffset / 2).absoluteValue
+            }?.index ?: 0
         }
     }
+
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val itemWidth = screenWidth - (2 * 40.dp) - 16.dp
@@ -242,7 +241,6 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
         verticalAlignment = Alignment.Top
     ) {
         itemsIndexed(growRecordItem) { index, item ->
-            Log.d("HWO", "DailyGrowROute -> ${item.photoUrl}")
             Box(
                 modifier = Modifier
                     .graphicsLayer {

@@ -368,7 +368,7 @@ fun GrowItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_medicine_select),
+                        painter = getCategoryItem(model.categoryType, SelectTab.TOTAL),
                         contentDescription = "medicine"
                     )
                     Spacer(modifier = Modifier.width(4.dp))

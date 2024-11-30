@@ -26,7 +26,7 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.OUT_PLAY to R.drawable.ic_outplay_dailygrow,
             CategoryType.EVENT to R.drawable.ic_event_dailygrow,
             CategoryType.ETC to R.drawable.ic_etc_dailygrow,
-            CategoryType.NONE to R.drawable.ic_water_dailygrow
+            CategoryType.NONE to R.drawable.ic_water_dailygrow,
         )
 
         SelectTab.TOTAL -> mapOf(
@@ -43,6 +43,8 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.ETC to R.drawable.ic_etc_select,
             CategoryType.NONE to R.drawable.ic_water_select
         )
+
+        SelectTab.NAME -> TODO()
     }
 
     // 기본값을 설정하여 null 방지

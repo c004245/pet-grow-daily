@@ -1,4 +1,4 @@
-package com.example.pet_grow_daily.feature.main.onboarding
+package com.example.pet_grow_daily.feature.main.name
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class OnBoardingViewModel @Inject constructor(
+class NameViewModel @Inject constructor(
     private val saveNameUseCase: SaveNameUseCase
 
 ) : ViewModel() {

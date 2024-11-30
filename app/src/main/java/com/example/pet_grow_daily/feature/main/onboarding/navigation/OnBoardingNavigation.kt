@@ -8,11 +8,11 @@ import kotlinx.serialization.Serializable
 
 
 fun NavGraphBuilder.onboardingNavGraph(
-    navigateToDailyGrow: () -> Unit
+    navigateToName: () -> Unit
 ) {
     composable<OnBoarding> {
         OnBoardingScreen(
-            navigateToDailyGrow = navigateToDailyGrow
+            navigateToName = navigateToName
         )
     }
 }

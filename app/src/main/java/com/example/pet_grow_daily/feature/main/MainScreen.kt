@@ -49,11 +49,13 @@ import com.example.pet_grow_daily.core.designsystem.theme.black21
 import com.example.pet_grow_daily.core.designsystem.theme.purple6C
 import com.example.pet_grow_daily.feature.add.BottomSheetContent
 import com.example.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
+import com.example.pet_grow_daily.feature.main.name.navigation.nameNavaGraph
 import com.example.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import com.example.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import com.example.pet_grow_daily.feature.total.navigation.totalNavGraph
 import com.example.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,6 +117,11 @@ internal fun MainScreen(
                     )
                     totalNavGraph()
                     onboardingNavGraph(
+                        navigateToName = {
+                            navigate(navigator, SelectTab.NAME)
+                        }
+                    )
+                    nameNavaGraph(
                         navigateToDailyGrow = {
                             navigate(navigator, SelectTab.DAILYGROW)
                         }
@@ -172,12 +179,19 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
         }
         launchSingleTop = true
     }
-    if (selectTab == SelectTab.DAILYGROW) {
-        navigator.navigateToDailyGrow(navOptions = navOptions)
-    } else if (selectTab == SelectTab.TOTAL) {
-        navigator.navigateToTotal(navOptions = navOptions)
-    } else {
-        navigator.navigateToOnBoarding(navOptions = navOptions)
+    when (selectTab) {
+        SelectTab.DAILYGROW -> {
+            navigator.navigateToDailyGrow(navOptions = navOptions)
+        }
+        SelectTab.TOTAL -> {
+            navigator.navigateToTotal(navOptions = navOptions)
+        }
+        SelectTab.NAME -> {
+            navigator.navigateToName(navOptions = navOptions)
+        }
+        else -> {
+            navigator.navigateToOnBoarding(navOptions = navOptions)
+        }
     }
 }
 
@@ -278,6 +292,6 @@ fun MainScreenPreview() {
 }
 
 enum class SelectTab {
-    DAILYGROW, TOTAL
+    DAILYGROW, TOTAL, NAME
 }
 

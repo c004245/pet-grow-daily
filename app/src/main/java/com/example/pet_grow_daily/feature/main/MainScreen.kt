@@ -77,13 +77,11 @@ internal fun MainScreen(
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collect { isSuccess ->
             if (isSuccess) {
-                Toast.makeText(context, "저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "저장이 완료되었습니다.", Toast.LENGTH_SHORT).show()
                 coroutineScope.launch {
                     sheetState.hide()
                 }
                 isSheetOpen = false
-            } else {
-                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }

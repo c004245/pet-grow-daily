@@ -45,17 +45,19 @@ fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
             .height(sheetHeight)
             .padding(horizontal = 16.dp)
     ) {
-        AddGrowAppBar(currentStep,
-            onClickPhoto = { currentStep = Step.PHOTO },
-            onClickCategory = { currentStep = Step.CATEGORY },
-            onClickEmotion = { currentStep = Step.EMOTION }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
+        if (currentStep != Step.DONE) {
+            AddGrowAppBar(
+                currentStep,
+                onClickPhoto = { currentStep = Step.PHOTO },
+                onClickCategory = { currentStep = Step.CATEGORY },
+                onClickEmotion = { currentStep = Step.EMOTION }
+            )
+            Spacer(modifier = Modifier.height(24.dp)) // AppBar와 콘텐츠 사이 간격 유지
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
-//                .verticalScroll(rememberScrollState())
-        ) {
+      ) {
             when (currentStep) {
                 Step.PHOTO -> PhotoSelectionScreen(
                     onPhotoSelected = { selectPhotoUrl ->
@@ -78,15 +80,7 @@ fun BottomSheetContent(onCloseClick: (GrowRecord) -> Unit) {
                         Log.d("HWO", "Emotion Type -> $selectEmotionType -- $selectMemo")
                         emotionType = selectEmotionType
                         memo = selectMemo
-                        val record = GrowRecord(
-                            photoUrl = photoUrl,
-                            categoryType = categoryType,
-                            emotionType = emotionType,
-                            memo = memo,
-                            timeStamp = System.currentTimeMillis()
-                        )
-                        onCloseClick(record)
-//                        currentStep = Step.DONE
+                        currentStep = Step.DONE
                     }
                 )
                 Step.DONE -> Box(

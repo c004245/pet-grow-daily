@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,14 +40,30 @@ fun LoadGalleryImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop
 ) {
+    val context = LocalContext.current
+
+    DisposableEffect(uri) {
+        // 권한 확인 및 요청
+        val persistedUris = context.contentResolver.persistedUriPermissions.map { it.uri }
+        if (!persistedUris.contains(Uri.parse(uri))) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    Uri.parse(uri),
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                Log.e("LoadGalleryImage", "SecurityException while accessing URI: $uri", e)
+            }
+        }
+
+        onDispose { }
+    }
+
+    // Glide로 이미지 로드
     GlideImage(
         model = uri,
         contentDescription = null,
         contentScale = contentScale,
-        modifier = modifier,
-        // 수정된 로딩 상태
+        modifier = modifier
     )
 }
-
-
-

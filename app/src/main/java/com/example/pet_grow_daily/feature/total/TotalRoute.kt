@@ -419,7 +419,6 @@ fun ImageFullScreenPopup(imageUri: String, onClose: () -> Unit) {
                 // 이미지 로드
                 Box(
                     modifier = Modifier
-                        .padding(8.dp) // 다이얼로그 내부 여백
                         .clip(RoundedCornerShape(8.dp)) // 배경 모서리 둥글게
                         .background(purple6C) // 보라색 배경
                 ) {
@@ -431,7 +430,6 @@ fun ImageFullScreenPopup(imageUri: String, onClose: () -> Unit) {
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(8.dp)) // 이미지 모서리 반경
                             .background(Color.White) // 이미지 배경 흰색으로 설정 (시각적 구분)
-                            .padding(2.dp) // 이미지 내부 공간 확보
                     )
                 }
             }

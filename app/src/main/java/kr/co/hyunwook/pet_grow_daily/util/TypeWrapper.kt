@@ -5,12 +5,30 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
+import kr.co.hyunwook.pet_grow_daily.feature.add.EmotionType
 import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.random.Random
 
+@Composable
+fun getEmotionItem(emotionType: EmotionType): Painter {
+    val resourceMap =
+        mapOf(
+            EmotionType.ANGRY to R.drawable.ic_angry_dailygrow,
+            EmotionType.GOOD to R.drawable.ic_good_dailygrow,
+            EmotionType.LOVE to R.drawable.ic_love_dailygrow,
+            EmotionType.SAD to R.drawable.ic_sad_dailygrow,
+            EmotionType.CRY to R.drawable.ic_cry_dailygrow,
+            EmotionType.HAPPY to R.drawable.ic_happy_dailygrow,
+            EmotionType.SMILE to R.drawable.ic_smile_dailygrow,
+            EmotionType.SICK to R.drawable.ic_sink_dailygrow,
+        )
+
+    val resourceId = resourceMap[emotionType] ?: R.drawable.ic_happy_dailygrow
+    return painterResource(id = resourceId)
+}
 @Composable
 fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
     val resourceMap = when (selectTab) {

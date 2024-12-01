@@ -70,6 +70,7 @@ import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 import kr.co.hyunwook.pet_grow_daily.util.formatTimestampToDateTime
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryType
+import kr.co.hyunwook.pet_grow_daily.util.getEmotionItem
 import kr.co.hyunwook.pet_grow_daily.util.getMemoOrRandomQuote
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -306,6 +307,21 @@ fun TodayCardDescription(growRecord: GrowRecord) {
             ) {
                 Image(
                     painter = getCategoryItem(categoryType = growRecord.categoryType, SelectTab.DAILYGROW),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(24.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(purpleD9),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = getEmotionItem(emotionType = growRecord.emotionType),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                 )

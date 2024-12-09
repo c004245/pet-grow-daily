@@ -5,6 +5,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
 
+
 }
 
 android {
@@ -44,7 +45,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {

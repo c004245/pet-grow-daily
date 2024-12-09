@@ -165,7 +165,6 @@ internal fun MainScreen(
             )
         }
     }
-
 }
 
 fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {

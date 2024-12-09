@@ -25,6 +25,9 @@ kotlinxSerializationJson = "1.7.0"
 accompanistSystemuicontroller = "0.17.0"
 glide-compose = "1.0.0-beta01"
 
+firebase-bom = "33.7.0"
+google-services = "4.3.15"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -66,11 +69,12 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose"}
 
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
-
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services"}
 

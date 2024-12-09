@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
+    alias(libs.plugins.google.services)
+
+
 
 
 }
@@ -16,8 +19,8 @@ android {
         applicationId = "kr.co.hyunwook.pet_grow_daily"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -91,6 +94,8 @@ dependencies {
 
     implementation(libs.glide.compose)
     implementation(libs.androidx.datastore)
+
+    implementation(platform(libs.firebase.bom))
 
 
 }

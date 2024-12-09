@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1013136118619",
+    "project_id": "pet-grow-daily",
+    "storage_bucket": "pet-grow-daily.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013136118619:android:8ba1d14aa9ba7e86ea807e",
+        "android_client_info": {
+          "package_name": "kr.co.hyunwook.pet_grow_daily"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9rukBtd4iXQgwcVhQEaK56i2y3RYO-YU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

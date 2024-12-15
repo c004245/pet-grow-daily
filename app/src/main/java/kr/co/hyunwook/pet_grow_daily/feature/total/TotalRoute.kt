@@ -393,9 +393,6 @@ fun GrowItem(
                 contentDescription = "fullscreen",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable {
-
-                    }
             )
 
         }

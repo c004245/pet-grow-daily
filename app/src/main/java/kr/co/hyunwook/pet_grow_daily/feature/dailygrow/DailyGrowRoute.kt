@@ -104,7 +104,7 @@ fun DailyGrowScreen(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    
+
     val infiniteTransition = rememberInfiniteTransition()
     val tooltipOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -261,11 +261,13 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
                         .fillMaxWidth()
                         .wrapContentHeight()
                 ) {
-                    LoadGalleryImage(uri = item.photoUrl,
+                    LoadGalleryImage(
+                        uri = item.photoUrl,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp)))
+                            .clip(RoundedCornerShape(16.dp))
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                     TodayCardDescription(item)
@@ -278,7 +280,10 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
 
 @Composable
 fun TodayCardDescription(growRecord: GrowRecord) {
-    Log.d("HWO", "growRecord -> ${growRecord.categoryType} -- ${growRecord.emotionType} -- ${growRecord.memo} -- ${growRecord.timeStamp}")
+    Log.d(
+        "HWO",
+        "growRecord -> ${growRecord.categoryType} -- ${growRecord.emotionType} -- ${growRecord.memo} -- ${growRecord.timeStamp}"
+    )
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -306,7 +311,10 @@ fun TodayCardDescription(growRecord: GrowRecord) {
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = getCategoryItem(categoryType = growRecord.categoryType, SelectTab.DAILYGROW),
+                    painter = getCategoryItem(
+                        categoryType = growRecord.categoryType,
+                        SelectTab.DAILYGROW
+                    ),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                 )

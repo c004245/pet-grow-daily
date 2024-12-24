@@ -97,5 +97,10 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
 
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.datatest)
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotest.mockk)
+
 
 }

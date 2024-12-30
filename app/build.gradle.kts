@@ -72,6 +72,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.kotest.runner.junit5.jvm)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
@@ -98,9 +99,13 @@ dependencies {
     implementation(platform(libs.firebase.bom))
 
     testImplementation(libs.kotest.junit)
-    testImplementation(libs.kotest.datatest)
+    testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.kotest.mockk)
 
 
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

@@ -28,6 +28,7 @@ glide-compose = "1.0.0-beta01"
 
 firebase-bom = "33.7.0"
 google-services = "4.3.15"
+kotestRunnerJunit5Jvm = "4.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,8 +74,9 @@ androidx-datastore = { group = "androidx.datastore", name = "datastore-preferenc
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom"}
 kotest-junit = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest"}
 kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest"}
-kotest-datatest = { group = "io.kotest", name = "kotest-framework-datatest", version.ref = "kotest"}
+kotest-engine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest"}
 kotest-mockk = { group = "io.kotest.extensions", name = "kotest-extensions-mockk", version.ref = "kotest-mockk"}
+kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotestRunnerJunit5Jvm" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

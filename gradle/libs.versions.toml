@@ -3,19 +3,19 @@ agp = "8.7.0"
 kotlin = "1.9.10"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+junitVersion = "1.1.5"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
-composeBom = "2023.08.00"
+composeBom = "2024.12.01"
 serialization = "1.5.1"
 accompanist = "0.24.2-alpha"
 androidxComposeNavigation = "2.8.0"
 androidxCoreSplash = "1.0.1"
 androidxRoom = "2.6.1"
 androidxDatastore = "1.1.1"
-kotest = "5.6.2"
+kotest = "5.7.2"
 kotest-mockk = "1.2.0"
+mockk = "1.13.14"
 
 ## Hilt
 hilt = "2.51.1"
@@ -28,13 +28,11 @@ glide-compose = "1.0.0-beta01"
 
 firebase-bom = "33.7.0"
 google-services = "4.3.15"
-kotestRunnerJunit5Jvm = "4.6.0"
+uiTestJunit4Android = "1.7.6"
+kotestRunnerJunit5Jvm = "5.7.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -43,7 +41,7 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "uiTestJunit4Android"}
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxComposeNavigation"}
@@ -72,10 +70,13 @@ glide-compose = { group = "com.github.bumptech.glide", name = "compose", version
 
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom"}
-kotest-junit = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest"}
+
 kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest"}
 kotest-engine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest"}
-kotest-mockk = { group = "io.kotest.extensions", name = "kotest-extensions-mockk", version.ref = "kotest-mockk"}
+
+#kotest-mockk = { group = "io.kotest.extensions", name = "kotest-extensions-mockk", version.ref = "kotest-mockk"}
+#mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotestRunnerJunit5Jvm" }
 
 [plugins]

@@ -6,12 +6,10 @@ plugins {
     id("kotlin-kapt")
     alias(libs.plugins.google.services)
 
-
-
-
 }
 
 android {
+
     namespace = "kr.co.hyunwook.pet_grow_daily"
     compileSdk = 34
 
@@ -55,7 +53,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
+
+
 
 dependencies {
 
@@ -67,13 +68,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.kotest.runner.junit5.jvm)
-    debugImplementation(libs.androidx.ui.tooling)
+
+    testImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.androidx.compose.navigation)
@@ -98,11 +96,12 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
 
-    testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)
-    testImplementation(libs.kotest.mockk)
 
+    androidTestImplementation(libs.kotest.runner.junit5.jvm)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    testImplementation(libs.androidx.ui.test.junit4)
 
 }
 

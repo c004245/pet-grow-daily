@@ -55,6 +55,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,6 +115,11 @@ internal fun MainScreen(
                         paddingValues = paddingValues
                     )
                     totalNavGraph()
+
+                    myPageNavigation(
+                        paddingValues = paddingValues
+                    )
+
                     onboardingNavGraph(
                         navigateToName = {
 //                            navigate(navigator, SelectTab.NAME)
@@ -133,6 +139,8 @@ internal fun MainScreen(
             if (!navigator.isSplashOrOnBoardingScreen()) {
                 CustomBottomBar(
                     onAlbumClick = {
+                        selectedTab = SelectTab.ALBUM
+                        navigate(navigator, SelectTab.ALBUM)
 //                        coroutineScope.launch {
 //                            sheetState.show()
 //                        }
@@ -153,20 +161,20 @@ internal fun MainScreen(
 
         }
     )
-    if (isSheetOpen) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                isSheetOpen = false
-            },
-            sheetState = sheetState
-        ) {
-            BottomSheetContent(
-                onCloseClick = { record ->
-                    viewModel.saveGrowRecord(record)
-                }
-            )
-        }
-    }
+//    if (isSheetOpen) {
+//        ModalBottomSheet(
+//            onDismissRequest = {
+//                isSheetOpen = false
+//            },
+//            sheetState = sheetState
+//        ) {
+//            BottomSheetContent(
+//                onCloseClick = { record ->
+//                    viewModel.saveGrowRecord(record)
+//                }
+//            )
+//        }
+//    }
 }
 
 fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
@@ -184,7 +192,7 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
             navigator.navigateToTotal(navOptions = navOptions)
         }
         SelectTab.MYPAGE -> {
-            navigator.navigateToName(navOptions = navOptions)
+            navigator.navigateToMyPage(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)

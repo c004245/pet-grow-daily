@@ -12,6 +12,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.dailygrow.navigation.DailyGrow
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 
 
@@ -43,6 +44,13 @@ class MainNavigator(
         navController.navigate(Name, navOptions = navOptions)
     }
 
+    fun navigateToMyPage(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(MyPage, navOptions = navOptions)
+
+    }
+
     fun navigateToOnBoarding(
         navOptions: NavOptions
     ) {
@@ -62,6 +70,7 @@ fun findRouteFromDestination(route: String?): Route? {
         DailyGrow.route -> DailyGrow
         Total.route -> Total
         OnBoarding.route -> OnBoarding
+        MyPage.route -> MyPage
         Name.route -> Name
         else -> null
     }

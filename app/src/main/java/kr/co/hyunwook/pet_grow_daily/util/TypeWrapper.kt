@@ -32,7 +32,7 @@ fun getEmotionItem(emotionType: EmotionType): Painter {
 @Composable
 fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
     val resourceMap = when (selectTab) {
-        SelectTab.DAILYGROW -> mapOf(
+        SelectTab.ALBUM -> mapOf(
             CategoryType.SNACK to R.drawable.ic_snack_dailygrow,
             CategoryType.WATER to R.drawable.ic_water_dailygrow,
             CategoryType.MEDICINE to R.drawable.ic_medicine_dailygrow,
@@ -47,7 +47,7 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.NONE to R.drawable.ic_water_dailygrow,
         )
 
-        SelectTab.TOTAL -> mapOf(
+        SelectTab.MYPAGE -> mapOf(
             CategoryType.SNACK to R.drawable.ic_snack_select,
             CategoryType.WATER to R.drawable.ic_water_select,
             CategoryType.MEDICINE to R.drawable.ic_medicine_select,
@@ -62,7 +62,8 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.NONE to R.drawable.ic_water_select
         )
 
-        SelectTab.NAME -> TODO()
+//        SelectTab.NAME -> TODO()
+        SelectTab.ORDER -> TODO()
     }
 
     // 기본값을 설정하여 null 방지

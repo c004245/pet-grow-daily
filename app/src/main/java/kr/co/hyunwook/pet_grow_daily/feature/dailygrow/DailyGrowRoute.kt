@@ -313,7 +313,7 @@ fun TodayCardDescription(growRecord: GrowRecord) {
                 Image(
                     painter = getCategoryItem(
                         categoryType = growRecord.categoryType,
-                        SelectTab.DAILYGROW
+                        SelectTab.ALBUM
                     ),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),

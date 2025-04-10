@@ -54,6 +54,8 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGra
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,7 @@ internal fun MainScreen(
     )
     var isSheetOpen by remember { mutableStateOf(false) }
 
-    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
+    var selectedTab by remember { mutableStateOf(SelectTab.ALBUM) }
 
 
     LaunchedEffect(Unit) {
@@ -102,7 +104,7 @@ internal fun MainScreen(
                 ) {
                     splashNavGraph(
                         navigateToDailyGrow = {
-                            navigate(navigator, SelectTab.DAILYGROW)
+                            navigate(navigator, SelectTab.ALBUM)
                         },
                         navigateToOnBoarding = {
                             navigate(navigator)
@@ -114,12 +116,12 @@ internal fun MainScreen(
                     totalNavGraph()
                     onboardingNavGraph(
                         navigateToName = {
-                            navigate(navigator, SelectTab.NAME)
+//                            navigate(navigator, SelectTab.NAME)
                         }
                     )
                     nameNavaGraph(
                         navigateToDailyGrow = {
-                            navigate(navigator, SelectTab.DAILYGROW)
+//                            navigate(navigator, SelectTab.DAILYGROW)
                         }
                     )
 
@@ -130,19 +132,19 @@ internal fun MainScreen(
         bottomBar = {
             if (!navigator.isSplashOrOnBoardingScreen()) {
                 CustomBottomBar(
-                    onSelectBottomClick = {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                        isSheetOpen = true
+                    onAlbumClick = {
+//                        coroutineScope.launch {
+//                            sheetState.show()
+//                        }
+//                        isSheetOpen = true
                     },
-                    onDailyGrowClick = {
-                        selectedTab = SelectTab.DAILYGROW
-                        navigate(navigator, SelectTab.DAILYGROW)
+                    onOrderClick = {
+                        selectedTab = SelectTab.ORDER
+                        navigate(navigator, SelectTab.ORDER)
                     },
-                    onTotalClick = {
-                        selectedTab = SelectTab.TOTAL
-                        navigate(navigator, SelectTab.TOTAL)
+                    onMyPageClick = {
+                        selectedTab = SelectTab.MYPAGE
+                        navigate(navigator, SelectTab.MYPAGE)
                     },
                     selectedTab = selectedTab
                 )
@@ -175,13 +177,13 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
         launchSingleTop = true
     }
     when (selectTab) {
-        SelectTab.DAILYGROW -> {
+        SelectTab.ALBUM -> {
             navigator.navigateToDailyGrow(navOptions = navOptions)
         }
-        SelectTab.TOTAL -> {
+        SelectTab.ORDER -> {
             navigator.navigateToTotal(navOptions = navOptions)
         }
-        SelectTab.NAME -> {
+        SelectTab.MYPAGE -> {
             navigator.navigateToName(navOptions = navOptions)
         }
         else -> {
@@ -192,25 +194,18 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
 
 @Composable
 fun CustomBottomBar(
-    onSelectBottomClick: () -> Unit,
-    onDailyGrowClick: () -> Unit,
-    onTotalClick: () -> Unit,
+    onAlbumClick: () -> Unit,
+    onOrderClick: () -> Unit,
+    onMyPageClick: () -> Unit,
     selectedTab: SelectTab
 ) {
-//    var selectedTab by remember { mutableStateOf(SelectTab.DAILYGROW) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .height(80.dp)
-    ) {
         Surface(
             color = Color.White,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(56.dp)
+                .navigationBarsPadding()
+                .height(60.dp),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -221,30 +216,30 @@ fun CustomBottomBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
-                            onDailyGrowClick()
+                            onAlbumClick()
                         }
                         .weight(1f)
+
                 ) {
                     Icon(
                         painter = painterResource(
                             id = R.drawable.ic_dailygrow_select_tab
                         ),
-                        tint = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21,
-                        contentDescription = "Today's Growth",
+                        tint = if (selectedTab == SelectTab.ALBUM) purple6C else gray86,
+                        contentDescription = "Album",
                     )
                     Text(
-                        text = stringResource(id = R.string.text_today_grow_title),
-                        style = PetgrowTheme.typography.bold,
-                        fontSize = 14.sp,
-                        color = if (selectedTab == SelectTab.DAILYGROW) purple6C else black21
+                        text = stringResource(id = R.string.text_album_title),
+                        style = PetgrowTheme.typography.medium,
+                        fontSize = 11.sp,
+                        color = if (selectedTab == SelectTab.ALBUM) purple6C else gray86
                     )
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
-//                            selectedTab = SelectTab.TOTAL
-                            onTotalClick()
+                            onOrderClick()
                         }
                         .weight(1f)
                 ) {
@@ -252,29 +247,41 @@ fun CustomBottomBar(
                         painter = painterResource(
                             id = R.drawable.ic_total_select_tab
                         ),
-                        tint = if (selectedTab == SelectTab.TOTAL) purple6C else black21, // 상태에 따른 색상 변경
-                        contentDescription = "Collect",
+                        tint = if (selectedTab == SelectTab.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
+                        contentDescription = "order",
                     )
                     Text(
-                        text = stringResource(id = R.string.text_total_title),
-                        fontSize = 14.sp,
+                        text = stringResource(id = R.string.text_order_title),
+                        fontSize = 11.sp,
                         style = PetgrowTheme.typography.medium,
-                        color = if (selectedTab == SelectTab.TOTAL) purple6C else black21
+                        color = if (selectedTab == SelectTab.ORDER) purple6C else gray86
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable {
+                            onMyPageClick()
+                        }
+                        .weight(1f)
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.ic_total_select_tab
+                        ),
+                        tint = if (selectedTab == SelectTab.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
+                        contentDescription = "order",
+                    )
+                    Text(
+                        text = stringResource(id = R.string.text_mypage_title),
+                        fontSize = 11.sp,
+                        style = PetgrowTheme.typography.medium,
+                        color = if (selectedTab == SelectTab.MYPAGE) purple6C else gray86
                     )
                 }
             }
         }
-        Image(
-            painter = painterResource(id = R.drawable.ic_add_tab),
-            contentDescription = "Center Button",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = -28.dp)
-                .size(80.dp)
-                .clickable { onSelectBottomClick() }
-        )
-    }
+
 }
 
 
@@ -287,6 +294,6 @@ fun MainScreenPreview() {
 }
 
 enum class SelectTab {
-    DAILYGROW, TOTAL, NAME
+    ALBUM, ORDER, MYPAGE
 }
 

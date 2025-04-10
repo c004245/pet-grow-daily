@@ -243,7 +243,7 @@ fun CategorySummaryItem(category: CategoryCount) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = getCategoryItem(category.categoryType, SelectTab.TOTAL),
+            painter = getCategoryItem(category.categoryType, SelectTab.MYPAGE),
             contentDescription = "category image",
             tint = Color.White,
             modifier = Modifier.size(24.dp) // Adjust icon size as needed
@@ -366,7 +366,7 @@ fun GrowItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = getCategoryItem(model.categoryType, SelectTab.TOTAL),
+                        painter = getCategoryItem(model.categoryType, SelectTab.MYPAGE),
                         contentDescription = "medicine"
                     )
                     Spacer(modifier = Modifier.width(4.dp))

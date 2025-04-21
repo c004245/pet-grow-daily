@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import kr.co.hyunwook.pet_grow_daily.core.database.AppDatabase
-import kr.co.hyunwook.pet_grow_daily.core.database.GrowRecordDao
+import kr.co.hyunwook.pet_grow_daily.core.database.AlbumRecordDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,31 +20,31 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 internal object DatabaseModule {
 
-    private const val GROW_DATASTORE_NAME = "GROW_PREFERENCES"
+    private const val ALBUM_DATASTORE_NAME = "ALBUM_PREFERENCE"
 
-    private val Context.growDataSource by preferencesDataStore(GROW_DATASTORE_NAME)
+    private val Context.albumDataSource by preferencesDataStore(ALBUM_DATASTORE_NAME)
 
     @Provides
     @Singleton
-    @Named("grow")
-    fun provideGrowDataStore(
+    @Named("album")
+    fun provideAlbumDataStore(
         @ApplicationContext context: Context,
     ): DataStore<Preferences> =
-        context.growDataSource
+        context.albumDataSource
 
     @Provides
     @Singleton
     fun provideAppDatabase(
         application: Application,
     ): AppDatabase {
-        return Room.databaseBuilder(application, AppDatabase::class.java, "PetGrow.db")
+        return Room.databaseBuilder(application, AppDatabase::class.java, "PetAlbum.db")
             .fallbackToDestructiveMigration()
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideGrowRecordDao(appDatabase: AppDatabase): GrowRecordDao {
-        return appDatabase.growRecordDao()
+    fun provideGrowRecordDao(appDatabase: AppDatabase): AlbumRecordDao {
+        return appDatabase.albumRecordDao()
     }
 }

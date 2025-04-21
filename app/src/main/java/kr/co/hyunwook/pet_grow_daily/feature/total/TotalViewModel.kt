@@ -33,19 +33,19 @@ class TotalViewModel @Inject constructor(
 
 
     fun getMonthlyCategoryGrowRecord(categoryType: CategoryType, month: String) {
-        viewModelScope.launch {
-            val records = if (categoryType == CategoryType.ALL) {
-                getMonthlyGrowRecordUseCase(month).firstOrNull() ?: emptyList()
-            } else {
-                getMonthlyCategoryGrowRecordsUseCase(categoryType, month).firstOrNull() ?: emptyList()
-            }
-
-            _monthlyGrowRecords.value = records
-
-            if (categoryType == CategoryType.ALL) {
-                calculateTopCategories(records)
-            }
-        }
+//        viewModelScope.launch {
+//            val records = if (categoryType == CategoryType.ALL) {
+//                getMonthlyGrowRecordUseCase(month).firstOrNull() ?: emptyList()
+//            } else {
+//                getMonthlyCategoryGrowRecordsUseCase(categoryType, month).firstOrNull() ?: emptyList()
+//            }
+//
+//            _monthlyGrowRecords.value = records
+//
+//            if (categoryType == CategoryType.ALL) {
+//                calculateTopCategories(records)
+//            }
+//        }
     }
 
     private fun calculateTopCategories(records: List<GrowRecord>) {

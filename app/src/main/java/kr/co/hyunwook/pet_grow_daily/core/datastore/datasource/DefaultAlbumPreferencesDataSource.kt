@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 
-class DefaultGrowPreferencesDataSource @Inject constructor(
-    @Named("grow") private val dataStore: DataStore<Preferences>
-): GrowPreferencesDataSource {
+class DefaultAlbumPreferencesDataSource @Inject constructor(
+    @Named("album") private val dataStore: DataStore<Preferences>
+): AlbumPreferencesDataSource {
 
     object PreferencesKey {
         val NAME = stringPreferencesKey("NAME")

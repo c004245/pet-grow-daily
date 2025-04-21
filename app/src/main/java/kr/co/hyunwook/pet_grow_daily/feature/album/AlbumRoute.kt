@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -64,6 +65,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
+import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
@@ -85,22 +87,22 @@ fun AlbumRoute(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val todayGrowRecords by viewModel.todayGrowRecords.collectAsState()
+    val albumRecord by viewModel.albumRecord.collectAsState()
 
 
     LaunchedEffect(Unit) {
-        viewModel.getGrowRecord(getTodayDate())
+        viewModel.getAlbumRecord()
     }
     AlbumScreen(
         paddingValues = paddingValues,
-        todayGrowRecords = todayGrowRecords
+        albumRecord = albumRecord
     )
 }
 
 @Composable
 fun AlbumScreen(
     paddingValues: PaddingValues,
-    todayGrowRecords: List<GrowRecord>
+    albumRecord: List<AlbumRecord>
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -132,10 +134,10 @@ fun AlbumScreen(
                 }
             )
 
-            if (todayGrowRecords.isNotEmpty()) {
+            if (albumRecord.isNotEmpty()) {
                 CustomTodayGrowViewPager(
                     modifier = Modifier.padding(top = 52.dp),
-                    growRecordItem = todayGrowRecords
+                    albumRecordItem = albumRecord
                 )
             } else {
                 EmptyTodayGrowRecordWidget(
@@ -210,7 +212,7 @@ fun EmptyTodayGrowRecordWidget(
 
 
 @Composable
-fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord>) {
+fun CustomTodayGrowViewPager(modifier: Modifier, albumRecordItem: List<AlbumRecord>) {
 
     val listState = rememberLazyListState()
 
@@ -238,7 +240,7 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
-        itemsIndexed(growRecordItem) { index, item ->
+        itemsIndexed(albumRecordItem) { index, item ->
             Box(
                 modifier = Modifier
                     .graphicsLayer {
@@ -261,16 +263,16 @@ fun CustomTodayGrowViewPager(modifier: Modifier, growRecordItem: List<GrowRecord
                         .fillMaxWidth()
                         .wrapContentHeight()
                 ) {
-                    LoadGalleryImage(
-                        uri = item.photoUrl,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TodayCardDescription(item)
+//                    LoadGalleryImage(
+//                        uri = item.photoUrl,
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .aspectRatio(1f)
+//                            .clip(RoundedCornerShape(16.dp))
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    TodayCardDescription(item)
 
                 }
             }

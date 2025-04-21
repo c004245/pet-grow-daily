@@ -116,6 +116,8 @@ internal fun MainScreen(
                     onboardingNavGraph(
                         navigateToName = {
 //                            navigate(navigator, SelectTab.NAME)
+                            navigate(navigator, SelectTab.ALBUM)
+
                         }
                     )
                     nameNavaGraph(

@@ -1,4 +1,4 @@
-package kr.co.hyunwook.pet_grow_daily.feature.dailygrow
+package kr.co.hyunwook.pet_grow_daily.feature.album
 
 import android.util.Log
 import androidx.compose.animation.core.LinearEasing
@@ -78,9 +78,9 @@ import java.util.Locale
 import kotlin.math.absoluteValue
 
 @Composable
-fun DailyGrowRoute(
+fun AlbumRoute(
     paddingValues: PaddingValues,
-    viewModel: DailyGrowViewModel = hiltViewModel()
+    viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -91,14 +91,14 @@ fun DailyGrowRoute(
     LaunchedEffect(Unit) {
         viewModel.getGrowRecord(getTodayDate())
     }
-    DailyGrowScreen(
+    AlbumScreen(
         paddingValues = paddingValues,
         todayGrowRecords = todayGrowRecords
     )
 }
 
 @Composable
-fun DailyGrowScreen(
+fun AlbumScreen(
     paddingValues: PaddingValues,
     todayGrowRecords: List<GrowRecord>
 ) {

@@ -2,7 +2,6 @@ package kr.co.hyunwook.pet_grow_daily.feature.main
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,12 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,10 +39,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.feature.add.BottomSheetContent
-import kr.co.hyunwook.pet_grow_daily.feature.dailygrow.navigation.dailyGrowNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.nameNavaGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
@@ -55,6 +47,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -111,7 +104,7 @@ internal fun MainScreen(
                             navigate(navigator)
                         }
                     )
-                    dailyGrowNavGraph(
+                    albumNavGraph(
                         paddingValues = paddingValues
                     )
                     totalNavGraph()
@@ -186,7 +179,7 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
     }
     when (selectTab) {
         SelectTab.ALBUM -> {
-            navigator.navigateToDailyGrow(navOptions = navOptions)
+            navigator.navigateToAlbum(navOptions = navOptions)
         }
         SelectTab.ORDER -> {
             navigator.navigateToTotal(navOptions = navOptions)
@@ -231,7 +224,7 @@ fun CustomBottomBar(
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = R.drawable.ic_dailygrow_select_tab
+                            id = R.drawable.ic_album_tab
                         ),
                         tint = if (selectedTab == SelectTab.ALBUM) purple6C else gray86,
                         contentDescription = "Album",
@@ -253,7 +246,7 @@ fun CustomBottomBar(
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = R.drawable.ic_total_select_tab
+                            id = R.drawable.ic_order_tab
                         ),
                         tint = if (selectedTab == SelectTab.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
                         contentDescription = "order",
@@ -275,7 +268,7 @@ fun CustomBottomBar(
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = R.drawable.ic_total_select_tab
+                            id = R.drawable.ic_mypage_tab
                         ),
                         tint = if (selectedTab == SelectTab.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
                         contentDescription = "order",

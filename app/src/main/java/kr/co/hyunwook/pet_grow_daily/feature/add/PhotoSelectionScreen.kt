@@ -41,7 +41,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
-import kr.co.hyunwook.pet_grow_daily.feature.dailygrow.EmptyTodayGrowRecordWidget
+import kr.co.hyunwook.pet_grow_daily.feature.album.EmptyTodayGrowRecordWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 

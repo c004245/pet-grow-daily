@@ -8,7 +8,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
-import kr.co.hyunwook.pet_grow_daily.feature.dailygrow.navigation.DailyGrow
+import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
@@ -25,10 +25,10 @@ class MainNavigator(
 
     val startDestination = Splash
 
-    fun navigateToDailyGrow(
+    fun navigateToAlbum(
         navOptions: NavOptions,
     ) {
-        navController.navigate(DailyGrow, navOptions = navOptions)
+        navController.navigate(Album, navOptions = navOptions)
     }
 
 
@@ -67,7 +67,7 @@ class MainNavigator(
 fun findRouteFromDestination(route: String?): Route? {
     return when (route) {
         Splash.route -> Splash
-        DailyGrow.route -> DailyGrow
+        Album.route -> Album
         Total.route -> Total
         OnBoarding.route -> OnBoarding
         MyPage.route -> MyPage

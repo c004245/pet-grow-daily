@@ -1,19 +1,18 @@
-package kr.co.hyunwook.pet_grow_daily.feature.dailygrow.navigation
+package kr.co.hyunwook.pet_grow_daily.feature.album.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
-import kr.co.hyunwook.pet_grow_daily.feature.dailygrow.DailyGrowRoute
 import kotlinx.serialization.Serializable
+import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumRoute
 
 
-
-fun NavGraphBuilder.dailyGrowNavGraph(
+fun NavGraphBuilder.albumNavGraph(
     paddingValues: PaddingValues
 ) {
-    composable<DailyGrow> {
-        DailyGrowRoute(
+    composable<Album> {
+        AlbumRoute(
             paddingValues = paddingValues
         )
     }
@@ -21,6 +20,6 @@ fun NavGraphBuilder.dailyGrowNavGraph(
 }
 
 @Serializable
-data object DailyGrow: MainTabRoute {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.main.dailygrow.navigation.DailyGrow"
+data object Album: MainTabRoute {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.main.dailygrow.navigation.Album"
 }

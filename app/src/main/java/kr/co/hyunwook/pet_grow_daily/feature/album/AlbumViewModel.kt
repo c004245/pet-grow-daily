@@ -1,4 +1,4 @@
-package kr.co.hyunwook.pet_grow_daily.feature.dailygrow
+package kr.co.hyunwook.pet_grow_daily.feature.album
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DailyGrowViewModel @Inject constructor(
+class AlbumViewModel @Inject constructor(
     private val getTodayGrowRecordUseCase: GetTodayGrowRecordUseCase
 
 ): ViewModel() {

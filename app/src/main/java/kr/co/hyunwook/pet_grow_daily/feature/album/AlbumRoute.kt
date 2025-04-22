@@ -64,6 +64,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
@@ -74,48 +75,34 @@ import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryType
 import kr.co.hyunwook.pet_grow_daily.util.getEmotionItem
 import kr.co.hyunwook.pet_grow_daily.util.getMemoOrRandomQuote
+import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun AlbumRoute(
     paddingValues: PaddingValues,
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
     val albumRecord by viewModel.albumRecord.collectAsState()
-
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumRecord()
     }
     AlbumScreen(
-        paddingValues = paddingValues,
         albumRecord = albumRecord
     )
 }
 
 @Composable
 fun AlbumScreen(
-    paddingValues: PaddingValues,
     albumRecord: List<AlbumRecord>
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-
-    val infiniteTransition = rememberInfiniteTransition()
-    val tooltipOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 10f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = ""
-    )
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -127,7 +114,7 @@ fun AlbumScreen(
                 title = {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.text_today_grow_title),
+                        text = stringResource(id = R.string.text_album_title),
                         style = PetgrowTheme.typography.bold
                     )
 
@@ -140,73 +127,9 @@ fun AlbumScreen(
                     albumRecordItem = albumRecord
                 )
             } else {
-                EmptyTodayGrowRecordWidget(
-                    modifier = Modifier
-                        .padding(40.dp)
-                        .fillMaxSize(),
-                    isFullHeight = true
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.text_not_today_grow),
-                            style = PetgrowTheme.typography.medium,
-                            color = gray86,
-                            fontSize = 12.sp
-
-                        )
-                    }
-                }
+                EmptyAlbumWidget()
             }
         }
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_dailygrow_tooltip),
-            contentDescription = "tooltip",
-            modifier = Modifier
-                .align(Alignment.BottomCenter) // 하단 중앙 정렬
-                .padding(bottom = 16.dp + tooltipOffset.dp) // 애니메이션 오프셋 추가
-        )
-    }
-}
-
-@Composable
-fun EmptyTodayGrowRecordWidget(
-    modifier: Modifier = Modifier,
-    isFullHeight: Boolean = false,
-    borderColor: Color = grayDE,
-    borderWidth: Dp = 2.dp,
-    cornerRadius: Dp = 16.dp,
-    content: @Composable () -> Unit
-) {
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(
-                if (isFullHeight) {
-                    Modifier.fillMaxHeight()
-                } else {
-                    Modifier.aspectRatio(1f) // Set height equal to screenWidthDp for 1:1 aspect ratio
-                }
-            )
-            .background(Color.White)
-            .drawBehind {
-                val strokeWidth = borderWidth.toPx()
-                val dashWidth = 10f
-                val dashGap = 10f
-                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(dashWidth, dashGap), 0f)
-                drawRoundRect(
-                    color = borderColor,
-                    style = Stroke(width = strokeWidth, pathEffect = pathEffect),
-                    cornerRadius = CornerRadius(cornerRadius.toPx(), cornerRadius.toPx())
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }
 
@@ -276,6 +199,59 @@ fun CustomTodayGrowViewPager(modifier: Modifier, albumRecordItem: List<AlbumReco
 
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EmptyAlbumWidget() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.text_no_album),
+                color = gray86,
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp,
+                lineHeight = 21.sp,
+                style = PetgrowTheme.typography.medium,
+                modifier = Modifier.wrapContentWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Box(
+                modifier = Modifier.wrapContentWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(purple6C)
+            ) {
+                Row(
+                    modifier = Modifier.wrapContentWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_plus),
+                        modifier = Modifier.padding(start = 24.dp),
+                        contentDescription = "add album"
+                    )
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.text_picture_add),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = PetgrowTheme.typography.medium,
+                        modifier = Modifier.padding(top = 14.dp, bottom = 14.dp, end = 24.dp)
+                    )
+
+                }
+
+            }
+
         }
     }
 }
@@ -363,7 +339,3 @@ fun TodayCardDescription(growRecord: GrowRecord) {
     }
 }
 
-fun getTodayDate(): String {
-    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return sdf.format(Date())
-}

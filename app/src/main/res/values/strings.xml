@@ -6,7 +6,7 @@
     <string name="text_mypage_title">마이페이지</string>
     <string name="text_total_title">모아보기</string>
     <string name="text_not_today_grow">오늘의 기록이 없어요.</string>
-    <string name="text_picture_add">사진</string>
+    <string name="text_picture_add">사진 추가</string>
     <string name="text_category_add">카테고리</string>
     <string name="text_emotion_add">감정</string>
     <string name="text_picture">사진 촬영</string>
@@ -18,4 +18,5 @@
     <string name="text_onboarding_description">산책, 급여, 배변 등 반려견의 성장을 기록해요.</string>
     <string name="text_save_done">오늘의 성장을 기록했어요!</string>
     <string name="text_name_string">반려견의 이름을\n알려주세요.</string>
+    <string name="text_no_album">사진이 없어요.\n반려견의 사진을 추가해보세요.</string>
 </resources>

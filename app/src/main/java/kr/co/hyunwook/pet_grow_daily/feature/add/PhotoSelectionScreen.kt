@@ -41,7 +41,6 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
-import kr.co.hyunwook.pet_grow_daily.feature.album.EmptyTodayGrowRecordWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 
@@ -91,20 +90,20 @@ fun PhotoSelectionScreen(onPhotoSelected: (String) -> Unit) {
                         .background(Color.White)
                 )
             } else {
-                EmptyTodayGrowRecordWidget(
-                    isFullHeight = false,
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_background_album),
-                            contentDescription = "background_album"
-                        )
-                    }
-                }
+//                EmptyTodayGrowRecordWidget(
+//                    isFullHeight = false,
+//                    modifier = Modifier.padding(top = 8.dp)
+//                ) {
+//                    Box(
+//                        modifier = Modifier.fillMaxSize(),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_background_album),
+//                            contentDescription = "background_album"
+//                        )
+//                    }
+//                }
             }
 
             // 에러 메시지 표시

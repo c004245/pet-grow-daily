@@ -105,7 +105,11 @@ internal fun MainScreen(
                         }
                     )
                     albumNavGraph(
-                        paddingValues = paddingValues
+                        paddingValues = paddingValues,
+                        navigateToAdd = {
+                            navigate(navigator, SelectTab.ADD)
+                        }
+
                     )
                     totalNavGraph()
 
@@ -188,6 +192,9 @@ fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
         }
         SelectTab.MYPAGE -> {
             navigator.navigateToMyPage(navOptions = navOptions)
+        }
+        SelectTab.ADD -> {
+            navigator.navigateToAdd(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -297,6 +304,6 @@ fun MainScreenPreview() {
 }
 
 enum class SelectTab {
-    ALBUM, ORDER, MYPAGE
+    ALBUM, ORDER, MYPAGE, ADD
 }
 

@@ -80,12 +80,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun AlbumRoute(
     paddingValues: PaddingValues,
+    navigateToAdd: () -> Unit = {},
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -94,13 +96,15 @@ fun AlbumRoute(
         viewModel.getAlbumRecord()
     }
     AlbumScreen(
-        albumRecord = albumRecord
+        albumRecord = albumRecord,
+        navigateToAdd = navigateToAdd
     )
 }
 
 @Composable
 fun AlbumScreen(
-    albumRecord: List<AlbumRecord>
+    albumRecord: List<AlbumRecord>,
+    navigateToAdd: () -> Unit = {}
 ) {
 
     Box(
@@ -127,7 +131,9 @@ fun AlbumScreen(
                     albumRecordItem = albumRecord
                 )
             } else {
-                EmptyAlbumWidget()
+                EmptyAlbumWidget(
+                    navigateToAdd = navigateToAdd
+                )
             }
         }
     }
@@ -204,7 +210,9 @@ fun CustomTodayGrowViewPager(modifier: Modifier, albumRecordItem: List<AlbumReco
 }
 
 @Composable
-fun EmptyAlbumWidget() {
+fun EmptyAlbumWidget(
+    navigateToAdd: () -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -225,6 +233,9 @@ fun EmptyAlbumWidget() {
             Spacer(modifier = Modifier.height(20.dp))
             Box(
                 modifier = Modifier.wrapContentWidth()
+                    .clickable {
+                        navigateToAdd()
+                    }
                     .clip(RoundedCornerShape(14.dp))
                     .background(purple6C)
             ) {

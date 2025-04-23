@@ -8,6 +8,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
+import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
@@ -48,7 +49,11 @@ class MainNavigator(
         navOptions: NavOptions
     ) {
         navController.navigate(MyPage, navOptions = navOptions)
-
+    }
+    fun navigateToAdd(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(Add, navOptions = navOptions)
     }
 
     fun navigateToOnBoarding(

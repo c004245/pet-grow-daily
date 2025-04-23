@@ -9,11 +9,13 @@ import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumRoute
 
 
 fun NavGraphBuilder.albumNavGraph(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    navigateToAdd: () -> Unit,
 ) {
     composable<Album> {
         AlbumRoute(
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
+            navigateToAdd = navigateToAdd,
         )
     }
 

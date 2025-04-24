@@ -11,7 +11,9 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import java.util.Calendar
 import javax.inject.Inject
+import androidx.core.database.getLongOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -36,10 +38,12 @@ class AddViewModel @Inject constructor(
 
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DATE_ADDED
             )
 
-            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC, ${MediaStore.Images.Media.DATE_ADDED} DESC"
 
             contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -49,6 +53,9 @@ class AddViewModel @Inject constructor(
                 sortOrder
             )?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val dateTakenColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
                     val contentUri = ContentUris.withAppendedId(
@@ -56,7 +63,12 @@ class AddViewModel @Inject constructor(
                         id
                     )
 
-                    imagesList.add(GalleryImage(id = id, uri = contentUri))
+                    val dateTaken = cursor.getLongOrNull(dateTakenColumn)
+                    val dateAdded = cursor.getLong(dateAddedColumn) * 1000
+
+                    val timestamp = dateTaken ?: dateAdded
+                    val formattedDate = formatDate(timestamp)
+                    imagesList.add(GalleryImage(id = id, uri = contentUri, date = formattedDate))
                 }
             }
 
@@ -66,6 +78,16 @@ class AddViewModel @Inject constructor(
 
     }
 
+    private fun formatDate(timestamp: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1 // 월은 0부터 시작하므로 +1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        return "${year}년 ${month}월 ${day}일"
+    }
 
 
 }
@@ -73,7 +95,8 @@ class AddViewModel @Inject constructor(
 
 data class GalleryImage(
     val id: Long,
-    val uri: Uri
+    val uri: Uri,
+    val date: String
 )
 
 data class AddUiState(

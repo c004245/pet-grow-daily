@@ -3,6 +3,8 @@ package kr.co.hyunwook.pet_grow_daily.feature.add
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -55,6 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -130,17 +133,46 @@ fun AddScreen(
             } else if (uiState.images.isEmpty()) {
                 Text("이미지가 없습니다.", modifier = Modifier.align(Alignment.Center))
             } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(4.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(uiState.images) { image ->
-                        GalleryImageItem(image = image)
-                    }
+                val groupedImages = uiState.images.groupBy { it.date }
 
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    // 날짜별로 헤더와 이미지 그리드 추가
+                    groupedImages.forEach { (date, images) ->
+                        item {
+                            DateHeader(date = date)
+                        }
+                        item {
+                            ImagesGridForDate(images = images)
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DateHeader(date: String) {
+    Text(
+        text = date,
+        style = PetgrowTheme.typography.medium,
+        color = black21,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+fun ImagesGridForDate(images: List<GalleryImage>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        contentPadding = PaddingValues(horizontal = 4.dp),
+        modifier = Modifier.height((images.size / 3 + if(images.size % 3 > 0) 1 else 0) * 120.dp)
+    ) {
+        items(images) { image ->
+            GalleryImageItem(image = image)
         }
     }
 }

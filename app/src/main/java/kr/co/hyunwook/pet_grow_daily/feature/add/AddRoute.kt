@@ -4,6 +4,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 import android.Manifest
@@ -14,6 +15,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.room.util.copy
 
 @Composable
 fun AddRoute(
@@ -68,6 +73,10 @@ fun AddRoute(
     val uiState by viewModel.uiState.collectAsState()
     var isVisible by remember { mutableStateOf(true) }
     var permissionGranted by remember { mutableStateOf(false) }
+
+
+    var selectedImages by remember { mutableStateOf(setOf<GalleryImage>()) }
+    val isSelectionComplete = selectedImages.size == 2
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -97,6 +106,18 @@ fun AddRoute(
                 permissionGranted = permissionGranted,
                 requestPermission = {
                     permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                },
+                selectedImages = selectedImages,
+                isSelectionComplete = isSelectionComplete,
+                onImageSelect = { image ->
+                    selectedImages = when {
+                        selectedImages.contains(image) -> selectedImages - image
+                        selectedImages.size < 2 -> selectedImages + image
+                        else -> selectedImages.drop(1).toSet() + image
+                    }
+                },
+                onConfirmSelection = {
+
                 }
             )
         }
@@ -109,7 +130,11 @@ fun AddScreen(
     uiState: AddUiState,
     onBackClick: () -> Unit,
     permissionGranted: Boolean,
-    requestPermission: () -> Unit
+    requestPermission: () -> Unit,
+    selectedImages: Set<GalleryImage>,
+    isSelectionComplete: Boolean,
+    onImageSelect: (GalleryImage) -> Unit,
+    onConfirmSelection: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -118,6 +143,16 @@ fun AddScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    if (isSelectionComplete) {
+                        Button(
+                            onClick = onConfirmSelection,
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("완료")
+                        }
                     }
                 }
             )
@@ -133,19 +168,32 @@ fun AddScreen(
             } else if (uiState.images.isEmpty()) {
                 Text("이미지가 없습니다.", modifier = Modifier.align(Alignment.Center))
             } else {
-                val groupedImages = uiState.images.groupBy { it.date }
-
-                androidx.compose.foundation.lazy.LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    // 날짜별로 헤더와 이미지 그리드 추가
-                    groupedImages.forEach { (date, images) ->
-                        item {
-                            DateHeader(date = date)
-                        }
-                        item {
-                            ImagesGridForDate(images = images)
+                    Text(
+                        text = "사진을 2개 선택해주세요. (${selectedImages.size}/2)",
+                        style = PetgrowTheme.typography.medium,
+                        color = purple6C,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    )
+
+                    val groupedImages = uiState.images.groupBy { it.date }
+
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        // 날짜별로 헤더와 이미지 그리드 추가
+                        groupedImages.forEach { (date, images) ->
+                            item {
+                                DateHeader(date = date)
+                            }
+                            item {
+                                ImagesGridForDate(images = images,
+                                    selectedImages = selectedImages,
+                                    onImageSelect = onImageSelect)
+                            }
                         }
                     }
                 }
@@ -165,24 +213,55 @@ fun DateHeader(date: String) {
 }
 
 @Composable
-fun ImagesGridForDate(images: List<GalleryImage>) {
+fun ImagesGridForDate(
+    images: List<GalleryImage>,
+    selectedImages: Set<GalleryImage>,
+    onImageSelect: (GalleryImage) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(horizontal = 4.dp),
+        contentPadding = PaddingValues(horizontal = 2.dp),
         modifier = Modifier.height((images.size / 3 + if(images.size % 3 > 0) 1 else 0) * 120.dp)
     ) {
         items(images) { image ->
-            GalleryImageItem(image = image)
+            val isSelected = selectedImages.contains(image)
+
+            // 선택된 이미지의 인덱스 계산 (0 또는 1)
+            val selectionIndex = if (isSelected)
+                selectedImages.indexOf(image)
+            else
+                -1
+
+            GalleryImageItem(
+                image = image,
+                isSelected = isSelected,
+                selectionIndex = selectionIndex,
+                onSelect = { onImageSelect(image) }
+            )
         }
     }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun GalleryImageItem(image: GalleryImage) {
+fun GalleryImageItem(
+    image: GalleryImage,
+    isSelected: Boolean,
+    selectionIndex: Int = -1,
+    onSelect: () -> Unit
+) {
     Box(
         modifier = Modifier.aspectRatio(1f)
             .padding(2.dp)
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = 2.dp,
+                        color = purple6C.copy(alpha = 0.8f)
+                    )
+                } else {
+                    Modifier
+                }
+            ).clickable { onSelect() }
     ) {
         GlideImage(
             model = image.uri,
@@ -192,6 +271,25 @@ fun GalleryImageItem(image: GalleryImage) {
             loading = placeholder(ColorPainter(Color.Gray.copy(alpha = 0.3f))),
             failure = placeholder(ColorPainter(Color.Red.copy(alpha = 0.3f)))
         )
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd)
+                .padding(4.dp).size(20.dp)
+                .background(
+                    color = if (isSelected) purple6C
+                    else
+                        Color.Gray,
+                    shape = RoundedCornerShape(4.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isSelected && selectionIndex >= 0) {
+                Text(
+                    text = "${selectionIndex + 1}",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
     }
 }
 

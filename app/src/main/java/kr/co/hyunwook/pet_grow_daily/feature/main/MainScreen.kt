@@ -47,6 +47,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -129,6 +130,7 @@ internal fun MainScreen(
 //                            navigate(navigator, SelectTab.DAILYGROW)
                         }
                     )
+                    addNavGraph()
 
 
                 }

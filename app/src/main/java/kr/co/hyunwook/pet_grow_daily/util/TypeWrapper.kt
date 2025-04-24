@@ -64,6 +64,7 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
 
 //        SelectTab.NAME -> TODO()
         SelectTab.ORDER -> TODO()
+        SelectTab.ADD -> TODO()
     }
 
     // 기본값을 설정하여 null 방지

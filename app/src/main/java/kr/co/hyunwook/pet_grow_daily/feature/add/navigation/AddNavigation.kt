@@ -5,18 +5,16 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
 import kotlinx.serialization.Serializable
+import kr.co.hyunwook.pet_grow_daily.feature.add.AddRoute
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumRoute
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 
 
 fun NavGraphBuilder.addNavGraph(
-    paddingValues: PaddingValues,
-    navigateToAdd: () -> Unit,
 ) {
     composable<Add> {
-        AlbumRoute(
-            paddingValues = paddingValues,
-            navigateToAdd = navigateToAdd,
+        AddRoute(
+
         )
     }
 

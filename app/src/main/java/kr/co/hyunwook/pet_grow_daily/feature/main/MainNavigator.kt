@@ -65,7 +65,7 @@ class MainNavigator(
     @Composable
     fun isSplashOrOnBoardingScreen(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name
+        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add
     }
 }
 
@@ -77,6 +77,7 @@ fun findRouteFromDestination(route: String?): Route? {
         OnBoarding.route -> OnBoarding
         MyPage.route -> MyPage
         Name.route -> Name
+        Add.route -> Add
         else -> null
     }
 }

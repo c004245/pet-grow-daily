@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -109,6 +110,7 @@ fun AddRoute(
                 },
                 onConfirmSelection = {
 
+
                 }
             )
         }
@@ -143,21 +145,35 @@ fun AddScreen(
 
                     val groupedImages = uiState.images.groupBy { it.date }
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
+                    Box(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        groupedImages.forEach { (date, images) ->
-                            item {
-                                DateHeader(date = date)
-                            }
-                            item {
-                                ImagesGridForDate(images = images,
-                                    selectedImages = selectedImages,
-                                    onImageSelect = onImageSelect)
+
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            groupedImages.forEach { (date, images) ->
+                                item {
+                                    DateHeader(date = date)
+                                }
+                                item {
+                                    ImagesGridForDate(
+                                        images = images,
+                                        selectedImages = selectedImages,
+                                        onImageSelect = onImageSelect
+                                    )
+                                }
                             }
                         }
                     }
+
+                    AddNextPhotoButton(
+                        isEnabled = isSelectionComplete,
+                        onNextClick = onConfirmSelection,
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(bottom = 24.dp, start = 24.dp, end = 24.dp, top = 12.dp)
+                    )
                 }
             }
         }
@@ -310,5 +326,32 @@ fun PermissionRequiredContent(requestPermission: () -> Unit) {
         Button(onClick = requestPermission) {
             Text("권한 요청")
         }
+    }
+}
+
+@Composable
+fun AddNextPhotoButton(
+    isEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    onNextClick: () -> Unit,
+) {
+
+    val buttonColor = if (isEnabled) purple6C else purple6C.copy(alpha = 0.4f)
+
+    val cornerRadius = 12.dp
+    Button(
+        onClick = onNextClick,
+        modifier = Modifier.fillMaxWidth().then(modifier),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor
+        ),
+        shape = RoundedCornerShape(cornerRadius)
+    ) {
+        Text(
+            text = stringResource(R.string.text_next),
+            style = PetgrowTheme.typography.medium,
+            color = Color.White,
+            fontSize = 16.sp,
+        )
     }
 }

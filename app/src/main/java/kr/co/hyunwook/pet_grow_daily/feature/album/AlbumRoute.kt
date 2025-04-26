@@ -9,7 +9,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
-import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
+import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatTimestampToDateTime
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
@@ -280,7 +280,7 @@ fun TodayCardDescription(growRecord: GrowRecord) {
                 Image(
                     painter = getCategoryItem(
                         categoryType = growRecord.categoryType,
-                        SelectTab.ALBUM
+                        NavigateEnum.ALBUM
                     ),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),

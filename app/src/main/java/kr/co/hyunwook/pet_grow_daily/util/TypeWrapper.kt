@@ -6,7 +6,7 @@ import androidx.compose.ui.res.painterResource
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
 import kr.co.hyunwook.pet_grow_daily.feature.add.EmotionType
-import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
+import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,9 +30,9 @@ fun getEmotionItem(emotionType: EmotionType): Painter {
     return painterResource(id = resourceId)
 }
 @Composable
-fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
-    val resourceMap = when (selectTab) {
-        SelectTab.ALBUM -> mapOf(
+fun getCategoryItem(categoryType: CategoryType, navigateEnum: NavigateEnum): Painter {
+    val resourceMap = when (navigateEnum) {
+        NavigateEnum.ALBUM -> mapOf(
             CategoryType.SNACK to R.drawable.ic_snack_dailygrow,
             CategoryType.WATER to R.drawable.ic_water_dailygrow,
             CategoryType.MEDICINE to R.drawable.ic_medicine_dailygrow,
@@ -47,7 +47,7 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.NONE to R.drawable.ic_water_dailygrow,
         )
 
-        SelectTab.MYPAGE -> mapOf(
+        NavigateEnum.MYPAGE -> mapOf(
             CategoryType.SNACK to R.drawable.ic_snack_select,
             CategoryType.WATER to R.drawable.ic_water_select,
             CategoryType.MEDICINE to R.drawable.ic_medicine_select,
@@ -61,10 +61,10 @@ fun getCategoryItem(categoryType: CategoryType, selectTab: SelectTab): Painter {
             CategoryType.ETC to R.drawable.ic_etc_select,
             CategoryType.NONE to R.drawable.ic_water_select
         )
-
-//        SelectTab.NAME -> TODO()
-        SelectTab.ORDER -> TODO()
-        SelectTab.ADD -> TODO()
+    NavigateEnum.RECORDWRITE -> TODO()
+//        NavigateEnum.NAME -> TODO()
+        NavigateEnum.ORDER -> TODO()
+        NavigateEnum.ADD -> TODO()
     }
 
     // 기본값을 설정하여 null 방지

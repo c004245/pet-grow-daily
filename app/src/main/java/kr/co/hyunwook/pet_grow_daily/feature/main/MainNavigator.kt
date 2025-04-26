@@ -14,6 +14,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
+import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 
 
@@ -62,10 +63,16 @@ class MainNavigator(
         navController.navigate(OnBoarding, navOptions = navOptions)
     }
 
+    fun navigateToRecordWrite(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(RecordWrite, navOptions = navOptions)
+    }
+
     @Composable
     fun isSplashOrOnBoardingScreen(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add
+        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add || currentRoute == RecordWrite
     }
 }
 
@@ -78,6 +85,7 @@ fun findRouteFromDestination(route: String?): Route? {
         MyPage.route -> MyPage
         Name.route -> Name
         Add.route -> Add
+        RecordWrite.route -> RecordWrite
         else -> null
     }
 }

@@ -63,7 +63,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AddRoute(
-    viewModel: AddViewModel = hiltViewModel()
+    viewModel: AddViewModel = hiltViewModel(),
+    navigateToRecordWrite: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var isVisible by remember { mutableStateOf(true) }
@@ -109,8 +110,7 @@ fun AddRoute(
                     }
                 },
                 onConfirmSelection = {
-
-
+                    navigateToRecordWrite()
                 }
             )
         }
@@ -191,7 +191,9 @@ fun TitleAppBar() {
             contentDescription = "ic_back",
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = 16.dp)
+                .padding(start = 16.dp).clickable {
+
+                }
         )
         Text(
             text = stringResource(R.string.text_picture_add),

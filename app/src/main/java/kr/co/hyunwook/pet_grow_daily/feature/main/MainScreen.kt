@@ -50,6 +50,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
+import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +67,7 @@ internal fun MainScreen(
     )
     var isSheetOpen by remember { mutableStateOf(false) }
 
-    var selectedTab by remember { mutableStateOf(SelectTab.ALBUM) }
+    var navigatorEnum by remember { mutableStateOf(NavigateEnum.ALBUM) }
 
 
     LaunchedEffect(Unit) {
@@ -99,7 +100,7 @@ internal fun MainScreen(
                 ) {
                     splashNavGraph(
                         navigateToDailyGrow = {
-                            navigate(navigator, SelectTab.ALBUM)
+                            navigate(navigator, NavigateEnum.ALBUM)
                         },
                         navigateToOnBoarding = {
                             navigate(navigator)
@@ -108,7 +109,7 @@ internal fun MainScreen(
                     albumNavGraph(
                         paddingValues = paddingValues,
                         navigateToAdd = {
-                            navigate(navigator, SelectTab.ADD)
+                            navigate(navigator, NavigateEnum.ADD)
                         }
 
                     )
@@ -120,17 +121,27 @@ internal fun MainScreen(
 
                     onboardingNavGraph(
                         navigateToName = {
-//                            navigate(navigator, SelectTab.NAME)
-                            navigate(navigator, SelectTab.ALBUM)
+//                            navigate(navigator, NavigateEnum.NAME)
+                            navigate(navigator, NavigateEnum.ALBUM)
 
                         }
                     )
                     nameNavaGraph(
                         navigateToDailyGrow = {
-//                            navigate(navigator, SelectTab.DAILYGROW)
+//                            navigate(navigator, NavigateEnum.DAILYGROW)
                         }
                     )
-                    addNavGraph()
+                    addNavGraph(
+                        navigateToRecordWrite = {
+                            navigate(navigator, NavigateEnum.RECORDWRITE)
+                        }
+                    )
+                    recordWriteGraph(
+                        navigateToAlbum = {
+                            navigate(navigator, NavigateEnum.ALBUM)
+                        }
+
+                    )
 
 
                 }
@@ -140,63 +151,53 @@ internal fun MainScreen(
             if (!navigator.isSplashOrOnBoardingScreen()) {
                 CustomBottomBar(
                     onAlbumClick = {
-                        selectedTab = SelectTab.ALBUM
-                        navigate(navigator, SelectTab.ALBUM)
+                        navigatorEnum = NavigateEnum.ALBUM
+                        navigate(navigator, NavigateEnum.ALBUM)
 //                        coroutineScope.launch {
 //                            sheetState.show()
 //                        }
 //                        isSheetOpen = true
                     },
                     onOrderClick = {
-                        selectedTab = SelectTab.ORDER
-                        navigate(navigator, SelectTab.ORDER)
+                        navigatorEnum = NavigateEnum.ORDER
+                        navigate(navigator, NavigateEnum.ORDER)
                     },
                     onMyPageClick = {
-                        selectedTab = SelectTab.MYPAGE
-                        navigate(navigator, SelectTab.MYPAGE)
+                        navigatorEnum = NavigateEnum.MYPAGE
+                        navigate(navigator, NavigateEnum.MYPAGE)
                     },
-                    selectedTab = selectedTab
+                    navigateEnum = navigatorEnum
                 )
 
             }
 
         }
     )
-//    if (isSheetOpen) {
-//        ModalBottomSheet(
-//            onDismissRequest = {
-//                isSheetOpen = false
-//            },
-//            sheetState = sheetState
-//        ) {
-//            BottomSheetContent(
-//                onCloseClick = { record ->
-//                    viewModel.saveGrowRecord(record)
-//                }
-//            )
-//        }
-//    }
 }
 
-fun navigate(navigator: MainNavigator, selectTab: SelectTab? = null) {
+fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
     val navOptions = navOptions {
         popUpTo(navigator.navController.graph.findStartDestination().id) {
             inclusive = true
         }
         launchSingleTop = true
     }
-    when (selectTab) {
-        SelectTab.ALBUM -> {
+    when (navigateEnum) {
+        NavigateEnum.ALBUM -> {
             navigator.navigateToAlbum(navOptions = navOptions)
         }
-        SelectTab.ORDER -> {
+        NavigateEnum.ORDER -> {
             navigator.navigateToTotal(navOptions = navOptions)
         }
-        SelectTab.MYPAGE -> {
+        NavigateEnum.MYPAGE -> {
             navigator.navigateToMyPage(navOptions = navOptions)
         }
-        SelectTab.ADD -> {
+        NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
+        }
+        NavigateEnum.RECORDWRITE -> {
+            navigator.navigateToRecordWrite(navOptions = navOptions)
+
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -209,7 +210,7 @@ fun CustomBottomBar(
     onAlbumClick: () -> Unit,
     onOrderClick: () -> Unit,
     onMyPageClick: () -> Unit,
-    selectedTab: SelectTab
+    navigateEnum: NavigateEnum
 ) {
         Surface(
             color = Color.White,
@@ -237,14 +238,14 @@ fun CustomBottomBar(
                         painter = painterResource(
                             id = R.drawable.ic_album_tab
                         ),
-                        tint = if (selectedTab == SelectTab.ALBUM) purple6C else gray86,
+                        tint = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86,
                         contentDescription = "Album",
                     )
                     Text(
                         text = stringResource(id = R.string.text_album_title),
                         style = PetgrowTheme.typography.medium,
                         fontSize = 11.sp,
-                        color = if (selectedTab == SelectTab.ALBUM) purple6C else gray86
+                        color = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86
                     )
                 }
                 Column(
@@ -259,14 +260,14 @@ fun CustomBottomBar(
                         painter = painterResource(
                             id = R.drawable.ic_order_tab
                         ),
-                        tint = if (selectedTab == SelectTab.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
+                        tint = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
                         contentDescription = "order",
                     )
                     Text(
                         text = stringResource(id = R.string.text_order_title),
                         fontSize = 11.sp,
                         style = PetgrowTheme.typography.medium,
-                        color = if (selectedTab == SelectTab.ORDER) purple6C else gray86
+                        color = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86
                     )
                 }
                 Column(
@@ -281,14 +282,14 @@ fun CustomBottomBar(
                         painter = painterResource(
                             id = R.drawable.ic_mypage_tab
                         ),
-                        tint = if (selectedTab == SelectTab.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
+                        tint = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
                         contentDescription = "order",
                     )
                     Text(
                         text = stringResource(id = R.string.text_mypage_title),
                         fontSize = 11.sp,
                         style = PetgrowTheme.typography.medium,
-                        color = if (selectedTab == SelectTab.MYPAGE) purple6C else gray86
+                        color = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86
                     )
                 }
             }
@@ -305,7 +306,7 @@ fun MainScreenPreview() {
     }
 }
 
-enum class SelectTab {
-    ALBUM, ORDER, MYPAGE, ADD
+enum class NavigateEnum {
+    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE
 }
 

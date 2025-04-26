@@ -11,10 +11,11 @@ import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 
 
 fun NavGraphBuilder.addNavGraph(
+    navigateToRecordWrite: () -> Unit
 ) {
     composable<Add> {
         AddRoute(
-
+            navigateToRecordWrite = navigateToRecordWrite
         )
     }
 

@@ -47,7 +47,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
-import kr.co.hyunwook.pet_grow_daily.feature.main.SelectTab
+import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.LoadGalleryImage
 import kr.co.hyunwook.pet_grow_daily.util.formatTimestampToDateTime
@@ -243,7 +243,7 @@ fun CategorySummaryItem(category: CategoryCount) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = getCategoryItem(category.categoryType, SelectTab.MYPAGE),
+            painter = getCategoryItem(category.categoryType, NavigateEnum.MYPAGE),
             contentDescription = "category image",
             tint = Color.White,
             modifier = Modifier.size(24.dp) // Adjust icon size as needed
@@ -366,7 +366,7 @@ fun GrowItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = getCategoryItem(model.categoryType, SelectTab.MYPAGE),
+                        painter = getCategoryItem(model.categoryType, NavigateEnum.MYPAGE),
                         contentDescription = "medicine"
                     )
                     Spacer(modifier = Modifier.width(4.dp))

@@ -2,9 +2,11 @@ package kr.co.hyunwook.pet_grow_daily.feature.recordwrite
 
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray60
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.add.AddViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.add.MemoTextField
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -26,6 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -54,13 +58,19 @@ fun RecordWriteRoute(
     navigateToAlbum: () -> Unit
 ) {
     RecordWriteScreen(
+        navigateToAlbum = navigateToAlbum
     )
 
 
 }
 
 @Composable
-fun RecordWriteScreen() {
+fun RecordWriteScreen(
+    navigateToAlbum: () -> Unit
+) {
+
+    var memoText by remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
@@ -68,7 +78,16 @@ fun RecordWriteScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             TitleAppBar()
-            RecordWriteContentCard()
+            RecordWriteContentCard(
+                memoText = memoText,
+                onMemoTextChange = { memoText = it }
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            AddDoneWriteButton(
+                isEnabled = memoText.isNotEmpty(),
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+                onDoneClick = { navigateToAlbum() }
+            )
         }
 
     }
@@ -98,7 +117,10 @@ fun TitleAppBar() {
 }
 
 @Composable
-fun RecordWriteContentCard() {
+fun RecordWriteContentCard(
+    memoText: String,
+    onMemoTextChange: (String) -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentHeight()
     ) {
@@ -136,7 +158,10 @@ fun RecordWriteContentCard() {
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                RecordWriteField()
+                RecordWriteField(
+                    memoText = memoText,
+                    onMemoTextChange = onMemoTextChange
+                )
 
             }
         }
@@ -181,11 +206,14 @@ fun SelectAlbumWidget(
 }
 
 @Composable
-fun RecordWriteField() {
-    var memoText by remember { mutableStateOf("") }
+fun RecordWriteField(
+    memoText: String,
+    onMemoTextChange: (String) -> Unit
+) {
+
 
     Column (
-        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 36.dp)
+        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp)
     ) {
         Text(
             text = "2025년 3월 18일",
@@ -196,8 +224,17 @@ fun RecordWriteField() {
         Spacer(modifier = Modifier.height(12.dp))
         RecordWriteMemoField(
             text = memoText,
-            onTextChange = { memoText = it }
+            onTextChange = onMemoTextChange
 
+        )
+        Text(
+            text = "${memoText.length}/30",
+            style = PetgrowTheme.typography.regular,
+            fontSize = 12.sp,
+            color = gray60,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 4.dp, bottom = 12.dp)
         )
 
     }
@@ -216,7 +253,12 @@ fun RecordWriteMemoField(text: String, onTextChange: (String) -> Unit) {
     ) {
         OutlinedTextField(
             value = text,
-            onValueChange = onTextChange,
+            onValueChange = { newText ->
+                if (newText.length <= 30) {
+                    onTextChange(newText)
+                }
+
+            },
             label = { Text("반려견과의 기록을 작성해보세요.") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
@@ -229,7 +271,34 @@ fun RecordWriteMemoField(text: String, onTextChange: (String) -> Unit) {
                 disabledTextColor = Color.Gray
             ),
         )
-        Spacer(modifier = Modifier.height(36.dp)) // 하단에 36dp 공간 추가
+        Spacer(modifier = Modifier.height(36.dp))
 
+    }
+}
+
+@Composable
+fun AddDoneWriteButton(
+    isEnabled: Boolean,
+    modifier: Modifier = Modifier,
+    onDoneClick: () -> Unit,
+) {
+
+    val buttonColor = if (isEnabled) purple6C else purple6C.copy(alpha = 0.4f)
+
+    val cornerRadius = 12.dp
+    Button(
+        onClick = onDoneClick,
+        modifier = Modifier.fillMaxWidth().then(modifier),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor
+        ),
+        shape = RoundedCornerShape(cornerRadius)
+    ) {
+        Text(
+            text = stringResource(R.string.text_complete),
+            style = PetgrowTheme.typography.medium,
+            color = Color.White,
+            fontSize = 16.sp,
+        )
     }
 }

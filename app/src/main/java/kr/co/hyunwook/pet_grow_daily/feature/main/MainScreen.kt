@@ -148,7 +148,7 @@ internal fun MainScreen(
             }
         },
         bottomBar = {
-            if (!navigator.isSplashOrOnBoardingScreen()) {
+            if (navigator.isShowBottomBar()) {
                 CustomBottomBar(
                     onAlbumClick = {
                         navigatorEnum = NavigateEnum.ALBUM

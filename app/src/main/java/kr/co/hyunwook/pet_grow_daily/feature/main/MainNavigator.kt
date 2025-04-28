@@ -17,6 +17,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
+import android.util.Log
 
 
 class MainNavigator(
@@ -73,9 +74,10 @@ class MainNavigator(
     }
 
     @Composable
-    fun isSplashOrOnBoardingScreen(): Boolean {
+    fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add || currentRoute == RecordWriteTab
+        Log.d("HWO", "currentRoute -> $currentRoute")
+        return currentRoute == Album
     }
 }
 

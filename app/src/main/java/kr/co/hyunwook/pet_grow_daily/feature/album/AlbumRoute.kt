@@ -1,16 +1,20 @@
 package kr.co.hyunwook.pet_grow_daily.feature.album
 
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
 import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import kr.co.hyunwook.pet_grow_daily.util.formatTimestampToDateTime
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryType
@@ -36,6 +40,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -49,10 +54,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -86,7 +94,7 @@ fun AlbumScreen(
 ) {
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
         Column(
             modifier = Modifier
@@ -104,8 +112,8 @@ fun AlbumScreen(
             )
 
             if (albumRecord.isNotEmpty()) {
-                CustomTodayGrowViewPager(
-                    modifier = Modifier.padding(top = 52.dp),
+                CustomAlbumListWidget(
+                    modifier = Modifier.padding(top = 16.dp),
                     albumRecordItem = albumRecord
                 )
             } else {
@@ -119,73 +127,146 @@ fun AlbumScreen(
 
 
 @Composable
-fun CustomTodayGrowViewPager(modifier: Modifier, albumRecordItem: List<AlbumRecord>) {
+fun CustomAlbumListWidget(modifier: Modifier, albumRecordItem: List<AlbumRecord>) {
 
-    val listState = rememberLazyListState()
-
-    val currentPage by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            visibleItems.minByOrNull {
-                (it.offset + it.size / 2 - layoutInfo.viewportEndOffset / 2).absoluteValue
-            }?.index ?: 0
-        }
-    }
-
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val itemWidth = screenWidth - (2 * 40.dp) - 16.dp
-
-    LazyRow(
-        state = listState,
-        contentPadding = PaddingValues(
-            start = (screenWidth - itemWidth) / 2,
-            end = (screenWidth - itemWidth) / 2
-        ),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
+    LazyColumn(
+        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
     ) {
         itemsIndexed(albumRecordItem) { index, item ->
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        val scale = 1f - (currentPage - index).absoluteValue * 0.15f
-                        scaleX = scale
-                        scaleY = scale
-                    }
-                    .width(itemWidth) // 아이템의 너비
-                    .wrapContentHeight()
-                    .shadow(
-                        elevation = 12.dp,
-                        shape = RoundedCornerShape(16.dp),
-                        clip = true
-                    )
-                    .background(Color.White, RoundedCornerShape(8.dp))
+            AlbumCard(
+                albumRecord = item,
+                modifier = Modifier.fillMaxSize()
+            )
 
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-//                    LoadGalleryImage(
-//                        uri = item.photoUrl,
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .aspectRatio(1f)
-//                            .clip(RoundedCornerShape(16.dp))
-//                    )
-//
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    TodayCardDescription(item)
-
-                }
-            }
         }
     }
 }
+
+@Composable
+fun AlbumCard(
+    albumRecord: AlbumRecord,
+    modifier: Modifier
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    spotColor = Color(0x0D000000),
+                    ambientColor = Color(0x0D000000)
+                ).clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
+
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize().matchParentSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.8f),
+                                Color.White.copy(alpha = 0.6f)
+                            )
+                        ),
+                    )
+                    .blur(radius = 3.dp)
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            ) {
+                AlbumImage(
+                    firstImageUri = albumRecord.firstImage,
+                    secondImageUri = albumRecord.secondImage,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                AlbumText(
+                    date = albumRecord.date,
+                    content = albumRecord.content,
+                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                )
+
+            }
+
+        }
+    }
+
+
+}
+
+//앨범 이미지 영역
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun AlbumImage(
+    firstImageUri: String,
+    secondImageUri: String,
+    modifier : Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(
+            modifier = Modifier.weight(1f).aspectRatio(1f)
+        ) {
+            GlideImage(
+                model = firstImageUri,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Spacer(modifier = Modifier.width(2.dp))
+
+        Box(
+            modifier = Modifier.weight(1f).aspectRatio(1f)
+        ) {
+            GlideImage(
+                model = secondImageUri,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+        }
+    }
+}
+
+
+//앨범 텍스트 영역
+@Composable
+fun AlbumText(
+    date: Long,
+    content: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = formatDate(date),
+            style = PetgrowTheme.typography.medium,
+            fontSize = 14.sp,
+            color = black21,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = content,
+            color = gray5E,
+            fontSize = 14.sp,
+            style = PetgrowTheme.typography.regular,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+    }
+
+}
+
+
 
 @Composable
 fun EmptyAlbumWidget(

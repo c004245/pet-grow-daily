@@ -8,6 +8,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -64,7 +65,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun AddRoute(
     viewModel: AddViewModel = hiltViewModel(),
-    navigateToRecordWrite: () -> Unit
+    navigateToRecordWrite: (List<String>) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var isVisible by remember { mutableStateOf(true) }
@@ -110,7 +111,7 @@ fun AddRoute(
                     }
                 },
                 onConfirmSelection = {
-                    navigateToRecordWrite()
+                    navigateToRecordWrite(selectedImages.map { it.uri.toString() })
                 }
             )
         }

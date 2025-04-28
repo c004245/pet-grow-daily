@@ -1,5 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.recordwrite
 
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray60
@@ -10,6 +12,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.add.AddViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.add.MemoTextField
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import android.util.Log
 import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -55,9 +58,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun RecordWriteRoute(
     viewModel: AddViewModel = hiltViewModel(),
+    selectedImageUris: List<String> = emptyList(),
     navigateToAlbum: () -> Unit
 ) {
     RecordWriteScreen(
+        selectedImageUris = selectedImageUris,
         navigateToAlbum = navigateToAlbum
     )
 
@@ -66,6 +71,7 @@ fun RecordWriteRoute(
 
 @Composable
 fun RecordWriteScreen(
+    selectedImageUris: List<String>,
     navigateToAlbum: () -> Unit
 ) {
 
@@ -79,6 +85,7 @@ fun RecordWriteScreen(
         ) {
             TitleAppBar()
             RecordWriteContentCard(
+                selectedImageUris = selectedImageUris,
                 memoText = memoText,
                 onMemoTextChange = { memoText = it }
             )
@@ -118,6 +125,7 @@ fun TitleAppBar() {
 
 @Composable
 fun RecordWriteContentCard(
+    selectedImageUris: List<String>,
     memoText: String,
     onMemoTextChange: (String) -> Unit
 ) {
@@ -155,7 +163,8 @@ fun RecordWriteContentCard(
 
             ) {
                 SelectAlbumWidget(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedImageUris = selectedImageUris
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 RecordWriteField(
@@ -169,9 +178,11 @@ fun RecordWriteContentCard(
 }
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun SelectAlbumWidget(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedImageUris: List<String> = emptyList()
 ) {
     Row(
         modifier = modifier,
@@ -181,12 +192,21 @@ fun SelectAlbumWidget(
             modifier = Modifier.weight(1f)
                 .aspectRatio(1f)
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_dummy_dog),
-                contentDescription = "null",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            if (selectedImageUris.isNotEmpty()) {
+                GlideImage(
+                    model = selectedImageUris[0],
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.ic_dummy_dog),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
         Spacer(modifier = Modifier.width(2.dp))
 
@@ -195,12 +215,21 @@ fun SelectAlbumWidget(
                 .aspectRatio(1f)
 
         ) {
-            Image(
-                painter = painterResource(R.drawable.ic_dummy_dog),
-                contentDescription = "null",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            if (selectedImageUris.size > 1) {
+                GlideImage(
+                    model = selectedImageUris[1],
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.ic_dummy_dog),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }

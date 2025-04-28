@@ -15,6 +15,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoardi
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
+import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 
 
@@ -64,15 +65,17 @@ class MainNavigator(
     }
 
     fun navigateToRecordWrite(
-        navOptions: NavOptions
+        selectedImageUris: List<String>,
+        navOptions: NavOptions? = null
     ) {
-        navController.navigate(RecordWrite, navOptions = navOptions)
+        navController.navigate(
+            RecordWrite.createRoute(selectedImageUris), navOptions = navOptions)
     }
 
     @Composable
     fun isSplashOrOnBoardingScreen(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add || currentRoute == RecordWrite
+        return currentRoute == Splash || currentRoute == OnBoarding || currentRoute == Name || currentRoute == Add || currentRoute == RecordWriteTab
     }
 }
 
@@ -85,7 +88,7 @@ fun findRouteFromDestination(route: String?): Route? {
         MyPage.route -> MyPage
         Name.route -> Name
         Add.route -> Add
-        RecordWrite.route -> RecordWrite
+        RecordWriteTab.route -> RecordWriteTab
         else -> null
     }
 }

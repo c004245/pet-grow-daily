@@ -11,7 +11,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 
 
 fun NavGraphBuilder.addNavGraph(
-    navigateToRecordWrite: () -> Unit
+    navigateToRecordWrite: (List<String>) -> Unit
 ) {
     composable<Add> {
         AddRoute(

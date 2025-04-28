@@ -132,8 +132,8 @@ internal fun MainScreen(
                         }
                     )
                     addNavGraph(
-                        navigateToRecordWrite = {
-                            navigate(navigator, NavigateEnum.RECORDWRITE)
+                        navigateToRecordWrite = { selectedImageUris ->
+                            navigator.navigateToRecordWrite(selectedImageUris)
                         }
                     )
                     recordWriteGraph(
@@ -194,10 +194,6 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
-        }
-        NavigateEnum.RECORDWRITE -> {
-            navigator.navigateToRecordWrite(navOptions = navOptions)
-
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)

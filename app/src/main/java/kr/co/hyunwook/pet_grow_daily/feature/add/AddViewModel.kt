@@ -3,14 +3,23 @@ package kr.co.hyunwook.pet_grow_daily.feature.add
 import com.bumptech.glide.Glide.init
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveAlbumRecordUseCase
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import java.util.Calendar
 import javax.inject.Inject
 import androidx.core.database.getLongOrNull
@@ -19,14 +28,32 @@ import androidx.lifecycle.viewModelScope
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(AddUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _saveDoneEvent = MutableSharedFlow<Boolean>()
+    val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
+
+
+
     init {
         loadImages()
+    }
+
+    fun saveAlbumRecord(albumRecord: AlbumRecord) {
+        Log.d("HWO", "saveAlbumRecord -> $albumRecord")
+        viewModelScope.launch {
+            try {
+                saveAlbumRecordUseCase(albumRecord)
+                _saveDoneEvent.emit(true)
+            } catch (e: Exception) {
+                _saveDoneEvent.emit(false)
+            }
+        }
     }
 
     private fun loadImages() {

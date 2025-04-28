@@ -2,7 +2,9 @@ package kr.co.hyunwook.pet_grow_daily.feature.recordwrite
 
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray60
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
@@ -37,6 +39,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,9 +64,31 @@ fun RecordWriteRoute(
     selectedImageUris: List<String> = emptyList(),
     navigateToAlbum: () -> Unit
 ) {
+
+    var memoText by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.saveDoneEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                navigateToAlbum()
+            }
+        }
+    }
+
     RecordWriteScreen(
         selectedImageUris = selectedImageUris,
-        navigateToAlbum = navigateToAlbum
+        memoText = memoText,
+        onMemoTextChange = { memoText = it },
+        onDoneClick = {
+            val albumRecord = AlbumRecord(
+                date = System.currentTimeMillis(),
+                content = memoText,
+                firstImage = selectedImageUris[0],
+                secondImage = selectedImageUris[1]
+            )
+            viewModel.saveAlbumRecord(albumRecord)
+        },
+
     )
 
 
@@ -72,10 +97,10 @@ fun RecordWriteRoute(
 @Composable
 fun RecordWriteScreen(
     selectedImageUris: List<String>,
-    navigateToAlbum: () -> Unit
+    memoText: String,
+    onMemoTextChange: (String) -> Unit,
+    onDoneClick: () -> Unit
 ) {
-
-    var memoText by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
@@ -87,13 +112,15 @@ fun RecordWriteScreen(
             RecordWriteContentCard(
                 selectedImageUris = selectedImageUris,
                 memoText = memoText,
-                onMemoTextChange = { memoText = it }
+                onMemoTextChange = { onMemoTextChange(it) }
             )
             Spacer(modifier = Modifier.weight(1f))
             AddDoneWriteButton(
                 isEnabled = memoText.isNotEmpty(),
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
-                onDoneClick = { navigateToAlbum() }
+                onDoneClick = {
+                  onDoneClick()
+                }
             )
         }
 

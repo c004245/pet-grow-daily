@@ -16,22 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase,
 ) : ViewModel() {
-    private val _saveDoneEvent = MutableSharedFlow<Boolean>()
-    val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
 
-
-    fun saveAlbumRecord(albumRecord: AlbumRecord) {
-        flow {
-            emit(saveAlbumRecordUseCase(albumRecord))
-        }.onEach {
-            _saveDoneEvent.emit(true)
-        }.catch {
-            _saveDoneEvent.emit(false)
-        }.launchIn(viewModelScope)
-
-    }
 }
 
 

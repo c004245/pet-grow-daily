@@ -76,6 +76,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun AlbumRoute(
     paddingValues: PaddingValues,
     navigateToAdd: () -> Unit = {},
+    navigateToAlbumImage: () -> Unit = {},
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -85,14 +86,16 @@ fun AlbumRoute(
     }
     AlbumScreen(
         albumRecord = albumRecord,
-        navigateToAdd = navigateToAdd
+        navigateToAdd = navigateToAdd,
+        navigateToAlbumImage = navigateToAlbumImage
     )
 }
 
 @Composable
 fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
-    navigateToAdd: () -> Unit = {}
+    navigateToAdd: () -> Unit = {},
+    navigateToAlbumImage: () -> Unit = {}
 ) {
 
     Box(
@@ -111,7 +114,9 @@ fun AlbumScreen(
                     )
                 },
                 icon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        navigateToAlbumImage()
+                    }) {
                         Image(
                             painter = painterResource(R.drawable.ic_album),
                             contentDescription = null,

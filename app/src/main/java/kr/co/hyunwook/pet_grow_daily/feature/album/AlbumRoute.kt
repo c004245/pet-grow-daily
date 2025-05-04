@@ -114,7 +114,8 @@ fun AlbumScreen(
             if (albumRecord.isNotEmpty()) {
                 CustomAlbumListWidget(
                     modifier = Modifier.padding(top = 16.dp),
-                    albumRecordItem = albumRecord
+                    albumRecordItem = albumRecord,
+                    navigateToAdd = navigateToAdd
                 )
             } else {
                 EmptyAlbumWidget(
@@ -127,21 +128,58 @@ fun AlbumScreen(
 
 
 @Composable
-fun CustomAlbumListWidget(modifier: Modifier, albumRecordItem: List<AlbumRecord>) {
+fun CustomAlbumListWidget(modifier: Modifier,
+                          albumRecordItem: List<AlbumRecord>,
+                          navigateToAdd: () -> Unit) {
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
-    ) {
-        itemsIndexed(albumRecordItem) { index, item ->
-            AlbumCard(
-                albumRecord = item,
-                modifier = Modifier.fillMaxSize()
-            )
-
-        }
-    }
+    Box(modifier = modifier.fillMaxSize()) {
+       LazyColumn(
+           modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+           verticalArrangement = Arrangement.spacedBy(16.dp),
+           contentPadding = PaddingValues(
+               top = 16.dp,
+               bottom = 80.dp
+           ),
+       ) {
+           itemsIndexed(albumRecordItem) { index, item ->
+               AlbumCard(
+                   albumRecord = item,
+                   modifier = Modifier.fillMaxWidth()
+               )
+           }
+       }
+       
+       Box(
+           modifier = Modifier
+               .align(Alignment.BottomCenter)
+               .fillMaxWidth()
+               .padding(start = 16.dp, end  = 16.dp, bottom = 16.dp)
+               .clickable { navigateToAdd() }
+               .clip(RoundedCornerShape(14.dp))
+               .background(purple6C)
+       ) {
+           Row(
+               modifier = Modifier.fillMaxWidth(),
+               verticalAlignment = Alignment.CenterVertically,
+               horizontalArrangement = Arrangement.Center
+           ) {
+               Image(
+                   painter = painterResource(R.drawable.ic_plus),
+                   contentDescription = "add album"
+               )
+               Spacer(
+                   modifier = Modifier.width(8.dp)
+               )
+               Text(
+                   text = stringResource(R.string.text_picture_add),
+                   color = Color.White,
+                   fontSize = 14.sp,
+                   style = PetgrowTheme.typography.medium,
+                   modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
+               )
+           }
+       }
+   }
 }
 
 @Composable

@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.albumImageGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -102,6 +103,9 @@ internal fun MainScreen(
                         paddingValues = paddingValues,
                         navigateToAdd = {
                             navigate(navigator, NavigateEnum.ADD)
+                        },
+                        navigateToAlbumImage = {
+                            navigate(navigator, NavigateEnum.ALBUM_IMAGE)
                         }
 
                     )
@@ -126,6 +130,12 @@ internal fun MainScreen(
                     addNavGraph(
                         navigateToRecordWrite = { selectedImageUris ->
                             navigator.navigateToRecordWrite(selectedImageUris)
+                        }
+                    )
+
+                    albumImageGraph(
+                        navigateToAlbum ={
+
                         }
                     )
                     recordWriteGraph(
@@ -186,6 +196,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
+        }
+        NavigateEnum.ALBUM_IMAGE -> {
+            navigator.navigateToAlbumImage(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -295,6 +308,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE
+    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE, ALBUM_IMAGE
 }
 

@@ -232,7 +232,7 @@ fun AlbumCard(
             Column(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight()
             ) {
-                AlbumImage(
+                AlbumImageWidget(
                     firstImageUri = albumRecord.firstImage,
                     secondImageUri = albumRecord.secondImage,
                     modifier = Modifier.fillMaxWidth()
@@ -255,7 +255,7 @@ fun AlbumCard(
 //앨범 이미지 영역
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumImage(
+fun AlbumImageWidget(
     firstImageUri: String,
     secondImageUri: String,
     modifier : Modifier = Modifier) {

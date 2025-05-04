@@ -65,6 +65,7 @@ fun getCategoryItem(categoryType: CategoryType, navigateEnum: NavigateEnum): Pai
 //        NavigateEnum.NAME -> TODO()
         NavigateEnum.ORDER -> TODO()
         NavigateEnum.ADD -> TODO()
+    else -> TODO()
     }
 
     // 기본값을 설정하여 null 방지

@@ -11,3 +11,8 @@ data class AlbumRecord(
     val firstImage: String,
     val secondImage: String
 )
+
+data class AlbumImageModel(
+    val imageUrl: String,
+    val date: Long
+)

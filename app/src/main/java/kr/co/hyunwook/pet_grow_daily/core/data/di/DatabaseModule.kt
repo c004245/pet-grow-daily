@@ -44,7 +44,7 @@ internal object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideGrowRecordDao(appDatabase: AppDatabase): AlbumRecordDao {
+    fun provideAlbumRecordDao(appDatabase: AppDatabase): AlbumRecordDao {
         return appDatabase.albumRecordDao()
     }
 }

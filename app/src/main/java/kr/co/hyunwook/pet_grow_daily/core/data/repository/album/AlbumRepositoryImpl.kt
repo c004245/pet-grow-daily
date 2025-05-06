@@ -4,7 +4,9 @@ import kr.co.hyunwook.pet_grow_daily.core.database.AlbumRecordDao
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
 
 import kotlinx.coroutines.flow.Flow
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
@@ -18,6 +20,10 @@ class AlbumRepositoryImpl @Inject constructor(
 
     override suspend fun getAlbumRecord(): Flow<List<AlbumRecord>> {
      return albumRecordDao.getAlbumRecord()
+    }
+
+    override suspend fun getAllImageAsList(): Flow<List<AlbumImageModel>> {
+        return albumRecordDao.getAllImageAsList()
     }
 //    }(todayDate: String): Flow<List<GrowRecord>> {
 //        return growRecordDao.getTodayGrowRecord(todayDate)

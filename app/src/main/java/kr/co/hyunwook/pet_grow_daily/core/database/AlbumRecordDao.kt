@@ -7,7 +7,9 @@ import androidx.room.Query
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
 import kotlinx.coroutines.flow.Flow
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 
 @Dao
 interface AlbumRecordDao {
@@ -20,6 +22,13 @@ interface AlbumRecordDao {
     @Query("SELECT * FROM AlbumRecord")
     fun getAlbumRecord(): Flow<List<AlbumRecord>>
 
+    @Query("""
+        SELECT firstImage AS imageUrl, date From AlbumRecord WHERE firstImage != ''
+        UNION ALL
+        SELECT secondImage AS imageUrl, date From AlbumRecord WHERE secondImage != '' 
+        ORDER BY date DESC
+    """)
+    fun getAllImageAsList(): Flow<List<AlbumImageModel>>
 //    @Query(""" SELECT * FROM GrowRecord  WHERE strftime('%m', DATE(timeStamp / 1000, 'unixepoch', 'localtime')) = :month""")
 //    fun getMonthlyGrowRecords(month: String): Flow<List<GrowRecord>>
 //

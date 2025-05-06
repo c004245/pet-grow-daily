@@ -110,7 +110,8 @@ fun AlbumScreen(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.text_album_title),
-                        style = PetgrowTheme.typography.bold
+                        style = PetgrowTheme.typography.bold,
+                        color = black21
                     )
                 },
                 icon = {

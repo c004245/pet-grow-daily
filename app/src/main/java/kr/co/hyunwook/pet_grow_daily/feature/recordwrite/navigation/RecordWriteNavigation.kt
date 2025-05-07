@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
+import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.RecordWriteRoute
 import android.net.Uri
 import androidx.navigation.NavGraphBuilder
@@ -54,6 +55,6 @@ object RecordWrite {
 }
 
 @Serializable
-data object RecordWriteTab: MainTabRoute {
+data object RecordWriteTab: Route {
     override val route: String = "kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite"
 }

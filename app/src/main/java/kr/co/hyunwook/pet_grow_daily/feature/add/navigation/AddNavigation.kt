@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
 import kotlinx.serialization.Serializable
+import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.AddRoute
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumRoute
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
@@ -22,6 +23,6 @@ fun NavGraphBuilder.addNavGraph(
 }
 
 @Serializable
-data object Add: MainTabRoute {
+data object Add: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add"
 }

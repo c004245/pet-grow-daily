@@ -43,6 +43,8 @@ class MainNavigator(
         navController.navigate(Total, navOptions = navOptions)
     }
 
+    fun navigateToOrder
+
     fun navigateToName(
         navOptions: NavOptions
     ) {
@@ -83,12 +85,14 @@ class MainNavigator(
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
         Log.d("HWO", "currentRoute -> $currentRoute")
-        return currentRoute == Album
+        return currentRoute != Splash || currentRoute != OnBoarding
     }
 }
 
 fun findRouteFromDestination(route: String?): Route? {
+    Log.d("HWO", "findRouteFrom -> $route")
     return when (route) {
+
         Splash.route -> Splash
         Album.route -> Album
         Total.route -> Total

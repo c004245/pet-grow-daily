@@ -2,6 +2,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation
 
 import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
+import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.MyPageRoute
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
@@ -19,6 +20,6 @@ fun NavGraphBuilder.myPageNavigation(
 }
 
 @Serializable
-data object MyPage: MainTabRoute {
+data object MyPage: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage"
 }

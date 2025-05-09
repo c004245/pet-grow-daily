@@ -30,6 +30,7 @@ firebase-bom = "33.7.0"
 google-services = "4.3.15"
 uiTestJunit4Android = "1.7.6"
 kotestRunnerJunit5Jvm = "5.7.2"
+pager = "0.28.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -78,6 +79,9 @@ kotest-engine = { group = "io.kotest", name = "kotest-framework-engine", version
 #mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 kotest-runner-junit5-jvm = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotestRunnerJunit5Jvm" }
+accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "pager"}
+accompanist-pager-indicator = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "pager"}
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

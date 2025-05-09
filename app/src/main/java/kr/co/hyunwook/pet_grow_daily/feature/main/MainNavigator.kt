@@ -15,6 +15,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
@@ -43,7 +44,11 @@ class MainNavigator(
         navController.navigate(Total, navOptions = navOptions)
     }
 
-    fun navigateToOrder
+    fun navigateToOrder(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(Order, navOptions = navOptions)
+    }
 
     fun navigateToName(
         navOptions: NavOptions

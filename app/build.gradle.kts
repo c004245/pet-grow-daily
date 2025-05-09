@@ -103,6 +103,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     testImplementation(libs.androidx.ui.test.junit4)
 
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicator)
+
 }
 
 tasks.withType<Test> {

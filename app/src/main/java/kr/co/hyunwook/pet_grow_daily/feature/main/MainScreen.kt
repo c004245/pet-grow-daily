@@ -51,6 +51,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.albumImageGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import androidx.compose.foundation.shape.RoundedCornerShape
 
@@ -133,6 +134,7 @@ internal fun MainScreen(
                         }
                     )
 
+                    orderNavGraph()
                     albumImageGraph(
                         navigateToAlbum ={
 
@@ -189,7 +191,7 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
             navigator.navigateToAlbum(navOptions = navOptions)
         }
         NavigateEnum.ORDER -> {
-            navigator.navigateToTotal(navOptions = navOptions)
+            navigator.navigateToOrder(navOptions = navOptions)
         }
         NavigateEnum.MYPAGE -> {
             navigator.navigateToMyPage(navOptions = navOptions)

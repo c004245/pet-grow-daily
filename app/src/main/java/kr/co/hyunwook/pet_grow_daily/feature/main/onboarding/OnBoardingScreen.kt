@@ -1,5 +1,8 @@
 package kr.co.hyunwook.pet_grow_daily.feature.main.onboarding
 
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,11 +30,18 @@ import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun OnBoardingScreen(
     navigateToName: () -> Unit = {},
 ) {
+
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -62,40 +72,78 @@ fun OnBoardingScreen(
                 painter = painterResource(id = R.drawable.ic_onboarding_background),
                 contentDescription = "background"
             )
-        }
-        Button(
-            onClick = {
-                navigateToName()
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(
-                    PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.ic_kakao_button),
+                contentDescription = null,
+                modifier = Modifier.clickable {
+                    handleKakaoLogin(
+                        context = context,
+                        onSuccess = { userId ->
+                            Log.d("HWO", "userId -> $userId")
+                        },
+                        onError = { error ->
+                            Log.d(
+                                "HWO", "카카오 로그인 실패 -> $error"
+                            )
+                        }
                     )
-                ),
-
-            shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = purple6C
-                )
-        ) {
-            Text(
-                text = stringResource(id = R.string.text_next),
-                style = PetgrowTheme.typography.bold,
-                color = Color.White,
-                fontSize = 14.sp
+                }
             )
-
         }
-
     }
 }
 
 
+private fun handleKakaoLogin(
+    context: Context,
+    onSuccess: (Long?) -> Unit,
+    onError: (Throwable) -> Unit
+) {
+    if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+        UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+            if (error != null) {
+                if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                    onError(error)
+                    return@loginWithKakaoTalk
+                }
+                loginWithKakaoAccount(context, onSuccess, onError)
+            } else if (token != null) {
+                getUserInfo(onSuccess, onError)
+            }
+        }
+    } else {
+        loginWithKakaoAccount(context, onSuccess, onError)
+    }
+}
+
+private fun loginWithKakaoAccount(
+    context: Context,
+    onSuccess: (Long?) -> Unit,
+    onError: (Throwable) -> Unit
+) {
+    UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
+        if (error != null) {
+            onError(error)
+        } else if (token != null) {
+            getUserInfo(onSuccess, onError)
+        }
+    }
+}
+
+private fun getUserInfo(
+    onSuccess: (Long?) -> Unit,
+    onError: (Throwable) -> Unit
+) {
+    UserApiClient.instance.me { user, error ->
+        if (error != null) {
+            onError(error)
+        } else if (user != null) {
+            onSuccess(user.id)
+        }
+    }
+}
 @Preview
 @Composable
 fun OnBoardingScreenPreview() {

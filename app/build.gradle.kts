@@ -106,6 +106,8 @@ dependencies {
     implementation(libs.accompanist.pager)
     implementation(libs.accompanist.pager.indicator)
 
+    implementation(libs.kakao.login)
+
 }
 
 tasks.withType<Test> {

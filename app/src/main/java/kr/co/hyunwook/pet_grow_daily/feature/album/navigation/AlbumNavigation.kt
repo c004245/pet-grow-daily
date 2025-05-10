@@ -26,5 +26,5 @@ fun NavGraphBuilder.albumNavGraph(
 
 @Serializable
 data object Album: Route {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.main.dailygrow.navigation.Album"
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album"
 }

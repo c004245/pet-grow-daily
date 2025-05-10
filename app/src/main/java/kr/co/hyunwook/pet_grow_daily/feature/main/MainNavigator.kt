@@ -90,14 +90,13 @@ class MainNavigator(
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
         Log.d("HWO", "currentRoute -> $currentRoute")
-        return currentRoute != Splash || currentRoute != OnBoarding
+        return currentRoute == Album || currentRoute == Order || currentRoute == MyPage
     }
 }
 
 fun findRouteFromDestination(route: String?): Route? {
     Log.d("HWO", "findRouteFrom -> $route")
     return when (route) {
-
         Splash.route -> Splash
         Album.route -> Album
         Total.route -> Total
@@ -105,6 +104,7 @@ fun findRouteFromDestination(route: String?): Route? {
         MyPage.route -> MyPage
         Name.route -> Name
         Add.route -> Add
+        Order.route -> Order
         RecordWriteTab.route -> RecordWriteTab
         else -> null
     }

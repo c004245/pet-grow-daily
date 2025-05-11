@@ -17,7 +17,8 @@ interface AlbumRepository {
 //    suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>>
 
 //    suspend fun getMonthlyCategoryGrowRecords(categoryType: CategoryType, month: String): Flow<List<GrowRecord>>
-    suspend fun saveName(name: String)
 
-    suspend fun getName(): Flow<String>
+    suspend fun getHasCompleteOnBoarding(): Flow<Boolean>
+
+    suspend fun saveLoginState(userId: Long)
 }

@@ -33,14 +33,26 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun OnBoardingScreen(
-    navigateToName: () -> Unit = {},
+    navigateToAlbum: () -> Unit = {},
+    viewModel: OnBoardingViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
+    val loginState by viewModel.loginState.collectAsState()
+
+    LaunchedEffect(loginState) {
+        if (loginState is OnBoardingViewModel.LoginState.Success) {
+            navigateToAlbum()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -82,6 +94,7 @@ fun OnBoardingScreen(
                         context = context,
                         onSuccess = { userId ->
                             Log.d("HWO", "userId -> $userId")
+                            viewModel.handleKakaoLoginSuccess(userId)
                         },
                         onError = { error ->
                             Log.d(
@@ -98,7 +111,7 @@ fun OnBoardingScreen(
 
 private fun handleKakaoLogin(
     context: Context,
-    onSuccess: (Long?) -> Unit,
+    onSuccess: (Long) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -120,7 +133,7 @@ private fun handleKakaoLogin(
 
 private fun loginWithKakaoAccount(
     context: Context,
-    onSuccess: (Long?) -> Unit,
+    onSuccess: (Long) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
@@ -133,14 +146,19 @@ private fun loginWithKakaoAccount(
 }
 
 private fun getUserInfo(
-    onSuccess: (Long?) -> Unit,
+    onSuccess: (Long) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     UserApiClient.instance.me { user, error ->
         if (error != null) {
             onError(error)
-        } else if (user != null) {
-            onSuccess(user.id)
+        } else if (user?.id != null) {  // user.id가 null이 아닌 경우에만 성공
+            // 사용자의 고유 ID 전달
+            onSuccess(user.id!!)
+        } else {
+            // user가 null이거나 user.id가 null인 경우 오류로 처리
+            val errorMessage = "사용자 ID를 가져올 수 없습니다."
+            onError(RuntimeException(errorMessage))
         }
     }
 }

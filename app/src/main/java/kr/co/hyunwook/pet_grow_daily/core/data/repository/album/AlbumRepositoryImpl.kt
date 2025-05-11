@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
     private val albumRecordDao: AlbumRecordDao,
-    private val growDataSource: AlbumPreferencesDataSource
+    private val albumDataSource: AlbumPreferencesDataSource
 ): AlbumRepository {
 
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
@@ -40,11 +40,14 @@ class AlbumRepositoryImpl @Inject constructor(
 //        return growRecordDao.getMonthlyCategoryGrowRecords(categoryType, month)
 //    }
 
-    override suspend fun saveName(name: String) {
-        growDataSource.saveName(name)
-    }
 
-    override suspend fun getName(): Flow<String> = growDataSource.name
+    override suspend fun saveLoginState(userId: Long) {
+        albumDataSource.saveLoginState(userId)
+
+    }
+    override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> = albumDataSource.hasCompletedOnboarding
+
+
 
 
 }

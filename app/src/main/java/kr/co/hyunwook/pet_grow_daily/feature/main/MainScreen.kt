@@ -93,7 +93,7 @@ internal fun MainScreen(
                     popExitTransition = { ExitTransition.None }
                 ) {
                     splashNavGraph(
-                        navigateToDailyGrow = {
+                        navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
                         },
                         navigateToOnBoarding = {
@@ -117,7 +117,7 @@ internal fun MainScreen(
                     )
 
                     onboardingNavGraph(
-                        navigateToName = {
+                        navigateToAlbum = {
 //                            navigate(navigator, NavigateEnum.NAME)
                             navigate(navigator, NavigateEnum.ALBUM)
 

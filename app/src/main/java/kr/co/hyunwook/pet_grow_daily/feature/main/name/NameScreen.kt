@@ -92,7 +92,7 @@ fun NameScreen(
 
         Button(
             onClick = {
-                if (nameText.isNotEmpty()) nameViewModel.saveDogName(nameText)
+//                if (nameText.isNotEmpty()) nameViewModel.saveDogName(nameText)
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)

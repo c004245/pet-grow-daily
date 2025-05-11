@@ -2,18 +2,18 @@ package kr.co.hyunwook.pet_grow_daily.feature.main.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetHasCompletedOnBoardingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val getNameUseCase: GetNameUseCase
+    private val getHasCompletedOnBoardingUseCase: GetHasCompletedOnBoardingUseCase
 ) : ViewModel() {
     private val _sideEffects = MutableSharedFlow<SplashSideEffect>()
     val sideEffects: SharedFlow<SplashSideEffect> get() = _sideEffects.asSharedFlow()
@@ -21,9 +21,9 @@ class SplashViewModel @Inject constructor(
     fun showSplash() {
         viewModelScope.launch {
             delay(SPLASH_DURATION)
-            getNameUseCase().collect { name ->
-                if (name.isNotEmpty()) {
-                    _sideEffects.emit(SplashSideEffect.NavigateToDailyGrow)
+            getHasCompletedOnBoardingUseCase.invoke().collect { isComplete ->
+                if (isComplete) {
+                    _sideEffects.emit(SplashSideEffect.NavigateToAlbum)
                 } else {
                     _sideEffects.emit(SplashSideEffect.NavigateToOnBoarding)
                 }

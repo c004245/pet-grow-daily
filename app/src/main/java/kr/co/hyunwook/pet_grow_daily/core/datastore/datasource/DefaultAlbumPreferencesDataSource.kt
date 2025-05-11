@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.core.datastore.datasource
 
+import kotlinx.coroutines.flow.Flow
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -7,22 +8,27 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 
 class DefaultAlbumPreferencesDataSource @Inject constructor(
     @Named("album") private val dataStore: DataStore<Preferences>
 ): AlbumPreferencesDataSource {
 
     object PreferencesKey {
-        val NAME = stringPreferencesKey("NAME")
+        val USER_ID = longPreferencesKey("USER_ID")
+        val hasCompletedOnBoarding = booleanPreferencesKey("HAS_COMPLETED_ONBOARDING")
     }
 
-    override val name = dataStore.data.map { preferences ->
-        preferences[PreferencesKey.NAME] ?: ""
+    override val hasCompletedOnboarding = dataStore.data.map { preferences ->
+        preferences[PreferencesKey.hasCompletedOnBoarding] ?: false
     }
 
-    override suspend fun saveName(name: String) {
+
+    override suspend fun saveLoginState(userId: Long) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKey.NAME] = name
+            preferences[PreferencesKey.USER_ID] = userId
+            preferences[PreferencesKey.hasCompletedOnBoarding] = true
         }
     }
 }

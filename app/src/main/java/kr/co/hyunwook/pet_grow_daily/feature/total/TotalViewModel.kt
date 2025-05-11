@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetMonthlyCategoryGrowRecordsUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetMonthlyGrowRecordUseCase
-import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetNameUseCase
 import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TotalViewModel @Inject constructor(
     private val getMonthlyGrowRecordUseCase: GetMonthlyGrowRecordUseCase,
-    private val getMonthlyCategoryGrowRecordsUseCase: GetMonthlyCategoryGrowRecordsUseCase,
-    private val getNameUseCase: GetNameUseCase
+    private val getMonthlyCategoryGrowRecordsUseCase: GetMonthlyCategoryGrowRecordsUseCase,     
 ) : ViewModel() {
 
     private val _monthlyGrowRecords = MutableStateFlow<List<GrowRecord>>(emptyList())
@@ -61,9 +59,9 @@ class TotalViewModel @Inject constructor(
 
     fun fetchDogName() {
         viewModelScope.launch {
-            getNameUseCase().collect { name ->
-                _dogName.value = name
-            }
+//            getNameUseCase().collect { name ->
+//                _dogName.value = name
+//            }
         }
     }
 }

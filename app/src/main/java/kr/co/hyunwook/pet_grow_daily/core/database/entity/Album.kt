@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class AlbumRecord(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val date : Long,
+    @PrimaryKey(autoGenerate = true) val date: Long,
+
     val content: String,
     val firstImage: String,
     val secondImage: String

@@ -12,7 +12,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
     override suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long) {
         try {
             val recordMap = hashMapOf(
-                "id" to record.id,
                 "date" to record.date,
                 "content" to record.content,
                 "firstImage" to record.firstImage,

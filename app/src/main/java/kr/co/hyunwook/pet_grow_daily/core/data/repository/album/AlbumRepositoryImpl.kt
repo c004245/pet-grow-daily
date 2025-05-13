@@ -1,21 +1,27 @@
 package kr.co.hyunwook.pet_grow_daily.core.data.repository.album
 
+import com.google.firebase.firestore.FirebaseFirestore
 import kr.co.hyunwook.pet_grow_daily.core.database.AlbumRecordDao
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
 
 import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
     private val albumRecordDao: AlbumRecordDao,
-    private val albumDataSource: AlbumPreferencesDataSource
+    private val albumDataSource: AlbumPreferencesDataSource,
+    private val firestoreDataSource: FirestoreAlbumDataSource
 ): AlbumRepository {
 
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
         albumRecordDao.insertAlbumRecord(albumRecord)
+
+        val userId = getUserId()
+        firestoreDataSource.saveAlbumRecord(albumRecord, userId)
     }
 
     override suspend fun getAlbumRecord(): Flow<List<AlbumRecord>> {
@@ -39,6 +45,16 @@ class AlbumRepositoryImpl @Inject constructor(
 //    ): Flow<List<GrowRecord>> {
 //        return growRecordDao.getMonthlyCategoryGrowRecords(categoryType, month)
 //    }
+
+    private suspend fun getUserId(): Long {
+        return try {
+            albumDataSource.getUserId() ?: 0L // 유저 ID가 없으면 일단 0으로 설정
+        } catch (e: Exception) {
+            // 사용자 ID를 가져오지 못하면 기본값 0 반환
+            e.printStackTrace()
+            0L
+        }
+    }
 
 
     override suspend fun saveLoginState(userId: Long) {

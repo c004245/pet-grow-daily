@@ -1,6 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.core.datastore.datasource
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,6 +15,13 @@ import androidx.datastore.preferences.core.longPreferencesKey
 class DefaultAlbumPreferencesDataSource @Inject constructor(
     @Named("album") private val dataStore: DataStore<Preferences>
 ): AlbumPreferencesDataSource {
+
+    override suspend fun getUserId(): Long? {
+
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.USER_ID]
+        }.firstOrNull()
+    }
 
     object PreferencesKey {
         val USER_ID = longPreferencesKey("USER_ID")

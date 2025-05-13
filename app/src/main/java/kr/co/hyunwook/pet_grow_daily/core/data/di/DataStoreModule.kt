@@ -6,6 +6,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.DefaultAlbumPreferencesDataSource
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.DefaultFirestoreAlbumDataSource
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -16,4 +18,8 @@ internal abstract class DataStoreModule {
         dataSource: DefaultAlbumPreferencesDataSource,
     ): AlbumPreferencesDataSource
 
+    @Binds
+    abstract fun bindAlbumRemoteDataSource(
+        dataSource: DefaultFirestoreAlbumDataSource
+    ): FirestoreAlbumDataSource
 }

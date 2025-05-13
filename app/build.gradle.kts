@@ -107,6 +107,7 @@ dependencies {
     implementation(libs.accompanist.pager.indicator)
 
     implementation(libs.kakao.login)
+    implementation(libs.firestore.ktx)
 
 }
 

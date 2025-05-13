@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 interface AlbumPreferencesDataSource {
     val hasCompletedOnboarding: Flow<Boolean>
     suspend fun saveLoginState(userId: Long)
+     suspend fun getUserId(): Long?
 }

@@ -32,6 +32,7 @@ uiTestJunit4Android = "1.7.6"
 kotestRunnerJunit5Jvm = "5.7.2"
 pager = "0.28.0"
 kakao = "2.19.0"
+firebase-storage = "20.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -84,7 +85,7 @@ accompanist-pager = { group = "com.google.accompanist", name = "accompanist-page
 accompanist-pager-indicator = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "pager"}
 kakao-login = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakao"}
 firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx"}
-
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebase-storage"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

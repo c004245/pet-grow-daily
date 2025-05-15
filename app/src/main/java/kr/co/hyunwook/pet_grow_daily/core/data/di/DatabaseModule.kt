@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.core.data.di
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -55,5 +56,11 @@ internal object DatabaseModule {
     @Singleton
     fun provideFirestore(): FirebaseFirestore {
         return Firebase.firestore
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return FirebaseStorage.getInstance()
     }
 }

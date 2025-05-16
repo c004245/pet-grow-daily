@@ -30,11 +30,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -66,9 +68,12 @@ fun RecordWriteRoute(
 ) {
 
     var memoText by remember { mutableStateOf("") }
+    var isUploading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collectLatest { isSuccess ->
+            isUploading = false
+
             if (isSuccess) {
                 navigateToAlbum()
             }
@@ -78,18 +83,16 @@ fun RecordWriteRoute(
     RecordWriteScreen(
         selectedImageUris = selectedImageUris,
         memoText = memoText,
+        isUploading = isUploading,
         onMemoTextChange = { memoText = it },
         onDoneClick = {
-            val albumRecord = AlbumRecord(
-                date = System.currentTimeMillis(),
+            isUploading = true
+            viewModel.uploadAndSaveAlbumRecord(
+                selectedImageUris = selectedImageUris,
                 content = memoText,
-                firstImage = selectedImageUris[0],
-                secondImage = selectedImageUris[1]
             )
-            viewModel.saveAlbumRecord(albumRecord)
         },
-
-    )
+        )
 
 
 }
@@ -98,6 +101,7 @@ fun RecordWriteRoute(
 fun RecordWriteScreen(
     selectedImageUris: List<String>,
     memoText: String,
+    isUploading: Boolean,
     onMemoTextChange: (String) -> Unit,
     onDoneClick: () -> Unit
 ) {
@@ -119,9 +123,33 @@ fun RecordWriteScreen(
                 isEnabled = memoText.isNotEmpty(),
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
                 onDoneClick = {
-                  onDoneClick()
+                    onDoneClick()
                 }
             )
+        }
+        if (isUploading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),  // 어두운 오버레이
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        color = purple6C,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "이미지를 업로드하는 중입니다...",
+                        style = PetgrowTheme.typography.medium,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
         }
 
     }
@@ -268,7 +296,7 @@ fun RecordWriteField(
 ) {
 
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp)
     ) {
         Text(
@@ -303,7 +331,8 @@ fun RecordWriteMemoField(text: String, onTextChange: (String) -> Unit) {
             .fillMaxWidth()
             .height(116.dp)
             .background(
-                grayF8)
+                grayF8
+            )
             .border(BorderStroke(1.dp, grayf1), shape = RoundedCornerShape(8.dp))
 
     ) {

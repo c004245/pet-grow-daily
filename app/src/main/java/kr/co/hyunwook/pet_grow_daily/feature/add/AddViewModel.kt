@@ -1,16 +1,21 @@
 package kr.co.hyunwook.pet_grow_daily.feature.add
 
 import com.bumptech.glide.Glide.init
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveAlbumRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
@@ -40,17 +45,69 @@ class AddViewModel @Inject constructor(
         loadImages()
     }
 
+    fun uploadAndSaveAlbumRecord(
+        selectedImageUris: List<String>,
+        content: String
+    ) {
+        viewModelScope.launch {
+            try {
+                val uris = selectedImageUris.map { Uri.parse(it) }
+
+                val uploadTasks = uris.mapIndexed { index, uri ->
+                    async {
+                        uploadImageToStorage(uri, index)
+                    }
+                }
+
+                val imageUrls = uploadTasks.awaitAll()
+                // AlbumRecord 생성 및 저장
+                val albumRecord = AlbumRecord(
+                    date = System.currentTimeMillis(),
+                    content = content,
+                    firstImage = imageUrls.getOrNull(0) ?: "",
+                    secondImage = imageUrls.getOrNull(1) ?: ""
+                )
+
+                // 기존 저장 함수 호출
+                saveAlbumRecord(albumRecord)
+                _saveDoneEvent.emit(true)
+            } catch (e: Exception) {
+                _saveDoneEvent.emit(false)
+            }
+            }
+        }
+
+
     fun saveAlbumRecord(albumRecord: AlbumRecord) {
         Log.d("HWO", "saveAlbumRecord -> $albumRecord")
         viewModelScope.launch {
             try {
                 saveAlbumRecordUseCase(albumRecord)
-                _saveDoneEvent.emit(true)
             } catch (e: Exception) {
                 _saveDoneEvent.emit(false)
             }
         }
     }
+
+
+
+    private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
+        return try {
+            val fileName = "image_${System.currentTimeMillis()}_$index.jpg"
+            val storageRef = FirebaseStorage.getInstance().reference
+                .child("users")
+                .child("albums")
+                .child(fileName)
+
+            storageRef.putFile(uri).await()
+            val downloadUrl = storageRef.downloadUrl.await().toString()
+            downloadUrl
+        } catch (e: Exception) {
+            Log.e("Firebase", "이미지 업로드 실패: ${e.message}", e)
+            throw e
+        }
+    }
+
 
     private fun loadImages() {
         viewModelScope.launch {
@@ -111,8 +168,6 @@ class AddViewModel @Inject constructor(
 
         return "${year}년 ${month}월 ${day}일"
     }
-
-
 }
 
 

@@ -111,6 +111,7 @@ fun AddRoute(
                     }
                 },
                 onConfirmSelection = {
+
                     navigateToRecordWrite(selectedImages.map { it.uri.toString() })
                 }
             )

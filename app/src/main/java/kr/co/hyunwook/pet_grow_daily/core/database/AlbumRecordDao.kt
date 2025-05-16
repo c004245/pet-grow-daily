@@ -19,7 +19,7 @@ interface AlbumRecordDao {
     suspend fun insertAlbumRecord(record: AlbumRecord)
 
     //앨범 데이터 불러오기
-    @Query("SELECT * FROM AlbumRecord")
+    @Query("SELECT * FROM AlbumRecord ORDER BY date DESC")
     fun getAlbumRecord(): Flow<List<AlbumRecord>>
 
     @Query("""

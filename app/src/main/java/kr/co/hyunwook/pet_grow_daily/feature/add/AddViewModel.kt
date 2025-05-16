@@ -4,6 +4,7 @@ import com.bumptech.glide.Glide.init
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,16 +14,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveAlbumRecordUseCase
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import java.io.IOException
 import java.util.Calendar
 import javax.inject.Inject
+import kotlin.math.min
 import androidx.core.database.getLongOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,14 +39,13 @@ import androidx.lifecycle.viewModelScope
 class AddViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _saveDoneEvent = MutableSharedFlow<Boolean>()
     val saveDoneEvent: SharedFlow<Boolean> get() = _saveDoneEvent
-
 
 
     init {
@@ -74,8 +81,8 @@ class AddViewModel @Inject constructor(
             } catch (e: Exception) {
                 _saveDoneEvent.emit(false)
             }
-            }
         }
+    }
 
 
     fun saveAlbumRecord(albumRecord: AlbumRecord) {
@@ -90,17 +97,21 @@ class AddViewModel @Inject constructor(
     }
 
 
-
     private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
         return try {
+
+            val optimizedImageUri = optimizeImage(uri)
+
             val fileName = "image_${System.currentTimeMillis()}_$index.jpg"
             val storageRef = FirebaseStorage.getInstance().reference
                 .child("users")
                 .child("albums")
                 .child(fileName)
 
-            storageRef.putFile(uri).await()
+            storageRef.putFile(optimizedImageUri).await()
             val downloadUrl = storageRef.downloadUrl.await().toString()
+            context.contentResolver.delete(optimizedImageUri, null, null)
+
             downloadUrl
         } catch (e: Exception) {
             Log.e("Firebase", "이미지 업로드 실패: ${e.message}", e)
@@ -123,7 +134,8 @@ class AddViewModel @Inject constructor(
                 MediaStore.Images.Media.DATE_ADDED
             )
 
-            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC, ${MediaStore.Images.Media.DATE_ADDED} DESC"
+            val sortOrder =
+                "${MediaStore.Images.Media.DATE_ADDED} DESC, ${MediaStore.Images.Media.DATE_ADDED} DESC"
 
             contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -133,8 +145,10 @@ class AddViewModel @Inject constructor(
                 sortOrder
             )?.use { cursor ->
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dateTakenColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
-                val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                val dateTakenColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                val dateAddedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
@@ -157,6 +171,80 @@ class AddViewModel @Inject constructor(
         }
 
     }
+
+
+
+    private suspend fun optimizeImage(uri: Uri): Uri {
+        return withContext(Dispatchers.IO) {
+            try {
+
+                var originalSize = 0L
+                try {
+                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        originalSize = inputStream.available().toLong()
+                    }
+                } catch (e: Exception) {
+                }
+
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                val width = originalBitmap.width
+                val height = originalBitmap.height
+
+                val maxWidth = 2400
+                val maxHeight = 3000
+
+                val resizeBitmap = if (width > maxWidth || height > maxHeight) {
+                    val ratio = min(maxWidth.toFloat() / width, maxHeight.toFloat() / height)
+                    val newWidth = (width * ratio).toInt()
+                    val newHeight = (height * ratio).toInt()
+                    Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+                } else {
+                    originalBitmap
+                }
+                
+                val fileName = "optimized_${System.currentTimeMillis()}.jpg"
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                    put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                }
+                
+                val imageUri = context.contentResolver.insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                    ?: throw IOException("Failed to create media store record")
+                    
+                // 압축 품질 85%로 저장
+                context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                    resizeBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+                } ?: throw IOException("Failed to open output stream")
+                
+                // 최종 파일 크기 확인
+                var optimizedSize = 0L
+                try {
+                    context.contentResolver.openInputStream(imageUri)?.use { inputStream ->
+                        optimizedSize = inputStream.available().toLong()
+                    }
+                    val compressionRatio = if (originalSize > 0) {
+                        (100 - (optimizedSize * 100 / originalSize))
+                    } else 0
+                } catch (e: Exception) {
+                }
+                
+                if (resizeBitmap != originalBitmap) {
+                    resizeBitmap.recycle()
+                }
+                originalBitmap.recycle()
+                
+                imageUri
+            } catch (e: Exception) {
+                uri // 실패 시 원본 반환
+            }
+        }
+    }
+
 
     private fun formatDate(timestamp: Long): String {
         val calendar = Calendar.getInstance()

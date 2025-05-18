@@ -15,7 +15,7 @@ class AlbumRepositoryImpl @Inject constructor(
     private val albumRecordDao: AlbumRecordDao,
     private val albumDataSource: AlbumPreferencesDataSource,
     private val firestoreDataSource: FirestoreAlbumDataSource
-): AlbumRepository {
+) : AlbumRepository {
 
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
         albumRecordDao.insertAlbumRecord(albumRecord)
@@ -24,8 +24,15 @@ class AlbumRepositoryImpl @Inject constructor(
         firestoreDataSource.saveAlbumRecord(albumRecord, userId)
     }
 
+    override suspend fun getUserAlbumCount(): Int {
+        val userId = getUserId()
+        return firestoreDataSource.getUserAlbumCount(userId)
+    }
+
+
+
     override suspend fun getAlbumRecord(): Flow<List<AlbumRecord>> {
-     return albumRecordDao.getAlbumRecord()
+        return albumRecordDao.getAlbumRecord()
     }
 
     override suspend fun getAllImageAsList(): Flow<List<AlbumImageModel>> {
@@ -61,9 +68,9 @@ class AlbumRepositoryImpl @Inject constructor(
         albumDataSource.saveLoginState(userId)
 
     }
-    override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> = albumDataSource.hasCompletedOnboarding
 
-
+    override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> =
+        albumDataSource.hasCompletedOnboarding
 
 
 }

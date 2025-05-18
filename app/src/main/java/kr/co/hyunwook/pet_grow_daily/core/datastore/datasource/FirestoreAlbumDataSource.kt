@@ -4,4 +4,10 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 
 interface FirestoreAlbumDataSource {
     suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long)
+
+    suspend fun getUserAlbumCount(userId: Long): Int
+
 }
+
+
+const val ALBUM_CREATE_COMPLETE = 40

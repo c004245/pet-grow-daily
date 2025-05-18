@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Log
 import java.io.File
 import javax.inject.Inject
+import androidx.compose.animation.core.snap
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -34,7 +35,20 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
 
+    override suspend fun getUserAlbumCount(userId: Long): Int {
+        return try {
+            val userAlbumCollection = firestore.collection("users")
+                .document(userId.toString())
+                .collection("albums")
+
+            val snapshot = userAlbumCollection.get().await()
+                snapshot.size()
+        } catch (e: Exception) {
+            Log.d("HWO", "getUserAlbumCount: ${e.message}")
+            0
+        }
     }
 
 

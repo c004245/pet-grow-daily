@@ -12,7 +12,6 @@ fun NavGraphBuilder.albumImageGraph(
 ) {
     composable<AlbumImage> {
         AlbumImageRoute(
-            navigateToAlbum = navigateToAlbum
         )
     }
 

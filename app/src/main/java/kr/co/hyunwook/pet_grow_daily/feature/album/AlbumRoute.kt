@@ -9,9 +9,11 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.Commo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
+import kr.co.hyunwook.pet_grow_daily.feature.albumimage.AlbumImageRoute
 import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
@@ -20,6 +22,7 @@ import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
 import kr.co.hyunwook.pet_grow_daily.util.getCategoryType
 import kr.co.hyunwook.pet_grow_daily.util.getEmotionItem
 import kr.co.hyunwook.pet_grow_daily.util.getMemoOrRandomQuote
+import android.icu.number.NumberFormatter.UnitWidth
 import android.util.Log
 import kotlin.math.absoluteValue
 import androidx.compose.foundation.Image
@@ -44,6 +47,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +58,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -98,6 +105,21 @@ fun AlbumScreen(
     navigateToAlbumImage: () -> Unit = {}
 ) {
 
+    var selectedTab by remember { mutableStateOf(AlbumTab.LIST) }
+
+    var pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+
+    LaunchedEffect(selectedTab) {
+        pagerState.animateScrollToPage(
+            page = if (selectedTab == AlbumTab.LIST) 0 else 1
+        )
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        selectedTab = if (pagerState.currentPage == 0) AlbumTab.LIST else AlbumTab.GRID
+    }
+
+
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
@@ -115,29 +137,52 @@ fun AlbumScreen(
                     )
                 },
                 icon = {
-                    IconButton(onClick = {
-                        navigateToAlbumImage()
-                    }) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_album),
-                            contentDescription = null,
-                        )
-
-                    }
+                    AlbumSwitch(
+                        selectedTab = selectedTab,
+                        onTablSelected = {
+                            selectedTab = it
+                        }
+                    )
+//                    IconButton(onClick = {
+//                        navigateToAlbumImage()
+//                    }) {
+//                        Image(
+//                            painter = painterResource(R.drawable.ic_album_unselect),
+//                            contentDescription = null,
+//                        )
+//
+//                    }
                 }
             )
 
-            if (albumRecord.isNotEmpty()) {
-                CustomAlbumListWidget(
-                    modifier = Modifier.padding(top = 16.dp),
-                    albumRecordItem = albumRecord,
-                    navigateToAdd = navigateToAdd
-                )
-            } else {
-                EmptyAlbumWidget(
-                    navigateToAdd = navigateToAdd
-                )
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        if (albumRecord.isNotEmpty()) {
+                            CustomAlbumListWidget(
+                                modifier = Modifier.padding(top = 16.dp),
+                                albumRecordItem = albumRecord,
+                                navigateToAdd = navigateToAdd
+                            )
+                        } else {
+                            EmptyAlbumWidget(
+                                navigateToAdd = navigateToAdd
+                            )
+                        }
+
+                    }
+                    1 -> {
+                        AlbumImageRoute()
+
+                    }
+                }
+
             }
+
+
         }
     }
 }
@@ -164,7 +209,7 @@ fun CustomAlbumListWidget(modifier: Modifier,
                )
            }
        }
-       
+
        Box(
            modifier = Modifier
                .align(Alignment.BottomCenter)
@@ -381,85 +426,59 @@ fun EmptyAlbumWidget(
 }
 
 @Composable
-fun TodayCardDescription(growRecord: GrowRecord) {
-    Log.d(
-        "HWO",
-        "growRecord -> ${growRecord.categoryType} -- ${growRecord.emotionType} -- ${growRecord.memo} -- ${growRecord.timeStamp}"
-    )
-    Column(
+fun AlbumSwitch(
+    selectedTab: AlbumTab,
+    onTablSelected: (AlbumTab) -> Unit
+) {
+    Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .wrapContentHeight(),
-
+            .clip(RoundedCornerShape(8.dp))
+            .background(grayEF)
+            .padding(3.dp)
         ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = getCategoryType(growRecord.categoryType), // 제목 텍스트
-                color = Color.Black,
-                fontSize = 16.sp,
-                style = PetgrowTheme.typography.bold,
-                modifier = Modifier.weight(1f)
-            )
-            Box(
-                modifier = Modifier
-                    .width(24.dp)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(purpleD9),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = getCategoryItem(
-                        categoryType = growRecord.categoryType,
-                        NavigateEnum.ALBUM
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .width(24.dp)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(purpleD9),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = getEmotionItem(emotionType = growRecord.emotionType),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-        }
-        Text(
-            text = formatTimestampToDateTime(growRecord.timeStamp),
-            color = gray86,
-            fontSize = 12.sp,
-            style = PetgrowTheme.typography.medium,
+        ToggleTabItem(
+            tab = AlbumTab.LIST,
+            isSelected = selectedTab == AlbumTab.LIST,
+            onClick = onTablSelected,
+            selectedIconRes = R.drawable.ic_album_select,
+            unSelectedIconRes = R.drawable.ic_album_unselect
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(grayF8)
-                .align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                modifier = Modifier.padding(12.dp),
-                text = getMemoOrRandomQuote(growRecord.memo),
-                color = black21,
-                fontSize = 12.sp,
-                style = PetgrowTheme.typography.regular
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+        ToggleTabItem(
+            tab = AlbumTab.GRID,
+            isSelected = selectedTab == AlbumTab.GRID,
+            onClick = onTablSelected,
+            selectedIconRes = R.drawable.ic_my_album_select,
+            unSelectedIconRes = R.drawable.ic_my_album_unselect
+        )
 
     }
+
 }
 
+@Composable
+fun ToggleTabItem(
+    tab: AlbumTab,
+    isSelected: Boolean,
+    onClick: (AlbumTab) -> Unit,
+    selectedIconRes: Int,
+    unSelectedIconRes: Int
+) {
+    Box(
+        modifier = Modifier.clip(
+            RoundedCornerShape(6.dp))
+            .background(if (isSelected) Color.White else Color.Transparent)
+            .clickable { onClick(tab) }
+            .padding(6.dp)
+
+        ) {
+        Image(
+            painter = painterResource(id = if (isSelected) selectedIconRes else unSelectedIconRes),
+            contentDescription = tab.name,
+            modifier = Modifier.size(18.dp)
+        )
+    }
+
+}
+enum class AlbumTab {
+    LIST, GRID
+}

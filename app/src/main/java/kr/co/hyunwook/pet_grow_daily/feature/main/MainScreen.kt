@@ -105,9 +105,6 @@ internal fun MainScreen(
                         navigateToAdd = {
                             navigate(navigator, NavigateEnum.ADD)
                         },
-                        navigateToAlbumImage = {
-                            navigate(navigator, NavigateEnum.ALBUM_IMAGE)
-                        }
 
                     )
                     totalNavGraph()
@@ -135,11 +132,6 @@ internal fun MainScreen(
                     )
 
                     orderNavGraph()
-                    albumImageGraph(
-                        navigateToAlbum ={
-
-                        }
-                    )
                     recordWriteGraph(
                         navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
@@ -198,9 +190,6 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
-        }
-        NavigateEnum.ALBUM_IMAGE -> {
-            navigator.navigateToAlbumImage(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -310,6 +299,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE, ALBUM_IMAGE
+    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE
 }
 

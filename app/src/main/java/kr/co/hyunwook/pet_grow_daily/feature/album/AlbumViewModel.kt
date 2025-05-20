@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAllImageUseCase
-import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 import javax.inject.Inject
 
 @HiltViewModel

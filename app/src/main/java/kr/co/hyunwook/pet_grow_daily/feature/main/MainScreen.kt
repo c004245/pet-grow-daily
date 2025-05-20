@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.albumImageGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph

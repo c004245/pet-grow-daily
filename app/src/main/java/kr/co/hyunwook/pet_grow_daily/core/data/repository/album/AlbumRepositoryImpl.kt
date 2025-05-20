@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
-import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(

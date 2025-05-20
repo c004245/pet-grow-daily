@@ -10,7 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
-import kr.co.hyunwook.pet_grow_daily.feature.albumimage.navigation.AlbumImage
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
@@ -67,11 +66,7 @@ class MainNavigator(
         navController.navigate(Add, navOptions = navOptions)
     }
 
-    fun navigateToAlbumImage(
-        navOptions: NavOptions
-    ) {
-        navController.navigate(AlbumImage, navOptions = navOptions)
-    }
+
     fun navigateToOnBoarding(
         navOptions: NavOptions
     ) {

@@ -175,7 +175,9 @@ fun AlbumScreen(
 
                     }
                     1 -> {
-                        AlbumImageRoute()
+                        AlbumImageRoute(
+                            navigateToAdd = navigateToAdd
+                        )
 
                     }
                 }

@@ -4,6 +4,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumViewModel
+import kr.co.hyunwook.pet_grow_daily.feature.album.EmptyAlbumWidget
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +28,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AlbumImageRoute(
-    viewModel: AlbumViewModel = hiltViewModel()
+    viewModel: AlbumViewModel = hiltViewModel(),
+    navigateToAdd: () -> Unit = {},
 ) {
 
     val albumImageList by viewModel.albumImageList.collectAsState()
@@ -37,26 +39,34 @@ fun AlbumImageRoute(
     }
 
     AlbumImageScreen(
-        albumImageList = albumImageList
+        albumImageList = albumImageList,
+        navigateToAdd = navigateToAdd
     )
 }
 
 @Composable
 fun AlbumImageScreen(
-    albumImageList: List<AlbumImageModel>
+    albumImageList: List<AlbumImageModel>,
+    navigateToAdd: () -> Unit = {}
 ){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier
-            .fillMaxSize().padding(top = 13.dp)
-            .background(Color.Transparent),
-        horizontalArrangement = Arrangement.spacedBy(1.dp),
-        verticalArrangement = Arrangement.spacedBy(1.dp),
-        contentPadding = PaddingValues(1.dp)
-    ) {
-        items(albumImageList) { albumImage ->
-            AlbumImageGridItem(albumImage)
+    if (albumImageList.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .fillMaxSize().padding(top = 13.dp)
+                .background(Color.Transparent),
+            horizontalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+            contentPadding = PaddingValues(1.dp)
+        ) {
+            items(albumImageList) { albumImage ->
+                AlbumImageGridItem(albumImage)
+            }
         }
+    } else {
+        EmptyAlbumWidget(
+            navigateToAdd = navigateToAdd
+        )
     }
 }
 

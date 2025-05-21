@@ -5,6 +5,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.ALBUM_CREATE_COMPLETE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
@@ -35,6 +36,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -83,7 +85,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun AlbumRoute(
     paddingValues: PaddingValues,
     navigateToAdd: () -> Unit = {},
-    navigateToAlbumImage: () -> Unit = {},
+    navigateToOrder: () -> Unit = {},
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -94,7 +96,7 @@ fun AlbumRoute(
     AlbumScreen(
         albumRecord = albumRecord,
         navigateToAdd = navigateToAdd,
-        navigateToAlbumImage = navigateToAlbumImage
+        navigateToOrder = navigateToOrder
     )
 }
 
@@ -102,7 +104,7 @@ fun AlbumRoute(
 fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
     navigateToAdd: () -> Unit = {},
-    navigateToAlbumImage: () -> Unit = {}
+    navigateToOrder: () -> Unit = {}
 ) {
 
     var selectedTab by remember { mutableStateOf(AlbumTab.LIST) }
@@ -143,16 +145,13 @@ fun AlbumScreen(
                             selectedTab = it
                         }
                     )
-//                    IconButton(onClick = {
-//                        navigateToAlbumImage()
-//                    }) {
-//                        Image(
-//                            painter = painterResource(R.drawable.ic_album_unselect),
-//                            contentDescription = null,
-//                        )
-//
-//                    }
+
                 }
+            )
+            Spacer(Modifier.height(16.dp))
+            AlbumProgressWidget(
+                albumRecord.size,
+                navigateToOrder = navigateToOrder
             )
 
             HorizontalPager(
@@ -174,6 +173,7 @@ fun AlbumScreen(
                         }
 
                     }
+
                     1 -> {
                         AlbumImageRoute(
                             navigateToAdd = navigateToAdd
@@ -191,58 +191,60 @@ fun AlbumScreen(
 
 
 @Composable
-fun CustomAlbumListWidget(modifier: Modifier,
-                          albumRecordItem: List<AlbumRecord>,
-                          navigateToAdd: () -> Unit) {
+fun CustomAlbumListWidget(
+    modifier: Modifier,
+    albumRecordItem: List<AlbumRecord>,
+    navigateToAdd: () -> Unit
+) {
 
     Box(modifier = modifier.fillMaxSize()) {
-       LazyColumn(
-           modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-           verticalArrangement = Arrangement.spacedBy(16.dp),
-           contentPadding = PaddingValues(
-               top = 16.dp,
-               bottom = 80.dp
-           ),
-       ) {
-           itemsIndexed(albumRecordItem) { index, item ->
-               AlbumCard(
-                   albumRecord = item,
-                   modifier = Modifier.fillMaxWidth()
-               )
-           }
-       }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(
+                top = 16.dp,
+                bottom = 80.dp
+            ),
+        ) {
+            itemsIndexed(albumRecordItem) { index, item ->
+                AlbumCard(
+                    albumRecord = item,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
 
-       Box(
-           modifier = Modifier
-               .align(Alignment.BottomCenter)
-               .fillMaxWidth()
-               .padding(start = 16.dp, end  = 16.dp, bottom = 16.dp)
-               .clickable { navigateToAdd() }
-               .clip(RoundedCornerShape(14.dp))
-               .background(purple6C)
-       ) {
-           Row(
-               modifier = Modifier.fillMaxWidth(),
-               verticalAlignment = Alignment.CenterVertically,
-               horizontalArrangement = Arrangement.Center
-           ) {
-               Image(
-                   painter = painterResource(R.drawable.ic_plus),
-                   contentDescription = "add album"
-               )
-               Spacer(
-                   modifier = Modifier.width(8.dp)
-               )
-               Text(
-                   text = stringResource(R.string.text_picture_add),
-                   color = Color.White,
-                   fontSize = 14.sp,
-                   style = PetgrowTheme.typography.medium,
-                   modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
-               )
-           }
-       }
-   }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .clickable { navigateToAdd() }
+                .clip(RoundedCornerShape(14.dp))
+                .background(purple6C)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_plus),
+                    contentDescription = "add album"
+                )
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+                Text(
+                    text = stringResource(R.string.text_picture_add),
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    style = PetgrowTheme.typography.medium,
+                    modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -289,7 +291,8 @@ fun AlbumCard(
                 AlbumText(
                     date = albumRecord.date,
                     content = albumRecord.content,
-                    modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
                 )
 
             }
@@ -306,7 +309,8 @@ fun AlbumCard(
 fun AlbumImageWidget(
     firstImageUri: String,
     secondImageUri: String,
-    modifier : Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -366,7 +370,6 @@ fun AlbumText(
     }
 
 }
-
 
 
 @Composable
@@ -437,7 +440,7 @@ fun AlbumSwitch(
             .clip(RoundedCornerShape(8.dp))
             .background(grayEF)
             .padding(3.dp)
-        ) {
+    ) {
         ToggleTabItem(
             tab = AlbumTab.LIST,
             isSelected = selectedTab == AlbumTab.LIST,
@@ -467,12 +470,13 @@ fun ToggleTabItem(
 ) {
     Box(
         modifier = Modifier.clip(
-            RoundedCornerShape(6.dp))
+            RoundedCornerShape(6.dp)
+        )
             .background(if (isSelected) Color.White else Color.Transparent)
             .clickable { onClick(tab) }
             .padding(6.dp)
 
-        ) {
+    ) {
         Image(
             painter = painterResource(id = if (isSelected) selectedIconRes else unSelectedIconRes),
             contentDescription = tab.name,
@@ -481,6 +485,96 @@ fun ToggleTabItem(
     }
 
 }
+
+@Composable
+fun AlbumProgressWidget(
+    progress: Int,
+    navigateToOrder: () -> Unit
+) {
+    val currentCount = progress * 2
+    val maxCount = ALBUM_CREATE_COMPLETE
+    val progressRatio = currentCount.toFloat() / maxCount
+
+    val isCompleted = currentCount == maxCount
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A00000)
+            ).clip(RoundedCornerShape(16.dp)).background(Color.White)
+            .clickable {
+                if (isCompleted) {
+                    navigateToOrder()
+                }
+            }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                if (isCompleted) {
+                    Row(
+                        modifier = Modifier.wrapContentWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.text_add_picture_completed), // 또는 적절한 문자열
+                            style = PetgrowTheme.typography.medium, // 스타일 변경 가능
+                            color = purple6C,
+                            fontSize = 12.sp,
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Image(
+                            painter = painterResource(R.drawable.ic_progress_arrow),
+                            contentDescription = null
+                        )
+                    }
+
+                } else {
+                    // 기존 텍스트 표시
+                    Text(
+                        text = stringResource(R.string.text_add_picture_progress),
+                        style = PetgrowTheme.typography.medium,
+                        color = purple6C,
+                        fontSize = 12.sp,
+                    )
+                }
+                Text(
+                    text = "$currentCount/$ALBUM_CREATE_COMPLETE",
+                    style = PetgrowTheme.typography.medium,
+                    color = purple6C,
+                    fontSize = 12.sp,
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(purple6C.copy(alpha = 0.2f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progressRatio) // 0.0f에서 0.2f로 변경 (8/40 = 0.2)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(purple6C)
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
 enum class AlbumTab {
     LIST, GRID
 }

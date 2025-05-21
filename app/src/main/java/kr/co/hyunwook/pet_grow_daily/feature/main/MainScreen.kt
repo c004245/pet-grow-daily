@@ -93,6 +93,7 @@ internal fun MainScreen(
                 ) {
                     splashNavGraph(
                         navigateToAlbum = {
+                            navigatorEnum = NavigateEnum.ALBUM
                             navigate(navigator, NavigateEnum.ALBUM)
                         },
                         navigateToOnBoarding = {
@@ -104,7 +105,10 @@ internal fun MainScreen(
                         navigateToAdd = {
                             navigate(navigator, NavigateEnum.ADD)
                         },
-
+                        navigateToOrder = {
+                            navigatorEnum = NavigateEnum.ORDER
+                            navigate(navigator, NavigateEnum.ORDER)
+                        }
                     )
                     totalNavGraph()
 

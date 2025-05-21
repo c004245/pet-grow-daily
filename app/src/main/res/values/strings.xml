@@ -21,4 +21,6 @@
     <string name="text_save_done">오늘의 성장을 기록했어요!</string>
     <string name="text_name_string">반려견의 이름을\n알려주세요.</string>
     <string name="text_no_album">사진이 없어요.\n반려견의 사진을 추가해보세요.</string>
+    <string name="text_add_picture_progress">추가한 사진</string>
+    <string name="text_add_picture_completed">이제 앨범을 주문할 수 있어요!</string>
 </resources>

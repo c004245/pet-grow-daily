@@ -38,7 +38,7 @@ class OrderViewModel @Inject constructor(
     fun requestPayment() {
 
         val request = IamPortRequest(
-            pg = "inicis",
+            pg = "inicis.INIpayTest",
             pay_method = "card",
             name = "코팅형 고급 앨범",
             merchant_uid = "order_${System.currentTimeMillis()}",

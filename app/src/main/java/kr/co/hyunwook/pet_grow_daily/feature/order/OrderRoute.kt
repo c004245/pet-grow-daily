@@ -81,9 +81,8 @@ fun OrderRoute(
     LaunchedEffect(paymentRequest) {
         paymentRequest?.let { request ->
             Iamport.payment(
-                userCode = "imp12345678",
+                userCode = "imp00000000",
                 tierCode = null,
-                webviewMode = null,
                 iamPortRequest = request,
                 approveCallback = null,
                 paymentResultCallback = { response ->

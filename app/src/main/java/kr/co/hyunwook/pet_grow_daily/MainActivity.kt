@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         installSplashScreen().setKeepOnScreenCondition { false }
 
+
         Iamport.init(this)
 
         if (hasAllPermissions()) {

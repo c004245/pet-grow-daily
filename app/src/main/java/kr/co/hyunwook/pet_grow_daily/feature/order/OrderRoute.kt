@@ -2,6 +2,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
+import com.iamport.sdk.domain.core.Iamport
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -10,9 +11,12 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
+import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import android.app.Activity
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,6 +24,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -63,18 +69,47 @@ fun OrderRoute(
 ) {
 
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
+    val paymentRequest by viewModel.paymentRequest.collectAsState()
+    val paymentResult by viewModel.paymentResult.collectAsState()
+    val context = LocalContext.current as ComponentActivity
 
 
     LaunchedEffect(Unit) {
         viewModel.getUserAlbumCount()
-
     }
 
-    OrderScreen()
+    LaunchedEffect(paymentRequest) {
+        paymentRequest?.let { request ->
+            Iamport.payment(
+                userCode = "imp12345678",
+                tierCode = null,
+                webviewMode = null,
+                iamPortRequest = request,
+                approveCallback = null,
+                paymentResultCallback = { response ->
+                    if (response?.imp_success == true) {
+                        viewModel.setPaymentResult(PaymentResult.Success(response))
+                    } else {
+                        viewModel.setPaymentResult(
+                            PaymentResult.Failure(response?.error_msg ?: "결제 실패")
+                        )
+                    }
+                    viewModel.clearPaymentRequest()
+                }
+            )
+        }
+    }
+
+    OrderScreen(onClickRequestPayment = {
+        viewModel.requestPayment()
+    })
 }
 
 @Composable
-fun OrderScreen() {
+fun OrderScreen(
+    onClickRequestPayment: () -> Unit
+
+) {
     val scrollState = rememberScrollState()
 
 
@@ -107,6 +142,7 @@ fun OrderScreen() {
             }
         }
             OrderButtonWidget(
+                onClickRequestPayment = onClickRequestPayment,
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
             )
         }
@@ -270,7 +306,9 @@ fun OrderCountWidget() {
 }
 
 @Composable
-fun OrderButtonWidget(modifier: Modifier = Modifier) {
+fun OrderButtonWidget(
+    onClickRequestPayment: () -> Unit,
+    modifier: Modifier = Modifier) {
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -294,7 +332,9 @@ fun OrderButtonWidget(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(4.dp))
         Box(
             modifier = Modifier.fillMaxWidth().background(purple6C, RoundedCornerShape(14.dp))
-                .clip(RoundedCornerShape(14.dp)),
+                .clip(RoundedCornerShape(14.dp)).clickable {
+                    onClickRequestPayment()
+                },
             contentAlignment = Alignment.Center
         ) {
             Text(

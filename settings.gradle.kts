@@ -17,10 +17,10 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://devrepo.kakao.com/nexus/content/groups/public/") } // 카카오 로그인
+        maven { url = uri("https://jitpack.io") } // JitPack 리포지토리 추가
 
     }
 }
 
 rootProject.name = "pet-grow-daily"
 include(":app")
- 

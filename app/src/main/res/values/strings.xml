@@ -23,4 +23,11 @@
     <string name="text_no_album">사진이 없어요.\n반려견의 사진을 추가해보세요.</string>
     <string name="text_add_picture_progress">추가한 사진</string>
     <string name="text_add_picture_completed">이제 앨범을 주문할 수 있어요!</string>
+
+    <string name="text_mypage_alarm_title">알림 설정</string>
+    <string name="text_legal_info_title">법적 정보</string>
+    <string name="text_use_term_title">이용약관</string>
+    <string name="text_privacy_title">개인정보 처리 방침</string>
+    <string name="text_logout">로그아웃</string>
+
 </resources>

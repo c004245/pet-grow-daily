@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
+import kotlinx.serialization.json.JsonNull.content
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -9,6 +10,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,10 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun MyPageRoute(
     paddingValues: PaddingValues,
+    viewModel: MyPageViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 
@@ -44,14 +48,30 @@ fun MyPageRoute(
 
     MyPageScreen(
         paddingValues = paddingValues,
+        onClickLogout = {
+
+        },
+        onClickPrivacy = {
+
+        },
+        onClickTerm = {
+
+        },
+        onClickAlarm = {
+
+        }
+
     )
 }
 
 @Composable
 fun MyPageScreen(
     paddingValues: PaddingValues,
+    onClickLogout: () -> Unit,
+    onClickTerm: () -> Unit,
+    onClickPrivacy: () -> Unit,
+    onClickAlarm: () -> Unit,
 ) {
-
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
@@ -73,11 +93,11 @@ fun MyPageScreen(
             Spacer(Modifier.height(16.dp))
             MyProfileInfo()
             Spacer(Modifier.height(12.dp))
-            AlarmInfo()
+            AlarmInfo(onClickAlarm)
             Spacer(Modifier.height(12.dp))
-            LegalInfo()
+            LegalInfo(onClickTerm, onClickPrivacy)
             Spacer(Modifier.height(12.dp))
-            LogoutWidget()
+            LogoutWidget(onClickLogout)
             Spacer(Modifier.height(12.dp))
             Box(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
@@ -121,8 +141,10 @@ fun MyProfileInfo() {
 }
 
 @Composable
-fun AlarmInfo() {
-    CommonRoundedBox {
+fun AlarmInfo(onClickAlarm: () -> Unit) {
+    CommonRoundedBox(
+        onClick = onClickAlarm
+    ) {
        Row(
            modifier = Modifier.fillMaxWidth(),
            horizontalArrangement = Arrangement.SpaceBetween
@@ -143,7 +165,7 @@ fun AlarmInfo() {
 }
 
 @Composable
-fun LegalInfo() {
+fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit){
     CommonRoundedBox {
         Column {
 
@@ -155,7 +177,9 @@ fun LegalInfo() {
             )
             Spacer(Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable {
+                    onClickTerm()
+                },
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -171,7 +195,9 @@ fun LegalInfo() {
             }
             Spacer(Modifier.height(12.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable {
+                    onClickPrivacy()
+                },
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -190,8 +216,10 @@ fun LegalInfo() {
 }
 
 @Composable
-fun LogoutWidget() {
-    CommonRoundedBox {
+fun LogoutWidget(onClickLogout: () -> Unit) {
+    CommonRoundedBox(
+        onClick = onClickLogout
+    ) {
         Column {
             Text(
                 text = stringResource(R.string.text_logout),
@@ -207,6 +235,7 @@ fun LogoutWidget() {
 fun CommonRoundedBox(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+    onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Box(
@@ -219,6 +248,7 @@ fun CommonRoundedBox(
                 color = Color.White,
                 shape = RoundedCornerShape(16.dp)
             )
+            .clickable(onClick = onClick)
     ) {
         Box(modifier = Modifier.padding(contentPadding)) {
             content()

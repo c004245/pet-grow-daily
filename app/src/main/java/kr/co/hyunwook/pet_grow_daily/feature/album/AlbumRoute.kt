@@ -4,7 +4,6 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.ALBUM_CREATE_COMPLETE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -13,19 +12,9 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleD9
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.AlbumImageRoute
-import kr.co.hyunwook.pet_grow_daily.feature.main.NavigateEnum
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
-import kr.co.hyunwook.pet_grow_daily.util.formatTimestampToDateTime
-import kr.co.hyunwook.pet_grow_daily.util.getCategoryItem
-import kr.co.hyunwook.pet_grow_daily.util.getCategoryType
-import kr.co.hyunwook.pet_grow_daily.util.getEmotionItem
-import kr.co.hyunwook.pet_grow_daily.util.getMemoOrRandomQuote
-import android.icu.number.NumberFormatter.UnitWidth
-import android.util.Log
-import kotlin.math.absoluteValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,19 +35,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,15 +54,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable

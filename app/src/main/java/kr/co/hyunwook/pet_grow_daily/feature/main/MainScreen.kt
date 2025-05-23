@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
@@ -142,6 +143,8 @@ internal fun MainScreen(
 
                     )
 
+                    anotherPetGraph()
+
 
                 }
             }
@@ -164,6 +167,10 @@ internal fun MainScreen(
                     onMyPageClick = {
                         navigatorEnum = NavigateEnum.MYPAGE
                         navigate(navigator, NavigateEnum.MYPAGE)
+                    },
+                    onAnotherPetClick = {
+                        navigatorEnum = NavigateEnum.ANOTHERPET
+                        navigate(navigator, NavigateEnum.ANOTHERPET)
                     },
                     navigateEnum = navigatorEnum
                 )
@@ -188,6 +195,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         NavigateEnum.ORDER -> {
             navigator.navigateToOrder(navOptions = navOptions)
         }
+        NavigateEnum.ANOTHERPET -> {
+            navigator.navigateToAnotherPet(navOptions = navOptions)
+        }
         NavigateEnum.MYPAGE -> {
             navigator.navigateToMyPage(navOptions = navOptions)
         }
@@ -204,6 +214,7 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
 fun CustomBottomBar(
     onAlbumClick: () -> Unit,
     onOrderClick: () -> Unit,
+    onAnotherPetClick: () -> Unit,
     onMyPageClick: () -> Unit,
     navigateEnum: NavigateEnum
 ) {
@@ -269,6 +280,28 @@ fun CustomBottomBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
+                            onAnotherPetClick()
+                        }
+                        .weight(1f)
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = R.drawable.ic_order_tab
+                        ),
+                        tint = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86, // 상태에 따른 색상 변경
+                        contentDescription = "order",
+                    )
+                    Text(
+                        text = stringResource(id = R.string.text_order_title),
+                        fontSize = 11.sp,
+                        style = PetgrowTheme.typography.medium,
+                        color = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable {
                             onMyPageClick()
                         }
                         .weight(1f)
@@ -302,6 +335,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, MYPAGE, ADD, RECORDWRITE
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE
 }
 

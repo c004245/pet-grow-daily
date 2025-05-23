@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
+import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.AnotherPet
 import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
@@ -49,10 +50,12 @@ class MainNavigator(
         navController.navigate(Order, navOptions = navOptions)
     }
 
-    fun navigateToName(
+    fun navigateToAnotherPet(
         navOptions: NavOptions
     ) {
-        navController.navigate(Name, navOptions = navOptions)
+        navController.navigate(
+            AnotherPet, navOptions = navOptions
+        )
     }
 
     fun navigateToMyPage(

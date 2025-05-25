@@ -68,13 +68,12 @@ class AddViewModel @Inject constructor(
                 }
 
                 val imageUrls = uploadTasks.awaitAll()
-                // AlbumRecord 생성 및 저장
                 val albumRecord = AlbumRecord(
                     date = System.currentTimeMillis(),
                     content = content,
                     firstImage = imageUrls.getOrNull(0) ?: "",
                     secondImage = imageUrls.getOrNull(1) ?: "",
-                    isPublic = false
+                    isPublic = isPublic
                 )
 
                 // 기존 저장 함수 호출

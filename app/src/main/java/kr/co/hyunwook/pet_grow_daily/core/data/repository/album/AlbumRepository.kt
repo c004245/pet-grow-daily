@@ -4,11 +4,14 @@ package kr.co.hyunwook.pet_grow_daily.core.data.repository.album
 import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 
 interface AlbumRepository {
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
 
     suspend fun getUserAlbumCount(): Int
+
+    suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
 
 
     suspend fun getAlbumRecord(): Flow<List<AlbumRecord>>

@@ -7,6 +7,7 @@ import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesD
 import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
 import android.util.Log
 import javax.inject.Inject
@@ -32,6 +33,9 @@ class AlbumRepositoryImpl @Inject constructor(
     }
 
 
+    override suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>> {
+        return firestoreDataSource.getAnotherPetAlbums()
+    }
 
     override suspend fun getAlbumRecord(): Flow<List<AlbumRecord>> {
         return albumRecordDao.getAlbumRecord()

@@ -17,3 +17,8 @@ data class AlbumImageModel(
     val imageUrl: String,
     val date: Long
 )
+
+data class AnotherPetModel(
+    val imageUrl: String,
+    val content: String
+)

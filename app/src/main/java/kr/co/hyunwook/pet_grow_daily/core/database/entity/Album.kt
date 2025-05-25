@@ -6,10 +6,11 @@ import androidx.room.PrimaryKey
 @Entity
 data class AlbumRecord(
     @PrimaryKey(autoGenerate = true) val date: Long,
-
     val content: String,
     val firstImage: String,
-    val secondImage: String
+    val secondImage: String,
+    val isPublic: Boolean, //공유하겠다.
+    val isFinal: Boolean = false  //결제완료
 )
 
 data class AlbumImageModel(

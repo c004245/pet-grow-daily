@@ -7,7 +7,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 
 @Database(
     entities = [AlbumRecord::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase: RoomDatabase() {

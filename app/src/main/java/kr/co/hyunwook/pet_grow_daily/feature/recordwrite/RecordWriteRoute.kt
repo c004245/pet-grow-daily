@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,6 +70,7 @@ fun RecordWriteRoute(
 
     var memoText by remember { mutableStateOf("") }
     var isUploading by remember { mutableStateOf(false) }
+    var isPublic by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collectLatest { isSuccess ->
@@ -84,12 +86,15 @@ fun RecordWriteRoute(
         selectedImageUris = selectedImageUris,
         memoText = memoText,
         isUploading = isUploading,
+        isPublic = isPublic,
         onMemoTextChange = { memoText = it },
+        onPublicChange = { isPublic = it },
         onDoneClick = {
             isUploading = true
             viewModel.uploadAndSaveAlbumRecord(
                 selectedImageUris = selectedImageUris,
                 content = memoText,
+                isPublic = isPublic
             )
         },
         )
@@ -102,7 +107,9 @@ fun RecordWriteScreen(
     selectedImageUris: List<String>,
     memoText: String,
     isUploading: Boolean,
+    isPublic: Boolean,
     onMemoTextChange: (String) -> Unit,
+    onPublicChange: (Boolean) -> Unit,
     onDoneClick: () -> Unit
 ) {
 
@@ -119,6 +126,13 @@ fun RecordWriteScreen(
                 onMemoTextChange = { onMemoTextChange(it) }
             )
             Spacer(modifier = Modifier.weight(1f))
+
+            ShareCheckBox(
+                isChecked = isPublic,
+                onCheckedChange = onPublicChange,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Spacer(Modifier.height(12.dp))
             AddDoneWriteButton(
                 isEnabled = memoText.isNotEmpty(),
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
@@ -386,4 +400,49 @@ fun AddDoneWriteButton(
             fontSize = 16.sp,
         )
     }
+}
+
+@Composable
+fun ShareCheckBox(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.Transparent)
+                .border(
+                    width = 1.dp,
+                    color = if (isChecked) Color.Transparent else gray60,
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .clickable { onCheckedChange(!isChecked) }
+        ) {
+            if (isChecked) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_add_share_checkbox),
+                    contentDescription = "checkbox icon",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = stringResource( R.string.text_share_message),
+            style = PetgrowTheme.typography.regular,
+            color = black21,
+            fontSize = 14.sp,
+            modifier = Modifier.clickable {
+                onCheckedChange(!isChecked)
+            }
+        )
+    }
+
 }

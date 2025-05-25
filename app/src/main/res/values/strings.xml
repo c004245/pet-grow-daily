@@ -30,5 +30,6 @@
     <string name="text_use_term_title">이용약관</string>
     <string name="text_privacy_title">개인정보 처리 방침</string>
     <string name="text_logout">로그아웃</string>
+    <string name="text_share_message">다른 강아지도 볼 수 있게 공개할게요!</string>
 
 </resources>

@@ -54,7 +54,8 @@ class AddViewModel @Inject constructor(
 
     fun uploadAndSaveAlbumRecord(
         selectedImageUris: List<String>,
-        content: String
+        content: String,
+        isPublic: Boolean
     ) {
         viewModelScope.launch {
             try {
@@ -72,7 +73,8 @@ class AddViewModel @Inject constructor(
                     date = System.currentTimeMillis(),
                     content = content,
                     firstImage = imageUrls.getOrNull(0) ?: "",
-                    secondImage = imageUrls.getOrNull(1) ?: ""
+                    secondImage = imageUrls.getOrNull(1) ?: "",
+                    isPublic = false
                 )
 
                 // 기존 저장 함수 호출

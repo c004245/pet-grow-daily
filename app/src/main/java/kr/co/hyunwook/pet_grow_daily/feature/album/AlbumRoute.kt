@@ -130,10 +130,12 @@ fun AlbumScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            AlbumProgressWidget(
-                albumRecord.size,
-                navigateToOrder = navigateToOrder
-            )
+            if (pagerState.currentPage == 0) {
+                AlbumProgressWidget(
+                    albumRecord.size,
+                    navigateToOrder = navigateToOrder
+                )
+            }
 
             HorizontalPager(
                 state = pagerState,

@@ -25,6 +25,7 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 "content" to record.content,
                 "firstImage" to record.firstImage,
                 "secondImage" to record.secondImage,
+                "isPublic" to record.isPublic
             )
 
             val userAlbumCollection = firestore.collection("users")

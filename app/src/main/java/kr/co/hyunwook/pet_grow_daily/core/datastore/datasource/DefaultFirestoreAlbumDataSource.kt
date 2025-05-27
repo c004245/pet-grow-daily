@@ -73,22 +73,13 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
 
                 val models = mutableListOf<AnotherPetModel>()
 
-                if (firstImage.isNotEmpty()) {
-                    models.add(
-                        AnotherPetModel(
-                            imageUrl = firstImage,
-                            content = content
-                        )
+                models.add(
+                    AnotherPetModel(
+                    firstImage = firstImage,
+                    secondImage = secondImage,
+                    content = content
                     )
-                }
-                if (secondImage.isNotEmpty()) {
-                    models.add(
-                        AnotherPetModel(
-                            imageUrl = secondImage,
-                            content = content
-                        )
-                    )
-                }
+                )
                 models
             }
 

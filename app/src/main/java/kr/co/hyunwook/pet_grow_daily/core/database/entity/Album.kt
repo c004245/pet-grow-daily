@@ -19,6 +19,7 @@ data class AlbumImageModel(
 )
 
 data class AnotherPetModel(
-    val imageUrl: String,
+    val firstImage: String,
+    val secondImage: String,
     val content: String
 )

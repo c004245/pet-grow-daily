@@ -47,13 +47,17 @@ import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -218,14 +222,40 @@ fun CustomBottomBar(
     onMyPageClick: () -> Unit,
     navigateEnum: NavigateEnum
 ) {
-        Surface(
-            color = Color.White,
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .height(60.dp),
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-        ) {
+    Surface(
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .height(60.dp)
+            .drawBehind {
+                val strokeWidth = 0.5.dp.toPx()
+                val borderColor = Color.Gray
+
+                // 상단 테두리
+                drawLine(
+                    color = borderColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = strokeWidth
+                )
+                // 좌측 테두리
+                drawLine(
+                    color = borderColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(0f, size.height),
+                    strokeWidth = strokeWidth
+                )
+                // 우측 테두리
+                drawLine(
+                    color = borderColor,
+                    start = Offset(size.width, 0f),
+                    end = Offset(size.width, size.height),
+                    strokeWidth = strokeWidth
+                )
+            },
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+    )  {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -286,13 +316,13 @@ fun CustomBottomBar(
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = R.drawable.ic_order_tab
+                            id = R.drawable.ic_anotherpet_tab
                         ),
                         tint = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86, // 상태에 따른 색상 변경
                         contentDescription = "order",
                     )
                     Text(
-                        text = stringResource(id = R.string.text_order_title),
+                        text = stringResource(id = R.string.text_another_title),
                         fontSize = 11.sp,
                         style = PetgrowTheme.typography.medium,
                         color = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86

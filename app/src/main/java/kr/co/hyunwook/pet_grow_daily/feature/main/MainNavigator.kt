@@ -88,7 +88,7 @@ class MainNavigator(
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
         Log.d("HWO", "currentRoute -> $currentRoute")
-        return currentRoute == Album || currentRoute == Order || currentRoute == MyPage
+        return currentRoute == Album || currentRoute == Order || currentRoute == MyPage || currentRoute == AnotherPet
     }
 }
 
@@ -104,6 +104,7 @@ fun findRouteFromDestination(route: String?): Route? {
         Add.route -> Add
         Order.route -> Order
         RecordWriteTab.route -> RecordWriteTab
+        AnotherPet.route -> AnotherPet
         else -> null
     }
 }

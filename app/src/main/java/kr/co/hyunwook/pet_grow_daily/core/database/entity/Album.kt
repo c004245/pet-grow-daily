@@ -23,3 +23,8 @@ data class AnotherPetModel(
     val secondImage: String,
     val content: String
 )
+
+data class PetProfile(
+    val name: String,
+    val profileImageUrl: String,
+)

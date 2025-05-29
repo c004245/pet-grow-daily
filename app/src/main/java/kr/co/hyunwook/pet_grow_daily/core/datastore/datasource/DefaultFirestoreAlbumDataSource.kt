@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DogProfile
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import android.net.Uri
 import android.util.Log
 import java.io.File
@@ -19,6 +21,17 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val storage: FirebaseStorage
 ) : FirestoreAlbumDataSource {
 
+    override suspend fun savePetProfile(profile: PetProfile, userId: Long) {
+        val profileMap = hashMapOf(
+            "name" to profile.name,
+            "profileImage" to profile.profileImageUrl
+        )
+        firestore.collection("users")
+            .document(userId.toString())
+            .collection("profile")
+            .add(profileMap)
+            .await()
+    }
     override suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long) {
         try {
 

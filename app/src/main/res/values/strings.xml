@@ -34,4 +34,9 @@
     <string name="text_logout">로그아웃</string>
     <string name="text_share_message">다른 강아지도 볼 수 있게 공개할게요!</string>
 
+    <string name="text_onboarding_title1">소중한 추억을 한 권의 앨범으로 만들어드려요!</string>
+    <string name="text_onboarding_title2">하루에 한 페이지씩\n앨범에 담길 내용을 적어보세요!</string>
+    <string name="text_onboarding_title3">반려견과의 특별한 순간들을\n영원히 기억할 수 있도록 도와드릴게요!</string>
+    <string name="text_onboarding_title4">그냥 사진과 일기만 적으면돼요.\n앨범은 제가 만들어드려요.</string>
+
 </resources>

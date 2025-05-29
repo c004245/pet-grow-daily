@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.main.onboarding
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,15 +29,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black29
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -47,49 +60,40 @@ fun OnBoardingScreen(
 
     val context = LocalContext.current
     val loginState by viewModel.loginState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
 
     LaunchedEffect(loginState) {
         if (loginState is OnBoardingViewModel.LoginState.Success) {
             navigateToAlbum()
         }
     }
+    var pagerState = androidx.compose.foundation.pager.rememberPagerState(
+        initialPage = 0,
+        pageCount = { 4 })
 
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            Text(
-                text = stringResource(id = R.string.text_onboarding_title),
-                style = PetgrowTheme.typography.bold,
-                color = black21,
-                fontSize = 24.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(id = R.string.text_onboarding_description),
-                style = PetgrowTheme.typography.light,
-                color = black21,
-                fontSize = 14.sp
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-            Image(
-                painter = painterResource(id = R.drawable.ic_onboarding_background),
-                contentDescription = "background"
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_kakao_button),
-                contentDescription = null,
-                modifier = Modifier.clickable {
+        Column {
+            Box(modifier = Modifier.weight(1f)) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    OnBoardingItem(page)
+                }
+                PageIndicator(
+                    pageCount = 4,
+                    currentPage = pagerState.currentPage,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter).padding(bottom = 30.dp)
+                )
+            }
+            OnBoardingBottomButton(
+                currentPage = pagerState.currentPage,
+                onKakaoLogin = {
                     handleKakaoLogin(
                         context = context,
                         onSuccess = { userId ->
@@ -102,12 +106,106 @@ fun OnBoardingScreen(
                             )
                         }
                     )
+                },
+                onNextClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
                 }
             )
         }
     }
 }
 
+@Composable
+fun OnBoardingItem(pageIndex: Int) {
+    val pages = listOf(
+        OnBoardingPage(stringResource(R.string.text_onboarding_title1), R.drawable.ic_onboarding_1),
+        OnBoardingPage(stringResource(R.string.text_onboarding_title2), R.drawable.ic_onboarding_2),
+        OnBoardingPage(stringResource(R.string.text_onboarding_title3), R.drawable.ic_onboarding_1),
+        OnBoardingPage(stringResource(R.string.text_onboarding_title4), R.drawable.ic_onboarding_2),
+    )
+
+    val currentPage = pages[pageIndex]
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = currentPage.title,
+            style = PetgrowTheme.typography.bold,
+            color = black21,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(30.dp))
+        Image(painter = painterResource(currentPage.imageRes),
+            contentDescription = null)
+    }
+
+}
+
+@Composable
+fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        repeat(pageCount) { index ->
+            Box(
+                modifier = Modifier.size(8.dp)
+                    .background(
+                        color = if (index == currentPage) black29 else black29.copy(alpha = 0.2f),
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun OnBoardingBottomButton(
+    currentPage: Int,
+    onKakaoLogin: () -> Unit,
+    onNextClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (currentPage == 3) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_kakao_button),
+                contentDescription = "카카오 로그인",
+                modifier = Modifier.clickable { onKakaoLogin() }
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp)
+                    .clickable { onNextClick() }
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(purple6C)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.text_next),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = PetgrowTheme.typography.medium,
+                    )
+                }
+            }
+        }
+    }
+}
 
 private fun handleKakaoLogin(
     context: Context,
@@ -170,6 +268,5 @@ fun OnBoardingScreenPreview() {
 
 data class OnBoardingPage(
     val title: String,
-    val description: String,
     val imageRes: Int
 )

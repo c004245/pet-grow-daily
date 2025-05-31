@@ -10,7 +10,6 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
-import android.util.Log
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
@@ -19,6 +18,10 @@ class AlbumRepositoryImpl @Inject constructor(
     private val firestoreDataSource: FirestoreAlbumDataSource
 ) : AlbumRepository {
 
+    override suspend fun hasPetProfile(): Flow<Boolean> {
+        val userId = getUserId()
+        return firestoreDataSource.hasPetProfile(userId)
+    }
     override suspend fun savePetProfile(profile: PetProfile) {
         val userId = getUserId()
         firestoreDataSource.savePetProfile(profile, userId)

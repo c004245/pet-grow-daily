@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.DogProfile
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import android.net.Uri
 import android.util.Log
@@ -32,6 +31,23 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
             .add(profileMap)
             .await()
     }
+
+    override suspend fun hasPetProfile(userId: Long): Flow<Boolean> = flow {
+         try {
+            val snapshot = firestore.collection("users")
+                .document(userId.toString())
+                .collection("profile")
+                .limit(1)
+                .get()
+                .await()
+
+            emit(!snapshot.isEmpty)
+        } catch (e: Exception) {
+            Log.e("HWO", "Error checking pet profile: ${e.message}", e)
+             emit(false)
+        }
+    }
+
     override suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long) {
         try {
 

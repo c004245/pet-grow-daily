@@ -40,21 +40,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.nameNavaGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
-import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
+import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -121,18 +118,21 @@ internal fun MainScreen(
                         paddingValues = paddingValues
                     )
 
+                    profileNavGraph(
+                        navigateToAlbum = {
+                            navigate(navigator, NavigateEnum.ALBUM)
+                        }
+                    )
+
                     onboardingNavGraph(
                         navigateToAlbum = {
-//                            navigate(navigator, NavigateEnum.NAME)
                             navigate(navigator, NavigateEnum.ALBUM)
+                        },
+                        navigateToProfile = {
+                            navigate(navigator, NavigateEnum.PROFILE)
+                        }
+                    )
 
-                        }
-                    )
-                    nameNavaGraph(
-                        navigateToDailyGrow = {
-//                            navigate(navigator, NavigateEnum.DAILYGROW)
-                        }
-                    )
                     addNavGraph(
                         navigateToRecordWrite = { selectedImageUris ->
                             navigator.navigateToRecordWrite(selectedImageUris)
@@ -207,6 +207,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
+        }
+        NavigateEnum.PROFILE -> {
+            navigator.navigateToProfile(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -365,6 +368,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE
 }
 

@@ -1,4 +1,4 @@
-package kr.co.hyunwook.pet_grow_daily.feature.main.name
+package kr.co.hyunwook.pet_grow_daily.feature.main.profile
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -42,9 +42,9 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun NameScreen(
-    navigateToDailyGrow: () -> Unit = {},
-    nameViewModel: NameViewModel = hiltViewModel()
+fun ProfileScreen(
+    navigateToAlbum: () -> Unit = {},
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -57,9 +57,9 @@ fun NameScreen(
     }
 
     LaunchedEffect(Unit) {
-        nameViewModel.saveNameEvent.collect { isSuccess ->
+        profileViewModel.saveNameEvent.collect { isSuccess ->
             if (isSuccess) {
-                navigateToDailyGrow()
+                navigateToAlbum()
             } else {
                 Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }

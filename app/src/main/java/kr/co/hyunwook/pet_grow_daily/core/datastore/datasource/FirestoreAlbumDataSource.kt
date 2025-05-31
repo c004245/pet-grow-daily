@@ -13,6 +13,8 @@ interface FirestoreAlbumDataSource {
     suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
 
     suspend fun savePetProfile(profile: PetProfile, userId: Long)
+
+    suspend fun hasPetProfile(userId: Long): Flow<Boolean>
 }
 
 

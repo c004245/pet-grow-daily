@@ -4,6 +4,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetPetProfileUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveLoginStateUseCase
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
@@ -11,7 +12,8 @@ import androidx.lifecycle.viewModelScope
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
-    private val saveLoginStateUseCase: SaveLoginStateUseCase
+    private val saveLoginStateUseCase: SaveLoginStateUseCase,
+    private val getPetProfileUseCase: GetPetProfileUseCase
 
 ): ViewModel() {
 
@@ -22,7 +24,14 @@ class OnBoardingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 saveLoginStateUseCase(userId)
-                _loginState.value = LoginState.Success
+
+                getPetProfileUseCase().collect { hasPetProfile ->
+                    if (hasPetProfile) {
+                        _loginState.value = LoginState.SuccessAlbum
+                    } else {
+                        _loginState.value = LoginState.SuccessProfile
+                    }
+                }
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error(e.message ?: "Unknown error")
             }
@@ -32,7 +41,8 @@ class OnBoardingViewModel @Inject constructor(
 
     sealed class LoginState {
         object Initial: LoginState()
-        object Success: LoginState()
+        object SuccessAlbum: LoginState()
+        object SuccessProfile: LoginState()
         data class Error(val message: String): LoginState()
     }
 }

@@ -55,6 +55,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun OnBoardingScreen(
     navigateToAlbum: () -> Unit = {},
+    navigateToProfile: () -> Unit = {},
     viewModel: OnBoardingViewModel = hiltViewModel()
 ) {
 
@@ -64,8 +65,10 @@ fun OnBoardingScreen(
 
 
     LaunchedEffect(loginState) {
-        if (loginState is OnBoardingViewModel.LoginState.Success) {
+        if (loginState is OnBoardingViewModel.LoginState.SuccessAlbum) {
             navigateToAlbum()
+        } else if (loginState is OnBoardingViewModel.LoginState.SuccessProfile) {
+            navigateToProfile()
         }
     }
     var pagerState = androidx.compose.foundation.pager.rememberPagerState(

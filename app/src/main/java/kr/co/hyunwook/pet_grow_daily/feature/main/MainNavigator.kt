@@ -11,8 +11,8 @@ import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
 import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.AnotherPet
-import kr.co.hyunwook.pet_grow_daily.feature.main.name.navigation.Name
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
+import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
@@ -69,6 +69,11 @@ class MainNavigator(
         navController.navigate(Add, navOptions = navOptions)
     }
 
+    fun navigateToProfile(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(Profile, navOptions = navOptions)
+    }
 
     fun navigateToOnBoarding(
         navOptions: NavOptions
@@ -100,7 +105,7 @@ fun findRouteFromDestination(route: String?): Route? {
         Total.route -> Total
         OnBoarding.route -> OnBoarding
         MyPage.route -> MyPage
-        Name.route -> Name
+        Profile.route -> Profile
         Add.route -> Add
         Order.route -> Order
         RecordWriteTab.route -> RecordWriteTab

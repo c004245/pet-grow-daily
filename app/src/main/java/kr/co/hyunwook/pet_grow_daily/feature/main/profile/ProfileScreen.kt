@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.main.profile
 
+import kotlinx.coroutines.launch
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -40,6 +41,10 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 fun ProfileScreen(
@@ -48,114 +53,69 @@ fun ProfileScreen(
 ) {
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
-    val insets = WindowInsets.ime
-    val keyboardHeight = with(LocalDensity.current) { insets.getBottom(LocalDensity.current).toDp() }
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 2 }
+    )
+
+
+
 
     var nameText by remember {
         mutableStateOf("")
     }
+    var selectedImageUri by remember { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(Unit) {
-        profileViewModel.saveNameEvent.collect { isSuccess ->
-            if (isSuccess) {
-                navigateToAlbum()
-            } else {
-                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
+//        profileViewModel.saveProfileEvent.collect { isSuccess ->
+//            if (isSuccess) {
+//                navigateToAlbum()
+//            } else {
+//                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+//            }
+//        }
     }
-
 
     Box(
         modifier = Modifier.fillMaxSize()
-            .padding(bottom = if (keyboardHeight > 0.dp) keyboardHeight else 16.dp) // 키보드 높이에 따라 버튼 이동
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                modifier = Modifier.padding(top = 100.dp),
-                text = stringResource(id = R.string.text_name_string),
-                style = PetgrowTheme.typography.bold,
-                color = black21,
-                fontSize = 24.sp
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-            DogNameTextField(text = nameText,
-                onTextChange = { nameText = it })
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            userScrollEnabled = false
+        ) { page ->
+            when (page) {
+                0 -> ProfileNamePage(
+                    nameText = nameText,
+                    onNameChange = { nameText = it },
+                    onNextClick = {
+                        coroutineScope.launch {
+                            focusManager.clearFocus()
+                            pagerState.animateScrollToPage(1)
+                        }
 
-
-        }
-
-        Button(
-            onClick = {
-//                if (nameText.isNotEmpty()) nameViewModel.saveDogName(nameText)
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(
-                    PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    )
-                ),
-
-            shape = RoundedCornerShape(8.dp),
-            colors = if (nameText.isNotEmpty()) {
-                ButtonDefaults.buttonColors(
-                    containerColor = purple6C
+                    }
                 )
-            } else {
-                ButtonDefaults.buttonColors(
-                    containerColor = purpleC4
+                1 -> ProfileImagePage(
+                    selectedImageUri = selectedImageUri,
+                    onImageSelected = { selectedImageUri = it },
+                    onCompleteClick = {
+//                        profileViewModel.saveProfile(
+//                            name = nameText,
+//                            imageUri = selectedImageUri
+//                        )
+                    }
                 )
             }
-        ) {
-            Text(
-                text = stringResource(id = R.string.text_start),
-                style = PetgrowTheme.typography.bold,
-                color = Color.White,
-                fontSize = 14.sp
-            )
-
         }
     }
-}
 
-@Composable
-fun DogNameTextField(
-    modifier: Modifier = Modifier,
-    text: String,
-    onTextChange: (String) -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(BorderStroke(1.dp, grayDE), shape = RoundedCornerShape(8.dp))
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = onTextChange,
-            label = { Text("반려견 이름",
-                modifier = Modifier.padding(bottom = 8.dp)) },
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                unfocusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                cursorColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                disabledTextColor = Color.Gray
-            ),
-            singleLine = true, // 한 줄로 제한
-        )
-    }
+
+
+
+
 }

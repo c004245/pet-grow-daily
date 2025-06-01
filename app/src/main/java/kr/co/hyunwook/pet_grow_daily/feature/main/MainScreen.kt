@@ -100,8 +100,13 @@ internal fun MainScreen(
                         },
                         navigateToOnBoarding = {
                             navigate(navigator)
+                        },
+                        navigateToProfile = {
+                            navigatorEnum = NavigateEnum.PROFILE
+                            navigate(navigator, NavigateEnum.PROFILE)
                         }
                     )
+
                     albumNavGraph(
                         paddingValues = paddingValues,
                         navigateToAdd = {

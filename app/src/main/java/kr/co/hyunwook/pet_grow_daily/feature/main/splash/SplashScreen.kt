@@ -25,6 +25,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 fun SplashScreen(
     navigateToAlbum: () -> Unit = {},
     navigateToOnBoarding: () -> Unit = {},
+    navigateToProfile: () -> Unit = {},
     viewModel: SplashViewModel = hiltViewModel()
 ) {
 
@@ -40,6 +41,7 @@ fun SplashScreen(
                 when (sideEffect) {
                     is SplashSideEffect.NavigateToAlbum -> navigateToAlbum()
                     is SplashSideEffect.NavigateToOnBoarding -> navigateToOnBoarding()
+                    is SplashSideEffect.NavigateToProfile -> navigateToProfile()
                 }
             }
     }

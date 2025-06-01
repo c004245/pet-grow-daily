@@ -8,12 +8,14 @@ import kotlinx.serialization.Serializable
 
 fun NavGraphBuilder.splashNavGraph(
     navigateToAlbum: () -> Unit,
-    navigateToOnBoarding: () -> Unit
+    navigateToOnBoarding: () -> Unit,
+    navigateToProfile: () -> Unit
 ) {
     composable<Splash> {
         SplashScreen(
             navigateToAlbum = navigateToAlbum,
-            navigateToOnBoarding = navigateToOnBoarding
+            navigateToOnBoarding = navigateToOnBoarding,
+            navigateToProfile = navigateToProfile
         )
     }
 }

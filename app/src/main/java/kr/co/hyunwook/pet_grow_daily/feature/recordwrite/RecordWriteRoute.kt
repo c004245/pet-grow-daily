@@ -75,7 +75,6 @@ fun RecordWriteRoute(
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collectLatest { isSuccess ->
             isUploading = false
-
             if (isSuccess) {
                 navigateToAlbum()
             }

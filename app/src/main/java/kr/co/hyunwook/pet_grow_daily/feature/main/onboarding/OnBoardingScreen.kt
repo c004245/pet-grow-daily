@@ -125,8 +125,8 @@ fun OnBoardingItem(pageIndex: Int) {
     val pages = listOf(
         OnBoardingPage(stringResource(R.string.text_onboarding_title1), R.drawable.ic_onboarding_1),
         OnBoardingPage(stringResource(R.string.text_onboarding_title2), R.drawable.ic_onboarding_2),
-        OnBoardingPage(stringResource(R.string.text_onboarding_title3), R.drawable.ic_onboarding_1),
-        OnBoardingPage(stringResource(R.string.text_onboarding_title4), R.drawable.ic_onboarding_2),
+        OnBoardingPage(stringResource(R.string.text_onboarding_title3), R.drawable.ic_onboarding_3),
+        OnBoardingPage(stringResource(R.string.text_onboarding_title4), R.drawable.ic_onboarding_4),
     )
 
     val currentPage = pages[pageIndex]

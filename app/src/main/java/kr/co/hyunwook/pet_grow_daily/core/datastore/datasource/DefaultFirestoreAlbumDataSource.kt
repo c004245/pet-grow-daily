@@ -17,10 +17,10 @@ import androidx.compose.animation.core.snap
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
 ) : FirestoreAlbumDataSource {
 
     override suspend fun savePetProfile(profile: PetProfile, userId: Long) {
+
         val profileMap = hashMapOf(
             "name" to profile.name,
             "profileImage" to profile.profileImageUrl

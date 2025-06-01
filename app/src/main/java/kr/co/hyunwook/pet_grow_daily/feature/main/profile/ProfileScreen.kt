@@ -41,8 +41,11 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalFocusManager
 
@@ -68,16 +71,17 @@ fun ProfileScreen(
         mutableStateOf("")
     }
     var selectedImageUri by remember { mutableStateOf<String?>(null) }
-
+    var isUploading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-//        profileViewModel.saveProfileEvent.collect { isSuccess ->
-//            if (isSuccess) {
-//                navigateToAlbum()
-//            } else {
-//                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+        profileViewModel.saveProfileEvent.collect { isSuccess ->
+            isUploading = false
+            if (isSuccess) {
+                navigateToAlbum()
+            } else {
+                Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     Box(
@@ -104,12 +108,37 @@ fun ProfileScreen(
                     selectedImageUri = selectedImageUri,
                     onImageSelected = { selectedImageUri = it },
                     onCompleteClick = {
-//                        profileViewModel.saveProfile(
-//                            name = nameText,
-//                            imageUri = selectedImageUri
-//                        )
+                        isUploading = true
+                        profileViewModel.saveProfile(
+                            name = nameText,
+                            imageUrl = selectedImageUri
+                        )
                     }
                 )
+            }
+        }
+        if (isUploading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        color = purple6C,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "프로필을 저장하는 중입니다...",
+                        style = PetgrowTheme.typography.medium,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

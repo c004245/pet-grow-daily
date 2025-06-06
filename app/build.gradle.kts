@@ -109,7 +109,6 @@ dependencies {
     implementation(libs.kakao.login)
     implementation(libs.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
-    implementation(libs.iamport)
 
 }
 

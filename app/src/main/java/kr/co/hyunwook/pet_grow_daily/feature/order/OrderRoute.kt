@@ -2,7 +2,6 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
-import com.iamport.sdk.domain.core.Iamport
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -16,6 +15,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -45,23 +45,34 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.room.util.copy
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.JavascriptInterface
+import android.os.Bundle
 
 @Composable
 fun OrderRoute(
@@ -69,39 +80,49 @@ fun OrderRoute(
 ) {
 
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
-    val paymentRequest by viewModel.paymentRequest.collectAsState()
+    val paymentData by viewModel.paymentData.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
-    val context = LocalContext.current as ComponentActivity
 
+    val context = LocalContext.current
+    val activity = context as Activity
+
+    var showPaymentWebView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getUserAlbumCount()
     }
 
-    LaunchedEffect(paymentRequest) {
-        paymentRequest?.let { request ->
-            Iamport.payment(
-                userCode = "imp00000000",
-                tierCode = null,
-                iamPortRequest = request,
-                approveCallback = null,
-                paymentResultCallback = { response ->
-                    if (response?.imp_success == true) {
-                        viewModel.setPaymentResult(PaymentResult.Success(response))
-                    } else {
-                        viewModel.setPaymentResult(
-                            PaymentResult.Failure(response?.error_msg ?: "결제 실패")
-                        )
-                    }
-                    viewModel.clearPaymentRequest()
-                }
-            )
+    LaunchedEffect(paymentData) {
+        paymentData?.let { data ->
+            Log.d("OrderRoute", "결제 요청 데이터: $data")
+            showPaymentWebView = true
         }
     }
 
-    OrderScreen(onClickRequestPayment = {
-        viewModel.requestPayment()
-    })
+    if (showPaymentWebView) {
+        PaymentWebView(
+            onPaymentResult = { success, message, transactionId ->
+                if (success) {
+                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
+                    Toast.makeText(context, "결제가 완료되었습니다!", Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
+                    Log.d("HWO", "message error -> $message")
+                    Toast.makeText(context, "결제에 실패했습니다: $message", Toast.LENGTH_SHORT).show()
+                }
+                showPaymentWebView = false
+            },
+            onBackPressed = {
+                showPaymentWebView = false
+            }
+        )
+    } else {
+        OrderScreen(
+            onClickRequestPayment = {
+                viewModel.requestKakaoPayPayment()
+            }
+        )
+    }
 }
 
 @Composable
@@ -346,4 +367,86 @@ fun OrderButtonWidget(
         }
     }
 
+}
+
+@Composable
+fun PaymentWebView(
+    onPaymentResult: (Boolean, String?, String?) -> Unit,
+    onBackPressed: () -> Unit
+) {
+    val context = LocalContext.current
+
+    AndroidView(
+        factory = { context ->
+            WebView(context).apply {
+                layoutParams = android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+                )
+                webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        Log.d("WebView", "Page finished loading: $url")
+                    }
+
+                    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                        Log.d("WebView", "URL loading: $url")
+
+                        // 카카오페이 앱 스킴 처리
+                        url?.let {
+                            if (it.startsWith("kakaotalk://") ||
+                                it.startsWith("kakaokompassauth://") ||
+                                it.startsWith("intent://")
+                            ) {
+                                try {
+                                    val intent = android.content.Intent.parseUri(
+                                        it,
+                                        android.content.Intent.URI_INTENT_SCHEME
+                                    )
+                                    context.startActivity(intent)
+                                    return true
+                                } catch (e: Exception) {
+                                    Log.e("WebView", "Failed to handle intent: $e")
+                                }
+                            }
+                        }
+
+                        return false
+                    }
+                }
+
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.allowFileAccess = true
+                settings.allowContentAccess = true
+
+                // JavaScript Interface 추가
+                addJavascriptInterface(object {
+                    @JavascriptInterface
+                    fun onPaymentSuccess(transactionId: String, amount: String) {
+                        Log.d("PaymentWebView", "Payment Success: $transactionId, $amount")
+                        onPaymentResult(true, null, transactionId)
+                    }
+
+                    @JavascriptInterface
+                    fun onPaymentFailure(message: String) {
+                        Log.d("PaymentWebView", "Payment Failure: $message")
+                        onPaymentResult(false, message, null)
+                    }
+
+                    @JavascriptInterface
+                    fun closeWebView() {
+                        Log.d("PaymentWebView", "Close WebView requested")
+                        // 메인 스레드에서 실행
+                        (context as? Activity)?.runOnUiThread {
+                            onBackPressed()
+                        }
+                    }
+                }, "Android")
+
+                loadUrl("file:///android_asset/payment.html")
+            }
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }

@@ -1,6 +1,5 @@
 package kr.co.hyunwook.pet_grow_daily
 
-import com.iamport.sdk.domain.core.Iamport
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -49,8 +48,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         installSplashScreen().setKeepOnScreenCondition { false }
 
-
-        Iamport.init(this)
 
         if (hasAllPermissions()) {
             showMainScreen()

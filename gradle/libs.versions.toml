@@ -33,7 +33,7 @@ kotestRunnerJunit5Jvm = "5.7.2"
 pager = "0.28.0"
 kakao = "2.19.0"
 firebase-storage = "20.2.1"
-iamport-android = "1.4.8"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -95,4 +95,3 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services"}
-

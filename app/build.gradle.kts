@@ -110,6 +110,9 @@ dependencies {
     implementation(libs.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
 
+    // 아임포트 SDK
+    implementation("com.github.iamport:iamport-android:1.4.8")
+
 }
 
 tasks.withType<Test> {

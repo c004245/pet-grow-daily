@@ -54,6 +54,7 @@
                 <data android:scheme="kakao42cb5a001e4aad8458c0b26f5e582da7" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

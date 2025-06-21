@@ -2,6 +2,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.album
 
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.ALBUM_CREATE_COMPLETE
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -102,7 +104,6 @@ fun AlbumScreen(
         selectedTab = if (pagerState.currentPage == 0) AlbumTab.LIST else AlbumTab.GRID
     }
 
-
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
@@ -126,7 +127,6 @@ fun AlbumScreen(
                             selectedTab = it
                         }
                     )
-
                 }
             )
             Spacer(Modifier.height(16.dp))
@@ -154,24 +154,18 @@ fun AlbumScreen(
                                 navigateToAdd = navigateToAdd
                             )
                         }
-
                     }
 
                     1 -> {
                         AlbumImageRoute(
                             navigateToAdd = navigateToAdd
                         )
-
                     }
                 }
-
             }
-
-
         }
     }
 }
-
 
 @Composable
 fun CustomAlbumListWidget(
@@ -247,8 +241,8 @@ fun AlbumCard(
                     shape = RoundedCornerShape(16.dp),
                     spotColor = Color(0x0D000000),
                     ambientColor = Color(0x0D000000)
-                ).clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
-
+                )
+                .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
         ) {
             Box(
                 modifier = Modifier.fillMaxSize().matchParentSize()
@@ -277,13 +271,9 @@ fun AlbumCard(
                     modifier = Modifier.fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
                 )
-
             }
-
         }
     }
-
-
 }
 
 //앨범 이미지 영역
@@ -300,30 +290,34 @@ fun AlbumImageWidget(
     ) {
         Box(
             modifier = Modifier.weight(1f).aspectRatio(1f)
+                .background(grayEF, RoundedCornerShape(topStart = 16.dp))
         ) {
             GlideImage(
                 model = firstImageUri,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                loading = placeholder(ColorPainter(grayEF)),
+                failure = placeholder(ColorPainter(grayEF))
             )
         }
         Spacer(modifier = Modifier.width(2.dp))
 
         Box(
             modifier = Modifier.weight(1f).aspectRatio(1f)
+                .background(grayEF, RoundedCornerShape(topEnd = 16.dp))
         ) {
             GlideImage(
                 model = secondImageUri,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                loading = placeholder(ColorPainter(grayEF)),
+                failure = placeholder(ColorPainter(grayEF))
             )
-
         }
     }
 }
-
 
 //앨범 텍스트 영역
 @Composable
@@ -349,11 +343,8 @@ fun AlbumText(
             style = PetgrowTheme.typography.regular,
             modifier = Modifier.fillMaxWidth()
         )
-
     }
-
 }
-
 
 @Composable
 fun EmptyAlbumWidget(
@@ -404,11 +395,8 @@ fun EmptyAlbumWidget(
                         style = PetgrowTheme.typography.medium,
                         modifier = Modifier.padding(top = 14.dp, bottom = 14.dp, end = 24.dp)
                     )
-
                 }
-
             }
-
         }
     }
 }
@@ -420,7 +408,9 @@ fun AlbumSwitch(
 ) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(
+                RoundedCornerShape(8.dp)
+            )
             .background(grayEF)
             .padding(3.dp)
     ) {
@@ -438,9 +428,7 @@ fun AlbumSwitch(
             selectedIconRes = R.drawable.ic_my_album_select,
             unSelectedIconRes = R.drawable.ic_my_album_unselect
         )
-
     }
-
 }
 
 @Composable
@@ -458,7 +446,6 @@ fun ToggleTabItem(
             .background(if (isSelected) Color.White else Color.Transparent)
             .clickable { onClick(tab) }
             .padding(6.dp)
-
     ) {
         Image(
             painter = painterResource(id = if (isSelected) selectedIconRes else unSelectedIconRes),
@@ -466,7 +453,6 @@ fun ToggleTabItem(
             modifier = Modifier.size(18.dp)
         )
     }
-
 }
 
 @Composable
@@ -487,8 +473,10 @@ fun AlbumProgressWidget(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(16.dp),
                 spotColor = Color(0x1A000000),
-                ambientColor = Color(0x1A00000)
-            ).clip(RoundedCornerShape(16.dp)).background(Color.White)
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
             .clickable {
                 if (isCompleted) {
                     navigateToOrder()
@@ -502,7 +490,6 @@ fun AlbumProgressWidget(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 if (isCompleted) {
                     Row(
                         modifier = Modifier.wrapContentWidth(),
@@ -520,7 +507,6 @@ fun AlbumProgressWidget(
                             contentDescription = null
                         )
                     }
-
                 } else {
                     // 기존 텍스트 표시
                     Text(

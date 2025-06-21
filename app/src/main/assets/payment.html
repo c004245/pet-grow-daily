@@ -102,7 +102,8 @@
             buyer_addr: '서울특별시',
             buyer_postcode: '12345',
             // 리디렉션 방식을 위한 필수 파라미터 추가
-            m_redirect_url: window.location.origin + '/payment-result.html?merchant_uid=' + merchantUid,
+            m_redirect_url: 'file:///android_asset/payment-result.html?merchant_uid=' + merchantUid,
+
             // 모바일 환경에서의 앱 스킴
             app_scheme: 'petgrowdaily'
         }, function(rsp) {

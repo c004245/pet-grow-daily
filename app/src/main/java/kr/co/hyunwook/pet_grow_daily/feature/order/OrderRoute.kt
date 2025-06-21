@@ -94,7 +94,7 @@ fun OrderRoute(
 
     LaunchedEffect(paymentData) {
         paymentData?.let { data ->
-            Log.d("OrderRoute", "결제 요청 데이터: $data")
+            Log.d("HWO", "결제 요청 데이터: $data")
             showPaymentWebView = true
         }
     }
@@ -104,6 +104,8 @@ fun OrderRoute(
             onPaymentResult = { success, message, transactionId ->
                 if (success) {
                     viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
+                    Log.d("HWO", "message done -> ")
+
                     Toast.makeText(context, "결제가 완료되었습니다!", Toast.LENGTH_SHORT).show()
                 } else {
                     viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
@@ -383,17 +385,34 @@ fun PaymentWebView(
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT
                 )
+                webChromeClient = object : android.webkit.WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                        Log.d("WebView_Console", "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
+                        return true
+                    }
+                }
+
+
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
-                        Log.d("WebView", "Page finished loading: $url")
+                        Log.d("HWO", "Page finished loading: $url")
+                    }
+
+                    override fun onReceivedSslError(
+                        view: WebView?,
+                        handler: android.webkit.SslErrorHandler?,
+                        error: android.net.http.SslError?
+                    ) {
+                        // 개발/테스트용 - 실제 배포 시에는 적절한 SSL 검증 로직 필요
+                        handler?.proceed()
                     }
 
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                        Log.d("WebView", "URL loading: $url")
+                        Log.d("HWO", "URL loading: $url")
 
-                        // 카카오페이 앱 스킴 처리
                         url?.let {
+                            // 카카오톡 앱 스킴 처리
                             if (it.startsWith("kakaotalk://") ||
                                 it.startsWith("kakaokompassauth://") ||
                                 it.startsWith("intent://")
@@ -409,34 +428,60 @@ fun PaymentWebView(
                                     Log.e("WebView", "Failed to handle intent: $e")
                                 }
                             }
+
+                            // iamport 승인 URL 처리 - 이 부분을 추가하세요!
+                            if (it.contains("service.iamport.kr") && it.contains("kakaoApprovalRedirect")) {
+                                Log.d("HWO", "iamport 승인 완료, 결과 페이지로 이동")
+                                // 결제 성공으로 간주하고 결과 페이지로 이동
+                                val resultUrl = "file:///android_asset/payment-result.html?imp_success=true&imp_uid=결제완료"
+                                view?.loadUrl(resultUrl)
+                                return true
+                            }
+
+                            // 일반 HTTPS URL 처리
+                            if (it.startsWith("https://") || it.startsWith("http://")) {
+                                return false
+                            }
                         }
 
                         return false
                     }
+
+
+
                 }
 
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                settings.allowFileAccess = true
-                settings.allowContentAccess = true
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    allowFileAccess = true
+                    allowContentAccess = true
+                    allowUniversalAccessFromFileURLs = true
+                    allowFileAccessFromFileURLs = true
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW // 추가
+                    cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
+                    setSupportMultipleWindows(true)
+                    javaScriptCanOpenWindowsAutomatically = true
+                    userAgentString = "${userAgentString} PetGrowDaily"
+                }
 
                 // JavaScript Interface 추가
                 addJavascriptInterface(object {
                     @JavascriptInterface
                     fun onPaymentSuccess(transactionId: String, amount: String) {
-                        Log.d("PaymentWebView", "Payment Success: $transactionId, $amount")
+                        Log.d("HWO", "Payment Success: $transactionId, $amount")
                         onPaymentResult(true, null, transactionId)
                     }
 
                     @JavascriptInterface
                     fun onPaymentFailure(message: String) {
-                        Log.d("PaymentWebView", "Payment Failure: $message")
+                        Log.d("HWO", "Payment Failure: $message")
                         onPaymentResult(false, message, null)
                     }
 
                     @JavascriptInterface
                     fun closeWebView() {
-                        Log.d("PaymentWebView", "Close WebView requested")
+                        Log.d("HWO", "Close WebView requested")
                         // 메인 스레드에서 실행
                         (context as? Activity)?.runOnUiThread {
                             onBackPressed()

@@ -9,12 +9,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
-fun NavGraphBuilder.myPageNavigation(
-    paddingValues: PaddingValues
+fun NavGraphBuilder.myPageNavGraph(
+    navigateToDelivery: () -> Unit
 ) {
     composable<MyPage> {
         MyPageRoute(
-            paddingValues = paddingValues
+            onClickDelivery = navigateToDelivery
         )
     }
 }

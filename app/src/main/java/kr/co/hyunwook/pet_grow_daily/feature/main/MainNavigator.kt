@@ -14,6 +14,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.AnotherPet
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.Delivery
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
@@ -38,11 +39,6 @@ class MainNavigator(
     }
 
 
-    fun navigateToTotal(
-        navOptions: NavOptions
-    ) {
-        navController.navigate(Total, navOptions = navOptions)
-    }
 
     fun navigateToOrder(
         navOptions: NavOptions
@@ -75,6 +71,12 @@ class MainNavigator(
         navController.navigate(Profile, navOptions = navOptions)
     }
 
+
+    fun navigateToDelivery(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(Delivery, navOptions = navOptions)
+    }
     fun navigateToOnBoarding(
         navOptions: NavOptions
     ) {
@@ -110,6 +112,7 @@ fun findRouteFromDestination(route: String?): Route? {
         Order.route -> Order
         RecordWriteTab.route -> RecordWriteTab
         AnotherPet.route -> AnotherPet
+        Delivery.route -> Delivery
         else -> null
     }
 }

@@ -49,9 +49,11 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavigation
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
+import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -118,9 +120,11 @@ internal fun MainScreen(
                         }
                     )
                     totalNavGraph()
-
-                    myPageNavigation(
-                        paddingValues = paddingValues
+                    myPageNavGraph(
+                        navigateToDelivery = {
+                            Log.d("HWO", "navigateToDelivary")
+                             navigate(navigator, NavigateEnum.DELIVERY)
+                        }
                     )
 
                     profileNavGraph(
@@ -154,6 +158,7 @@ internal fun MainScreen(
 
                     anotherPetGraph()
 
+                    deliveryNavGraph()
 
                 }
             }
@@ -215,6 +220,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.PROFILE -> {
             navigator.navigateToProfile(navOptions = navOptions)
+        }
+        NavigateEnum.DELIVERY -> {
+            navigator.navigateToDelivery(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -373,6 +381,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY
 }
 

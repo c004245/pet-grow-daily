@@ -8,6 +8,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -37,8 +39,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun MyPageRoute(
-    paddingValues: PaddingValues,
-    viewModel: MyPageViewModel = hiltViewModel()
+    viewModel: MyPageViewModel = hiltViewModel(),
+    onClickDelivery: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -47,7 +49,6 @@ fun MyPageRoute(
     }
 
     MyPageScreen(
-        paddingValues = paddingValues,
         onClickLogout = {
 
         },
@@ -59,6 +60,11 @@ fun MyPageRoute(
         },
         onClickAlarm = {
 
+        },
+        onClickDelivery = {
+            Log.d("HWO", "onc!")
+            onClickDelivery()
+
         }
 
     )
@@ -66,11 +72,11 @@ fun MyPageRoute(
 
 @Composable
 fun MyPageScreen(
-    paddingValues: PaddingValues,
     onClickLogout: () -> Unit,
     onClickTerm: () -> Unit,
     onClickPrivacy: () -> Unit,
     onClickAlarm: () -> Unit,
+    onClickDelivery: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
@@ -93,7 +99,7 @@ fun MyPageScreen(
             Spacer(Modifier.height(16.dp))
             MyProfileInfo()
             Spacer(Modifier.height(12.dp))
-            AlarmInfo(onClickAlarm)
+            AlarmInfo(onClickAlarm, onClickDelivery)
             Spacer(Modifier.height(12.dp))
             LegalInfo(onClickTerm, onClickPrivacy)
             Spacer(Modifier.height(12.dp))
@@ -113,7 +119,6 @@ fun MyPageScreen(
             }
 
 
-
         }
     }
 }
@@ -121,7 +126,7 @@ fun MyPageScreen(
 @Composable
 fun MyProfileInfo() {
     CommonRoundedBox {
-        Column  {
+        Column {
             Text(
                 text = "조현욱님, 안녕하세요.",
                 style = PetgrowTheme.typography.medium,
@@ -141,31 +146,58 @@ fun MyProfileInfo() {
 }
 
 @Composable
-fun AlarmInfo(onClickAlarm: () -> Unit) {
+fun AlarmInfo(
+    onClickAlarm: () -> Unit, onClickDelivery: () -> Unit
+) {
     CommonRoundedBox(
-        onClick = onClickAlarm
     ) {
-       Row(
-           modifier = Modifier.fillMaxWidth(),
-           horizontalArrangement = Arrangement.SpaceBetween
-       ) {
-            Text(
-                text = stringResource(R.string.text_mypage_alarm_title),
-                style = PetgrowTheme.typography.regular,
-                color = black21,
-                fontSize = 16.sp
-            )
-           Image(
-               painter = painterResource(id = R.drawable.ic_left_arrow),
-               contentDescription = "alarm"
-           )
-       }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable {
+                    Log.d("HWO", "onCLickDele")
+                    onClickDelivery()
+                },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.text_delivery_setting_title),
+                    style = PetgrowTheme.typography.regular,
+                    color = black21,
+                    fontSize = 16.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_left_arrow),
+                    contentDescription = "delivery"
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable {
+                    onClickAlarm()
+                },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.text_mypage_alarm_title),
+                    style = PetgrowTheme.typography.regular,
+                    color = black21,
+                    fontSize = 16.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_left_arrow),
+                    contentDescription = "alarm"
+                )
+            }
+        }
     }
 
 }
 
 @Composable
-fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit){
+fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit) {
     CommonRoundedBox {
         Column {
 

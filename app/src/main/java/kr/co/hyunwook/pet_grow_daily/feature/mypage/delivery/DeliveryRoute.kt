@@ -1,54 +1,66 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
 
-import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayAD
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
-import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
-import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import android.util.Log
+import android.webkit.JavascriptInterface
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceError
+import android.webkit.WebViewClient
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayAD
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import org.json.JSONObject
 
 @Composable
-fun DeliveryRoute(
-
-) {
-
+fun DeliveryRoute() {
     LaunchedEffect(Unit) {
 
-
     }
-    DeliveryScreen(
-
-    )
-
-
+    DeliveryScreen()
 }
 
 @Composable
@@ -64,13 +76,11 @@ fun TitleDeliveryAppBar() {
             contentDescription = "ic_back",
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .clickable {
-
-                }
+                .clickable { }
         )
         Text(
             text = stringResource(R.string.text_delivery_add_title),
-            style = PetgrowTheme.typography.bold,
+            fontWeight = FontWeight.Bold,
             color = black21,
             fontSize = 16.sp,
             modifier = Modifier.align(Alignment.Center)
@@ -93,69 +103,80 @@ fun DeliveryScreen() {
             .padding(24.dp)
     ) {
         TitleDeliveryAppBar()
-        AddressNumberWidget()
+        AddressNumberWidget(
+            zipCode = zipCode,
+            onAddressSearchClick = {
+                showWebView = true
+            }
+        )
         Spacer(Modifier.height(8.dp))
-        AddressDetailWidget()
+        AddressDetailWidget(
+            address = address,
+            detailAddress = detailAddress,
+            onAddressChange = { address = it },
+            onDetailAddressChange = { detailAddress = it }
+        )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         HorizontalDivider(
             thickness = 1.dp,
             color = grayDE
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         UserInfoDeliveryWidget()
-
-
     }
 
-    // WebView 다이얼로그
     if (showWebView) {
-        DaumPostcodeWebView(
+        PostcodeDialog(
+            onDismiss = { showWebView = false },
             onAddressSelected = { selectedZipCode, selectedAddress ->
                 zipCode = selectedZipCode
                 address = selectedAddress
                 showWebView = false
-            },
-            onDismiss = { showWebView = false }
+            }
         )
     }
 }
 
 @Composable
-fun AddressNumberWidget() {
+fun AddressNumberWidget(
+    zipCode: String,
+    onAddressSearchClick: () -> Unit = {}
+) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
             Box(
-                modifier = Modifier.weight(1f).height(58.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .height(58.dp)
                     .background(color = grayf1, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
-                    text = stringResource(R.string.text_delivery_address_number),
+                    text = if (zipCode.isEmpty()) stringResource(R.string.text_delivery_address_number) else zipCode,
                     color = grayAD,
-                    style = PetgrowTheme.typography.regular,
                     fontSize = 16.sp
                 )
             }
 
             Spacer(Modifier.width(8.dp))
             Button(
-                onClick = {},
+                onClick = onAddressSearchClick,
                 modifier = Modifier.height(58.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White
                 ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, grayDE)
+                border = BorderStroke(1.dp, grayDE)
             ) {
                 Text(
                     text = stringResource(R.string.text_address_search),
                     color = black21,
-                    style = PetgrowTheme.typography.bold,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
             }
@@ -164,16 +185,20 @@ fun AddressNumberWidget() {
 }
 
 @Composable
-fun AddressDetailWidget() {
-    var address by remember { mutableStateOf("") }
-    var detailAddress by remember { mutableStateOf("") }
-
+fun AddressDetailWidget(
+    address: String,
+    detailAddress: String,
+    onAddressChange: (String) -> Unit,
+    onDetailAddressChange: (String) -> Unit
+) {
     Column {
         OutlinedTextField(
             value = address,
-            onValueChange = { address = it },
+            onValueChange = onAddressChange,
             placeholder = { Text("주소") },
-            modifier = Modifier.fillMaxWidth().height(58.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
@@ -185,9 +210,11 @@ fun AddressDetailWidget() {
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = detailAddress,
-            onValueChange = { detailAddress = it },
+            onValueChange = onDetailAddressChange,
             placeholder = { Text("상세 주소") },
-            modifier = Modifier.fillMaxWidth().height(58.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
@@ -196,10 +223,8 @@ fun AddressDetailWidget() {
                 unfocusedBorderColor = grayDE
             )
         )
-
     }
 }
-
 
 @Composable
 fun UserInfoDeliveryWidget() {
@@ -211,7 +236,9 @@ fun UserInfoDeliveryWidget() {
             value = userName,
             onValueChange = { userName = it },
             placeholder = { Text("받는 분") },
-            modifier = Modifier.fillMaxWidth().height(58.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
@@ -249,80 +276,155 @@ fun UserInfoDeliveryWidget() {
                 }
             },
             placeholder = { Text("휴대폰 번호") },
-            modifier = Modifier.fillMaxWidth().height(58.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = grayDE,
                 unfocusedBorderColor = grayDE
-            ),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
         )
-
     }
-
 }
+
 @Composable
-fun DaumPostcodeWebView(
-    onAddressSelected: (zipCode: String, address: String) -> Unit,
-    onDismiss: () -> Unit
+fun PostcodeDialog(
+    onDismiss: () -> Unit,
+    onAddressSelected: (zipCode: String, address: String) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            AndroidView(
-                factory = { context ->
-                    WebView(context).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-
-                        // JavaScript Interface 추가
-                        addJavascriptInterface(
-                            PostcodeJavaScriptInterface { zipCode, address ->
-                                onAddressSelected(zipCode, address)
-                            },
-                            "Android"
-                        )
-
-                        webViewClient = WebViewClient()
-                        webChromeClient = WebChromeClient()
-
-                        // 다음 우편번호 서비스 HTML 로드
-                        loadDataWithBaseURL(
-                            null,
-                            getDaumPostcodeHtml(),
-                            "text/html",
-                            "UTF-8",
-                            null
-                        )
+            AndroidView(factory = { context ->
+                WebView(context).apply {
+                    settings.apply {
+                        javaScriptEnabled = true
+                        domStorageEnabled = true
+                        allowContentAccess = true
+                        allowFileAccess = true
+                        allowUniversalAccessFromFileURLs = true
+                        allowFileAccessFromFileURLs = true
+                        mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        cacheMode = WebSettings.LOAD_NO_CACHE
                     }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
 
-            // 닫기 버튼
+                    addJavascriptInterface(
+                        PostcodeJavaScriptInterface(onAddressSelected),
+                        "Android"
+                    )
+
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageStarted(
+                            view: WebView?,
+                            url: String?,
+                            favicon: android.graphics.Bitmap?
+                        ) {
+                            super.onPageStarted(view, url, favicon)
+                        }
+
+                        override fun onPageFinished(view: WebView, url: String) {
+                            super.onPageFinished(view, url)
+                            view.evaluateJavascript("typeof daum !== 'undefined'") { result ->
+                                if (result == "true") {
+                                    view.evaluateJavascript("typeof daum.Postcode !== 'undefined'") { postcodeResult ->
+                                    }
+                                }
+                            }
+                        }
+
+                        override fun onReceivedError(
+                            view: WebView?,
+                            request: WebResourceRequest?,
+                            error: WebResourceError?
+                        ) {
+                            super.onReceivedError(view, request, error)
+                        }
+                    }
+
+                    loadDataWithBaseURL(
+                        "https://postcode.map.daum.net/",
+                        """
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>우편번호 검색</title>
+                        </head>
+                        <body style="margin:0; padding:0;">
+                            <div id="wrap" style="display:none;border:1px solid;width:500px;height:300px;margin:5px 0;position:relative">
+                                <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1" onclick="foldDaumPostcode()" alt="접기 버튼">
+                            </div>
+                            
+                            <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+                            <script>
+                                var element_wrap = document.getElementById('wrap');
+                                
+                                function foldDaumPostcode() {
+                                    element_wrap.style.display = 'none';
+                                }
+                                
+                                new daum.Postcode({
+                                    oncomplete: function(data) {
+                                        // 우편번호와 주소 정보를 Android로 전달
+                                        Android.processDATA(JSON.stringify(data));
+                                        
+                                        // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+                                        var addr = ''; // 주소 변수
+                                        var extraAddr = ''; // 참고항목 변수
+
+                                        //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+                                        if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                                            addr = data.roadAddress;
+                                        } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                                            addr = data.jibunAddress;
+                                        }
+
+                                        // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                                        document.getElementById('sample6_postcode').value = data.zonecode;
+                                        document.getElementById("sample6_address").value = addr;
+                                        // 커서를 상세주소 필드로 이동한다.
+                                        document.getElementById("sample6_detailAddress").focus();
+
+                                        // iframe을 넣은 element를 안보이게 한다.
+                                        element_wrap.style.display = 'none';
+                                    },
+                                    onresize : function(size) {
+                                        element_wrap.style.height = size.height+'px';
+                                    },
+                                    width : '100%',
+                                    height : '100%'
+                                }).embed(element_wrap);
+
+                                // iframe을 넣은 element를 보이게 한다.
+                                element_wrap.style.display = 'block';
+                            </script>
+                        </body>
+                        </html>
+                        """.trimIndent(),
+                        "text/html",
+                        "UTF-8",
+                        null
+                    )
+                }
+            })
+
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(16.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.5f),
-                        CircleShape
-                    )
             ) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = "닫기",
-                    tint = Color.White
-                )
+                Icon(Icons.Filled.Close, "닫기")
             }
         }
     }
@@ -333,6 +435,7 @@ class PostcodeJavaScriptInterface(
 ) {
     @JavascriptInterface
     fun processDATA(data: String) {
+        Log.d("HWO", "processData -> ${data}")
         try {
             val json = JSONObject(data)
             val zipCode = json.getString("zonecode")
@@ -344,30 +447,4 @@ class PostcodeJavaScriptInterface(
             e.printStackTrace()
         }
     }
-}
-
-private fun getDaumPostcodeHtml(): String {
-    return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body>
-            <div id="layer" style="display:block;position:absolute;top:0;left:0;width:100%;height:100%;z-index:1"></div>
-            <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-            <script>
-                new daum.Postcode({
-                    oncomplete: function(data) {
-                        Android.processDATA(JSON.stringify(data));
-                    },
-                    width: '100%',
-                    height: '100%',
-                    maxSuggestItems: 5
-                }).embed('layer');
-            </script>
-        </body>
-        </html>
-    """.trimIndent()
 }

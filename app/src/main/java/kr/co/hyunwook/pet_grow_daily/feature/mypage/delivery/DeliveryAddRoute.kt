@@ -58,40 +58,16 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import org.json.JSONObject
 
 @Composable
-fun DeliveryRoute() {
+fun DeliveryAddRoute() {
     LaunchedEffect(Unit) {
 
     }
-    DeliveryScreen()
+    DeliveryAddScreen()
 }
 
-@Composable
-fun TitleDeliveryAppBar() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(R.drawable.ic_arrow_back),
-            contentDescription = "ic_back",
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .clickable { }
-        )
-        Text(
-            text = stringResource(R.string.text_delivery_add_title),
-            fontWeight = FontWeight.Bold,
-            color = black21,
-            fontSize = 16.sp,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
 
 @Composable
-fun DeliveryScreen() {
+fun DeliveryAddScreen() {
     var address by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     var detailAddress by remember { mutableStateOf("") }
@@ -104,7 +80,7 @@ fun DeliveryScreen() {
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        TitleDeliveryAppBar()
+        TitleDeliveryAppBar(stringResource(R.string.text_address_search))
         AddressNumberWidget(
             zipCode = zipCode,
             onAddressSearchClick = {
@@ -488,5 +464,31 @@ class PostcodeJavaScriptInterface(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+}
+
+
+@Composable
+fun TitleDeliveryAppBar(title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_arrow_back),
+            contentDescription = "ic_back",
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .clickable { }
+        )
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold,
+            color = black21,
+            fontSize = 16.sp,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }

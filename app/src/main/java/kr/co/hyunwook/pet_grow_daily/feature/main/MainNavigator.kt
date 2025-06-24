@@ -3,7 +3,6 @@ package kr.co.hyunwook.pet_grow_daily.feature.main
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -14,13 +13,15 @@ import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.AnotherPet
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.Delivery
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 import android.util.Log
+import androidx.navigation.NavHostController
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
 
 
 class MainNavigator(
@@ -38,7 +39,11 @@ class MainNavigator(
         navController.navigate(Album, navOptions = navOptions)
     }
 
-
+    fun navigateToOnBoarding(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(OnBoarding, navOptions = navOptions)
+    }
 
     fun navigateToOrder(
         navOptions: NavOptions
@@ -59,6 +64,7 @@ class MainNavigator(
     ) {
         navController.navigate(MyPage, navOptions = navOptions)
     }
+
     fun navigateToAdd(
         navOptions: NavOptions
     ) {
@@ -71,16 +77,16 @@ class MainNavigator(
         navController.navigate(Profile, navOptions = navOptions)
     }
 
-
-    fun navigateToDelivery(
+    fun navigateToDeliveryList(
         navOptions: NavOptions
     ) {
-        navController.navigate(Delivery, navOptions = navOptions)
+        navController.navigate(DeliveryList, navOptions = navOptions)
     }
-    fun navigateToOnBoarding(
-        navOptions: NavOptions
+
+    fun navigateToDeliveryAdd(
+        navOptions: NavOptions? = null
     ) {
-        navController.navigate(OnBoarding, navOptions = navOptions)
+        navController.navigate(DeliveryAdd, navOptions = navOptions)
     }
 
     fun navigateToRecordWrite(
@@ -112,7 +118,8 @@ fun findRouteFromDestination(route: String?): Route? {
         Order.route -> Order
         RecordWriteTab.route -> RecordWriteTab
         AnotherPet.route -> AnotherPet
-        Delivery.route -> Delivery
+        DeliveryList.route -> DeliveryList
+        DeliveryAdd.route -> DeliveryAdd
         else -> null
     }
 }

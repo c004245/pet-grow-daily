@@ -40,7 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
-    onClickDelivery: () -> Unit
+    onClickDeliveryList: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -61,9 +61,9 @@ fun MyPageRoute(
         onClickAlarm = {
 
         },
-        onClickDelivery = {
+        onClickDeliveryList = {
             Log.d("HWO", "onc!")
-            onClickDelivery()
+            onClickDeliveryList()
 
         }
 
@@ -76,7 +76,7 @@ fun MyPageScreen(
     onClickTerm: () -> Unit,
     onClickPrivacy: () -> Unit,
     onClickAlarm: () -> Unit,
-    onClickDelivery: () -> Unit
+    onClickDeliveryList: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize().background(grayF8)
@@ -99,7 +99,7 @@ fun MyPageScreen(
             Spacer(Modifier.height(16.dp))
             MyProfileInfo()
             Spacer(Modifier.height(12.dp))
-            AlarmInfo(onClickAlarm, onClickDelivery)
+            AlarmInfo(onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
             LegalInfo(onClickTerm, onClickPrivacy)
             Spacer(Modifier.height(12.dp))

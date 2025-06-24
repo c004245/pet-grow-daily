@@ -9,6 +9,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.CategoryType
 import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 
 @Dao
 interface AlbumRecordDao {
@@ -38,4 +39,7 @@ interface AlbumRecordDao {
 //        month: String
 //    ): Flow<List<GrowRecord>>
 
+
+    @Query("SELECT * FROM DeliveryInfo ORDER BY id DESC")
+    fun getDeliveryList(): Flow<List<DeliveryInfo>>
 }

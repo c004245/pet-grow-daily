@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
 import javax.inject.Inject
@@ -86,5 +87,10 @@ class AlbumRepositoryImpl @Inject constructor(
     override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> =
         albumDataSource.hasCompletedOnboarding
 
+
+    override suspend fun getDeliveryList(): Flow<List<DeliveryInfo>> {
+        return albumRecordDao.getDeliveryList()
+
+    }
 
 }

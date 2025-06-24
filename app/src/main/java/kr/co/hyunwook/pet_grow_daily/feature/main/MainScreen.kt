@@ -49,7 +49,6 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
@@ -57,6 +56,8 @@ import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,9 +122,9 @@ internal fun MainScreen(
                     )
                     totalNavGraph()
                     myPageNavGraph(
-                        navigateToDelivery = {
+                        navigateToDeliveryList = {
                             Log.d("HWO", "navigateToDelivary")
-                             navigate(navigator, NavigateEnum.DELIVERY)
+                             navigate(navigator, NavigateEnum.DELIVERY_LIST)
                         }
                     )
 
@@ -158,7 +159,24 @@ internal fun MainScreen(
 
                     anotherPetGraph()
 
-                    deliveryNavGraph()
+                    deliveryAddNavGraph (
+                        navigateToDeliveryList = {
+                            navigate(navigator, NavigateEnum.DELIVERY_LIST)
+                        }
+                    )
+
+                    deliveryListNavGraph(
+                        navigateToMyPage = {
+                            navigate(navigator, NavigateEnum.MYPAGE)
+
+                        },
+                        navigateToDeliveryAdd = {
+                            navigate(navigator, NavigateEnum.DELIVERY_ADD)
+
+
+                        }
+
+                    )
 
                 }
             }
@@ -221,8 +239,11 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         NavigateEnum.PROFILE -> {
             navigator.navigateToProfile(navOptions = navOptions)
         }
-        NavigateEnum.DELIVERY -> {
-            navigator.navigateToDelivery(navOptions = navOptions)
+        NavigateEnum.DELIVERY_LIST -> {
+            navigator.navigateToDeliveryList(navOptions = navOptions)
+        }
+        NavigateEnum.DELIVERY_ADD -> {
+            navigator.navigateToDeliveryAdd(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -381,6 +402,6 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY_ADD, DELIVERY_LIST
 }
 

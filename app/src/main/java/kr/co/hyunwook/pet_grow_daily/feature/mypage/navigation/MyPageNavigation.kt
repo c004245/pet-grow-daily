@@ -10,11 +10,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 
 fun NavGraphBuilder.myPageNavGraph(
-    navigateToDelivery: () -> Unit
+    navigateToDeliveryList: () -> Unit
 ) {
     composable<MyPage> {
         MyPageRoute(
-            onClickDelivery = navigateToDelivery
+            onClickDeliveryList = navigateToDeliveryList
         )
     }
 }

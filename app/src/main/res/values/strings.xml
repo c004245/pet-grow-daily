@@ -19,6 +19,7 @@
     <string name="text_save">저장</string>
     <string name="text_start">시작하기</string>
     <string name="text_next">다음</string>
+    <string name="text_new_delivery_add">새 배송지 추가</string>
     <string name="text_complete">완료</string>
     <string name="text_onboarding_title">반려견의 성장을 기록해요</string>
     <string name="text_onboarding_description">산책, 급여, 배변 등 반려견의 성장을 기록해요.</string>
@@ -44,5 +45,6 @@
     <string name="text_onboarding_title3">반려견과의 특별한 순간들을\n영원히 기억할 수 있도록 도와드릴게요!</string>
     <string name="text_onboarding_title4">그냥 사진과 일기만 적으면돼요.\n앨범은 제가 만들어드려요.</string>
     <string name="text_address_search">주소 검색</string>
+    <string name="text_delivery_list">배송지 목록</string>
 
 </resources>

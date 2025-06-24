@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 
 interface AlbumRepository {
@@ -29,4 +30,6 @@ interface AlbumRepository {
     suspend fun getHasCompleteOnBoarding(): Flow<Boolean>
 
     suspend fun saveLoginState(userId: Long)
+
+    suspend fun getDeliveryList(): Flow<List<DeliveryInfo>>
 }

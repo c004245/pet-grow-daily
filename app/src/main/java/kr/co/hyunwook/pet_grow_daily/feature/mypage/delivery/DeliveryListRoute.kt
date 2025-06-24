@@ -59,19 +59,20 @@ fun DeliveryListScreen(
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.text_delivery_list),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = black21
-            )
-        }
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(56.dp),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(
+//                text = stringResource(R.string.text_delivery_list),
+//                fontSize = 18.sp,
+//                fontWeight = FontWeight.Bold,
+//                color = black21
+//            )
+//        }
+        TitleDeliveryAppBar(stringResource(R.string.text_delivery_list))
 
         if (deliveryInfos.isEmpty()) {
             EmptyDeliveryState(
@@ -128,7 +129,7 @@ fun EmptyDeliveryState(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "앨범을 배송 받을 주소를 추가해주세요.",
+            text = stringResource(R.string.text_empty_delivery_address),
             style = PetgrowTheme.typography.medium,
             fontSize = 14.sp,
             color = gray86
@@ -139,10 +140,12 @@ fun EmptyDeliveryState(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White
             ),
-            shape = RoundedCornerShape(14.dp)
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, purple6C)
         ) {
             Row(
-                modifier = Modifier.padding(vertical = 14.dp, horizontal = 24.dp)
+                modifier = Modifier.padding(vertical = 14.dp, horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_delivery_plus),

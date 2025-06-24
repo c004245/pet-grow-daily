@@ -53,6 +53,8 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayAD
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import org.json.JSONObject
 
 @Composable
@@ -125,6 +127,13 @@ fun DeliveryScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
         UserInfoDeliveryWidget()
+        Spacer(modifier = Modifier.height(24.dp))
+        CheckDefaultDeliveryWidget()
+        Spacer(Modifier.weight(1f))
+        SaveButton(onSaveClick = {
+
+        }
+        )
     }
 
     if (showWebView) {
@@ -137,6 +146,27 @@ fun DeliveryScreen() {
             }
         )
     }
+}
+
+@Composable
+fun SaveButton(onSaveClick: () -> Unit) {
+    Button(
+        onClick = { onSaveClick() },
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = purple6C
+        )
+    ) {
+        Text(
+            text = stringResource(id = R.string.text_save),
+            style = PetgrowTheme.typography.bold,
+            color = Color.White,
+            fontSize = 14.sp
+        )
+    }
+
 }
 
 @Composable
@@ -375,26 +405,9 @@ fun PostcodeDialog(
                                 
                                 new daum.Postcode({
                                     oncomplete: function(data) {
-                                        // 우편번호와 주소 정보를 Android로 전달
-                                        Android.processDATA(JSON.stringify(data));
-                                        
-                                        // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-                                        var addr = ''; // 주소 변수
-                                        var extraAddr = ''; // 참고항목 변수
-
-                                        //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
-                                        if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
-                                            addr = data.roadAddress;
-                                        } else { // 사용자가 지번 주소를 선택했을 경우(J)
-                                            addr = data.jibunAddress;
-                                        }
-
                                         // 우편번호와 주소 정보를 해당 필드에 넣는다.
                                         document.getElementById('sample6_postcode').value = data.zonecode;
-                                        document.getElementById("sample6_address").value = addr;
-                                        // 커서를 상세주소 필드로 이동한다.
-                                        document.getElementById("sample6_detailAddress").focus();
-
+                                        document.getElementById("sample6_address").value = data.roadAddress || data.jibunAddress;
                                         // iframe을 넣은 element를 안보이게 한다.
                                         element_wrap.style.display = 'none';
                                     },
@@ -427,6 +440,35 @@ fun PostcodeDialog(
                 Icon(Icons.Filled.Close, "닫기")
             }
         }
+    }
+}
+
+@Composable
+fun CheckDefaultDeliveryWidget() {
+    var isChecked by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { isChecked = !isChecked },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.Checkbox(
+            checked = isChecked,
+            onCheckedChange = { isChecked = it },
+            colors = androidx.compose.material3.CheckboxDefaults.colors(
+                checkedColor = purple6C,
+                uncheckedColor = grayDE,
+                checkmarkColor = Color.White
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            style = PetgrowTheme.typography.regular,
+            text = "기본 배송지로 설정",
+            color = black21,
+            fontSize = 14.sp
+        )
     }
 }
 

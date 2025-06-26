@@ -16,5 +16,5 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun albumRecordDao(): AlbumRecordDao
-    abstract fun deliveryInfoDao(): 
+    abstract fun deliveryInfoDao(): DeliveryInfoDao
 }

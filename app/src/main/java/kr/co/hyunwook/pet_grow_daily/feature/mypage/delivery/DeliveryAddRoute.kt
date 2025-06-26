@@ -50,7 +50,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayAD
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
@@ -60,21 +63,31 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import org.json.JSONObject
 
 @Composable
-fun DeliveryAddRoute() {
+fun DeliveryAddRoute(
+    viewModel: DeliveryViewModel = hiltViewModel(),
+    navigateToDeliveryList: () -> Unit
+) {
     LaunchedEffect(Unit) {
-
+        viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                navigateToDeliveryList()
+            }
+        }
     }
-    DeliveryAddScreen()
+    DeliveryAddScreen(onSaveClick = { deliveryInfo ->
+        viewModel.saveDeliveryInfo(deliveryInfo)
+    })
 }
 
 @Composable
-fun DeliveryAddScreen() {
+fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit) {
     var address by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     var detailAddress by remember { mutableStateOf("") }
     var recipientName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var showWebView by remember { mutableStateOf(false) }
+    var isDefaultDelivery by remember { mutableStateOf(false) }
 
     val isFormValid = zipCode.isNotEmpty() && address.isNotEmpty() &&
             detailAddress.isNotEmpty() && recipientName.isNotEmpty() && phoneNumber.isNotEmpty()
@@ -119,13 +132,23 @@ fun DeliveryAddScreen() {
             onPhoneNumberChange = { phoneNumber = it }
         )
         Spacer(modifier = Modifier.height(24.dp))
-        CheckDefaultDeliveryWidget()
+        CheckDefaultDeliveryWidget(
+            isChecked = isDefaultDelivery,
+            onCheckedChange = { isDefaultDelivery = it }
+        )
         Spacer(Modifier.weight(1f))
         SaveButton(
             isEnabled = isFormValid,
             onSaveClick = {
-
-
+                val deliveryInfo = DeliveryInfo(
+                    zipCode = zipCode,
+                    address = address,
+                    detailAddress = detailAddress,
+                    name = recipientName,
+                    phoneNumber = phoneNumber,
+                    isDefault = isDefaultDelivery
+                )
+                onSaveClick(deliveryInfo)
             }
         )
     }
@@ -444,18 +467,19 @@ fun PostcodeDialog(
 }
 
 @Composable
-fun CheckDefaultDeliveryWidget() {
-    var isChecked by remember { mutableStateOf(false) }
-
+fun CheckDefaultDeliveryWidget(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { isChecked = !isChecked },
+            .clickable { onCheckedChange(!isChecked) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
             checked = isChecked,
-            onCheckedChange = { isChecked = it },
+            onCheckedChange = onCheckedChange,
             colors = CheckboxDefaults.colors(
                 checkedColor = purple6C,
                 uncheckedColor = grayDE,

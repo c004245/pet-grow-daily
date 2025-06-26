@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Entity
 data class DeliveryInfo(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val zipCode: String,
     val address: String,
     val detailAddress: String,

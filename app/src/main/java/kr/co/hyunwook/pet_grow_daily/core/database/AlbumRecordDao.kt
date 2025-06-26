@@ -40,6 +40,4 @@ interface AlbumRecordDao {
 //    ): Flow<List<GrowRecord>>
 
 
-    @Query("SELECT * FROM DeliveryInfo ORDER BY id DESC")
-    fun getDeliveryList(): Flow<List<DeliveryInfo>>
 }

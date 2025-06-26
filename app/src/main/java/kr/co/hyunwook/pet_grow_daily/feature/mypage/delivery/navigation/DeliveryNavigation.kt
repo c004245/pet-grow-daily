@@ -23,7 +23,9 @@ fun NavGraphBuilder.deliveryAddNavGraph(
     navigateToDeliveryList: () -> Unit
 ) {
     composable<DeliveryAdd> {
-        DeliveryAddRoute()
+        DeliveryAddRoute(
+            navigateToDeliveryList = navigateToDeliveryList
+        )
     }
 }
 

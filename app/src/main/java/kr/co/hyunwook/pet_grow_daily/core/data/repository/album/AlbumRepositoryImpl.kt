@@ -88,9 +88,6 @@ class AlbumRepositoryImpl @Inject constructor(
         albumDataSource.hasCompletedOnboarding
 
 
-    override suspend fun getDeliveryList(): Flow<List<DeliveryInfo>> {
-        return albumRecordDao.getDeliveryList()
 
-    }
 
 }

@@ -1,0 +1,19 @@
+package kr.co.hyunwook.pet_grow_daily.core.data.repository.delivery
+
+import kotlinx.coroutines.flow.Flow
+import kr.co.hyunwook.pet_grow_daily.core.database.DeliveryInfoDao
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
+import javax.inject.Inject
+
+class DeliveryRepositoryImpl @Inject constructor(
+    private val deliveryInfoDao: DeliveryInfoDao,
+): DeliveryRepository {
+
+    override suspend fun insertDeliveryInfo(deliveryInfo: DeliveryInfo) {
+        deliveryInfoDao.insertDeliveryInfo(deliveryInfo)
+    }
+    override suspend fun getDeliveryList(): Flow<List<DeliveryInfo>> {
+        return deliveryInfoDao.getDeliveryList()
+
+    }
+}

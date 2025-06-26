@@ -17,6 +17,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kr.co.hyunwook.pet_grow_daily.core.database.DeliveryInfoDao
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -25,8 +26,10 @@ import javax.inject.Singleton
 internal object DatabaseModule {
 
     private const val ALBUM_DATASTORE_NAME = "ALBUM_PREFERENCE"
+    private const val DELIVERY_DATASTORE_NAME = "DELIVERY_PREFERENCE"
 
     private val Context.albumDataSource by preferencesDataStore(ALBUM_DATASTORE_NAME)
+    private val Context.deliveryDataSource by preferencesDataStore(DELIVERY_DATASTORE_NAME)
 
     @Provides
     @Singleton
@@ -35,6 +38,14 @@ internal object DatabaseModule {
         @ApplicationContext context: Context,
     ): DataStore<Preferences> =
         context.albumDataSource
+
+    @Provides
+    @Singleton
+    @Named("delivery")
+    fun provideDeliveryDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> =
+        context.deliveryDataSource
 
     @Provides
     @Singleton
@@ -50,6 +61,12 @@ internal object DatabaseModule {
     @Singleton
     fun provideAlbumRecordDao(appDatabase: AppDatabase): AlbumRecordDao {
         return appDatabase.albumRecordDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeliveryInfoDao(appDatabase: AppDatabase): DeliveryInfoDao {
+        return appDatabase.deliveryInfoDao()
     }
 
     @Provides

@@ -30,6 +30,4 @@ interface AlbumRepository {
     suspend fun getHasCompleteOnBoarding(): Flow<Boolean>
 
     suspend fun saveLoginState(userId: Long)
-
-    suspend fun getDeliveryList(): Flow<List<DeliveryInfo>>
 }

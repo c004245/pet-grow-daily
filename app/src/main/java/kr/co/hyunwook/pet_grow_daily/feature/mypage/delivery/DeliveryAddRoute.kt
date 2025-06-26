@@ -31,6 +31,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,7 +67,6 @@ fun DeliveryAddRoute() {
     DeliveryAddScreen()
 }
 
-
 @Composable
 fun DeliveryAddScreen() {
     var address by remember { mutableStateOf("") }
@@ -74,6 +75,15 @@ fun DeliveryAddScreen() {
     var recipientName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var showWebView by remember { mutableStateOf(false) }
+
+    val isFormValid = zipCode.isNotEmpty() && address.isNotEmpty() &&
+            detailAddress.isNotEmpty() && recipientName.isNotEmpty() && phoneNumber.isNotEmpty()
+
+    Log.d(
+        "DeliveryForm",
+        "zipCode: '$zipCode', address: '$address', detailAddress: '$detailAddress', recipientName: '$recipientName', phoneNumber: '$phoneNumber'"
+    )
+    Log.d("DeliveryForm", "isFormValid: $isFormValid")
 
     Column(
         modifier = Modifier
@@ -102,13 +112,21 @@ fun DeliveryAddScreen() {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        UserInfoDeliveryWidget()
+        UserInfoDeliveryWidget(
+            recipientName = recipientName,
+            phoneNumber = phoneNumber,
+            onRecipientNameChange = { recipientName = it },
+            onPhoneNumberChange = { phoneNumber = it }
+        )
         Spacer(modifier = Modifier.height(24.dp))
         CheckDefaultDeliveryWidget()
         Spacer(Modifier.weight(1f))
-        SaveButton(onSaveClick = {
+        SaveButton(
+            isEnabled = isFormValid,
+            onSaveClick = {
 
-        }
+
+            }
         )
     }
 
@@ -125,14 +143,18 @@ fun DeliveryAddScreen() {
 }
 
 @Composable
-fun SaveButton(onSaveClick: () -> Unit) {
+fun SaveButton(
+    isEnabled: Boolean,
+    onSaveClick: () -> Unit
+) {
     Button(
-        onClick = { onSaveClick() },
+        onClick = onSaveClick,
         modifier = Modifier
             .fillMaxWidth(),
+        enabled = isEnabled,
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = purple6C
+            containerColor = if (isEnabled) purple6C else purple6C.copy(0.4f)
         )
     ) {
         Text(
@@ -233,14 +255,16 @@ fun AddressDetailWidget(
 }
 
 @Composable
-fun UserInfoDeliveryWidget() {
-    var userName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-
+fun UserInfoDeliveryWidget(
+    recipientName: String,
+    phoneNumber: String,
+    onRecipientNameChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit
+) {
     Column {
         OutlinedTextField(
-            value = userName,
-            onValueChange = { userName = it },
+            value = recipientName,
+            onValueChange = onRecipientNameChange,
             placeholder = { Text("받는 분") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -258,7 +282,7 @@ fun UserInfoDeliveryWidget() {
             value = phoneNumber,
             onValueChange = { input ->
                 val digitsOnly = input.filter { it.isDigit() }
-                phoneNumber = when {
+                val formattedPhone = when {
                     digitsOnly.length <= 3 -> digitsOnly
                     digitsOnly.length <= 7 -> "${digitsOnly.substring(0, 3)}-${
                         digitsOnly.substring(
@@ -280,6 +304,7 @@ fun UserInfoDeliveryWidget() {
                         )
                     }-${digitsOnly.substring(7, 11)}"
                 }
+                onPhoneNumberChange(formattedPhone)
             },
             placeholder = { Text("휴대폰 번호") },
             modifier = Modifier
@@ -381,9 +406,8 @@ fun PostcodeDialog(
                                 
                                 new daum.Postcode({
                                     oncomplete: function(data) {
-                                        // 우편번호와 주소 정보를 해당 필드에 넣는다.
-                                        document.getElementById('sample6_postcode').value = data.zonecode;
-                                        document.getElementById("sample6_address").value = data.roadAddress || data.jibunAddress;
+                                        // JavaScript Interface를 통해 안드로이드로 데이터 전달
+                                        Android.processDATA(JSON.stringify(data));
                                         // iframe을 넣은 element를 안보이게 한다.
                                         element_wrap.style.display = 'none';
                                     },
@@ -429,10 +453,10 @@ fun CheckDefaultDeliveryWidget() {
             .clickable { isChecked = !isChecked },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.Checkbox(
+        Checkbox(
             checked = isChecked,
             onCheckedChange = { isChecked = it },
-            colors = androidx.compose.material3.CheckboxDefaults.colors(
+            colors = CheckboxDefaults.colors(
                 checkedColor = purple6C,
                 uncheckedColor = grayDE,
                 checkmarkColor = Color.White
@@ -466,7 +490,6 @@ class PostcodeJavaScriptInterface(
         }
     }
 }
-
 
 @Composable
 fun TitleDeliveryAppBar(title: String) {

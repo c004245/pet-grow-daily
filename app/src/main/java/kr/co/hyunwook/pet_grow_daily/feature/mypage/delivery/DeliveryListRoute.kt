@@ -79,42 +79,42 @@ fun DeliveryListScreen(
                 navigateToDeliveryAdd = navigateToDeliveryAdd
             )
         } else {
-//            // 배송지가 있을 때
-//            LazyColumn(
-//                modifier = Modifier.weight(1f),
-//                verticalArrangement = Arrangement.spacedBy(12.dp)
-//            ) {
-//                items(deliveryInfos) { deliveryInfo ->
-//                    DeliveryInfoItem(
-//                        deliveryInfo = deliveryInfo,
-//                        onEditClick = {
-//                            // 수정 기능 구현
-//                        },
-//                        onDeleteClick = {
-//                            // 삭제 기능 구현
-//                        }
-//                    )
-//                }
-//            }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
+            // 배송지가 있을 때
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(deliveryInfos) { deliveryInfo ->
+                    DeliveryInfoItem(
+                        deliveryInfo = deliveryInfo,
+                        onEditClick = {
+                            // 수정 기능 구현
+                        },
+                        onDeleteClick = {
+                            // 삭제 기능 구현
+                        }
+                    )
+                }
+            }
 
-//            // 새 배송지 추가 버튼
-//            Button(
-//                onClick = onAddClick,
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(14.dp),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = purple6C
-//                )
-//            ) {
-//                Text(
-//                    text = "새 배송지 추가",
-//                    color = Color.White,
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.Bold
-//                )
-//            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 새 배송지 추가 버튼
+            Button(
+                onClick = navigateToDeliveryAdd,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = purple6C
+                )
+            ) {
+                Text(
+                    text = "새 배송지 추가",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

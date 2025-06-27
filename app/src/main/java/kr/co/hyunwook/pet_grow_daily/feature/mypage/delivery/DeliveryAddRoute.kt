@@ -2,10 +2,10 @@ package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
 
 import android.util.Log
 import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
-import android.webkit.WebView
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceError
+import android.webkit.WebSettings
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -47,11 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -62,7 +57,13 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import org.json.JSONObject
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DeliveryAddRoute(
@@ -262,7 +263,8 @@ fun AddressDetailWidget(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = grayDE,
-                unfocusedBorderColor = grayDE
+                unfocusedBorderColor = grayDE,
+                cursorColor = black21
             )
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -278,7 +280,8 @@ fun AddressDetailWidget(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = grayDE,
-                unfocusedBorderColor = grayDE
+                unfocusedBorderColor = grayDE,
+                cursorColor = black21
             )
         )
     }
@@ -291,6 +294,8 @@ fun UserInfoDeliveryWidget(
     onRecipientNameChange: (String) -> Unit,
     onPhoneNumberChange: (String) -> Unit
 ) {
+    var phoneNumberValue by remember { mutableStateOf(TextFieldValue(phoneNumber)) }
+
     Column {
         OutlinedTextField(
             value = recipientName,
@@ -304,33 +309,47 @@ fun UserInfoDeliveryWidget(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = grayDE,
-                unfocusedBorderColor = grayDE
+                unfocusedBorderColor = grayDE,
+                cursorColor = black21
             )
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = phoneNumber,
+            value = phoneNumberValue,
             onValueChange = { input ->
-                val digitsOnly = input.filter { it.isDigit() }
-                if (digitsOnly.length <= 11) {
-                    val formattedPhone = when {
-                        digitsOnly.length <= 3 -> digitsOnly
-                        digitsOnly.length <= 7 -> "${
-                            digitsOnly.substring(
-                                0,
-                                3
-                            )
-                        }-${digitsOnly.substring(3)}"
-
-                        else -> "${digitsOnly.substring(0, 3)}-${
-                            digitsOnly.substring(
-                                3,
-                                7
-                            )
-                        }-${digitsOnly.substring(7)}"
-                    }
-                    onPhoneNumberChange(formattedPhone)
+                // 숫자만 추출
+                val digitsOnly = input.text.filter { it.isDigit() }
+                // 최대 11자리까지만 허용
+                val limitedDigits = if (digitsOnly.length > 11) {
+                    digitsOnly.substring(0, 11)
+                } else {
+                    digitsOnly
                 }
+
+                // 포맷팅
+                val formattedPhone = when {
+                    limitedDigits.length <= 3 -> limitedDigits
+                    limitedDigits.length <= 7 -> "${
+                        limitedDigits.substring(
+                            0,
+                            3
+                        )
+                    }-${limitedDigits.substring(3)}"
+
+                    else -> "${limitedDigits.substring(0, 3)}-${
+                        limitedDigits.substring(
+                            3,
+                            7
+                        )
+                    }-${limitedDigits.substring(7)}"
+                }
+
+                // 커서를 항상 끝으로 이동
+                phoneNumberValue = TextFieldValue(
+                    text = formattedPhone,
+                    selection = TextRange(formattedPhone.length)
+                )
+                onPhoneNumberChange(formattedPhone)
             },
             placeholder = { Text("휴대폰 번호") },
             modifier = Modifier
@@ -342,7 +361,8 @@ fun UserInfoDeliveryWidget(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = grayDE,
-                unfocusedBorderColor = grayDE
+                unfocusedBorderColor = grayDE,
+                cursorColor = black21
             )
         )
     }
@@ -507,7 +527,7 @@ class PostcodeJavaScriptInterface(
     fun processDATA(data: String) {
         Log.d("HWO", "processData -> ${data}")
         try {
-            val json = JSONObject(data)
+            val json = org.json.JSONObject(data)
             val zipCode = json.getString("zonecode")
             val address = json.getString("roadAddress").takeIf { it.isNotEmpty() }
                 ?: json.getString("jibunAddress")

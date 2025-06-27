@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -72,7 +73,6 @@ fun DeliveryListScreen(
             )
         } else {
             LazyColumn(
-                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(deliveryInfos) { deliveryInfo ->
@@ -88,21 +88,35 @@ fun DeliveryListScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 새 배송지 추가 버튼
             Button(
                 onClick = navigateToDeliveryAdd,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(BorderStroke(1.dp, grayDE)),
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = purple6C
+                    containerColor = Color.White
                 )
+
             ) {
-                Text(
-                    text = "새 배송지 추가",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_add_delivery),
+                        contentDescription = "add_delivery"
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.text_new_delivery),
+                        color = black21,
+                        fontSize = 13.sp,
+                        style = PetgrowTheme.typography.medium
+
+                    )
+                }
             }
         }
     }
@@ -193,14 +207,25 @@ fun DeliveryInfoItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "(${deliveryInfo.zipCode}) ${deliveryInfo.address} ${deliveryInfo.detailAddress}",
-                fontSize = 14.sp,
-                style = PetgrowTheme.typography.regular,
-                color = black21,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "(${deliveryInfo.zipCode}) ${deliveryInfo.address} ${deliveryInfo.detailAddress}",
+                    fontSize = 14.sp,
+                    style = PetgrowTheme.typography.regular,
+                    color = black21,
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                if (deliveryInfo.isDefault) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_delivery_check),
+                        contentDescription = "Default icon"
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -245,17 +270,10 @@ fun DeliveryInfoItem(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
+
             Spacer(Modifier.height(24.dp))
+
         }
 
-        if (deliveryInfo.isDefault) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_delivery_check),
-                contentDescription = "Default icon",
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .size(16.dp)
-            )
-        }
     }
 }

@@ -8,5 +8,7 @@ interface DeliveryRepository {
 
     suspend fun getDeliveryList(): Flow<List<DeliveryInfo>>
 
+    suspend fun deleteDeliveryInfo(id: Int)
+
 
 }

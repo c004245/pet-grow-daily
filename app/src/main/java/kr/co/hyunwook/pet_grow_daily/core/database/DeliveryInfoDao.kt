@@ -16,4 +16,7 @@ interface DeliveryInfoDao {
 
     @Query("SELECT * FROM DeliveryInfo ORDER BY id DESC")
     fun getDeliveryList(): Flow<List<DeliveryInfo>>
+
+    @Query("DELETE FROM DeliveryInfo WHERE id = :id")
+    suspend fun deleteDeliveryInfo(id: Int)
 }

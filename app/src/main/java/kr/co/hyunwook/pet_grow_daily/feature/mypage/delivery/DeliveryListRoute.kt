@@ -49,7 +49,13 @@ fun DeliveryListRoute(
     DeliveryListScreen(
         deliveryInfos = deliveryInfos,
         navigateToMyPage = navigateToMyPage,
-        navigateToDeliveryAdd = navigateToDeliveryAdd
+        navigateToDeliveryAdd = navigateToDeliveryAdd,
+        onEditClick = {
+
+        },
+        onDeleteClick = { deliveryId ->
+            viewModel.deleteDeliveryInfo(deliveryId)
+        }
     )
 
 }
@@ -58,7 +64,9 @@ fun DeliveryListRoute(
 fun DeliveryListScreen(
     deliveryInfos: List<DeliveryInfo>,
     navigateToMyPage: () -> Unit = {},
-    navigateToDeliveryAdd: () -> Unit = {}
+    navigateToDeliveryAdd: () -> Unit = {},
+    onEditClick: (DeliveryInfo) -> Unit = {},
+    onDeleteClick: (Int) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -81,9 +89,13 @@ fun DeliveryListScreen(
                     DeliveryInfoItem(
                         deliveryInfo = deliveryInfo,
                         onEditClick = {
+                            onEditClick(deliveryInfo)
                         },
                         onDeleteClick = {
+                            onDeleteClick(deliveryInfo.id)
+
                         }
+
                     )
                 }
             }

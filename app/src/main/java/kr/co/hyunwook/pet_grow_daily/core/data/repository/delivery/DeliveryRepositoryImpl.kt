@@ -16,4 +16,8 @@ class DeliveryRepositoryImpl @Inject constructor(
         return deliveryInfoDao.getDeliveryList()
 
     }
+
+    override suspend fun deleteDeliveryInfo(id: Int) {
+        deliveryInfoDao.deleteDeliveryInfo(id)
+    }
 }

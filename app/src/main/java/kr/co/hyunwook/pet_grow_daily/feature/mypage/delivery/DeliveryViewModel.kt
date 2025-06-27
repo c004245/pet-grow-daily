@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.DeleteDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
 import javax.inject.Inject
@@ -16,8 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DeliveryViewModel @Inject constructor(
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
-    private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase
-
+    private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
+    private val deleteDeliveryInfoUseCase: DeleteDeliveryInfoUseCase
 ) : ViewModel() {
 
     private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
@@ -32,6 +33,17 @@ class DeliveryViewModel @Inject constructor(
             getDeliveryListUseCase().collect {
                 _deliveryInfos.value = it
             }
+        }
+    }
+
+    fun deleteDeliveryInfo(id: Int) {
+        viewModelScope.launch {
+            try {
+                deleteDeliveryInfoUseCase(id)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
         }
     }
 

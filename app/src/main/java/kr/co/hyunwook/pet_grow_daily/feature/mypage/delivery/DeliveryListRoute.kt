@@ -65,7 +65,9 @@ fun DeliveryListScreen(
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        TitleDeliveryAppBar(stringResource(R.string.text_delivery_list))
+        TitleDeliveryAppBar(stringResource(R.string.text_delivery_list), navigateToBack = {
+            navigateToMyPage()
+        })
 
         if (deliveryInfos.isEmpty()) {
             EmptyDeliveryState(

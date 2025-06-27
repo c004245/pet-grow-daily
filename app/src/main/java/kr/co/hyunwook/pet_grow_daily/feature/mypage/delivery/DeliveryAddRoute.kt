@@ -60,6 +60,8 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import org.json.JSONObject
 
 @Composable
@@ -74,13 +76,17 @@ fun DeliveryAddRoute(
             }
         }
     }
-    DeliveryAddScreen(onSaveClick = { deliveryInfo ->
-        viewModel.saveDeliveryInfo(deliveryInfo)
-    })
+    DeliveryAddScreen(
+        onSaveClick = { deliveryInfo ->
+            viewModel.saveDeliveryInfo(deliveryInfo)
+        },
+        onBackClick = {
+            navigateToDeliveryList()
+        })
 }
 
 @Composable
-fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit) {
+fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit, onBackClick: () -> Unit) {
     var address by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     var detailAddress by remember { mutableStateOf("") }
@@ -103,7 +109,9 @@ fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit) {
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        TitleDeliveryAppBar(stringResource(R.string.text_address_search))
+        TitleDeliveryAppBar(stringResource(R.string.text_address_search), {
+            onBackClick()
+        })
         AddressNumberWidget(
             zipCode = zipCode,
             onAddressSearchClick = {
@@ -187,7 +195,6 @@ fun SaveButton(
             fontSize = 14.sp
         )
     }
-
 }
 
 @Composable
@@ -305,35 +312,32 @@ fun UserInfoDeliveryWidget(
             value = phoneNumber,
             onValueChange = { input ->
                 val digitsOnly = input.filter { it.isDigit() }
-                val formattedPhone = when {
-                    digitsOnly.length <= 3 -> digitsOnly
-                    digitsOnly.length <= 7 -> "${digitsOnly.substring(0, 3)}-${
-                        digitsOnly.substring(
-                            3
-                        )
-                    }"
+                if (digitsOnly.length <= 11) {
+                    val formattedPhone = when {
+                        digitsOnly.length <= 3 -> digitsOnly
+                        digitsOnly.length <= 7 -> "${
+                            digitsOnly.substring(
+                                0,
+                                3
+                            )
+                        }-${digitsOnly.substring(3)}"
 
-                    digitsOnly.length <= 11 -> "${
-                        digitsOnly.substring(
-                            0,
-                            3
-                        )
-                    }-${digitsOnly.substring(3, 7)}-${digitsOnly.substring(7)}"
-
-                    else -> "${digitsOnly.substring(0, 3)}-${
-                        digitsOnly.substring(
-                            3,
-                            7
-                        )
-                    }-${digitsOnly.substring(7, 11)}"
+                        else -> "${digitsOnly.substring(0, 3)}-${
+                            digitsOnly.substring(
+                                3,
+                                7
+                            )
+                        }-${digitsOnly.substring(7)}"
+                    }
+                    onPhoneNumberChange(formattedPhone)
                 }
-                onPhoneNumberChange(formattedPhone)
             },
             placeholder = { Text("휴대폰 번호") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(58.dp),
             shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
@@ -516,7 +520,7 @@ class PostcodeJavaScriptInterface(
 }
 
 @Composable
-fun TitleDeliveryAppBar(title: String) {
+fun TitleDeliveryAppBar(title: String, navigateToBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -528,7 +532,7 @@ fun TitleDeliveryAppBar(title: String) {
             contentDescription = "ic_back",
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .clickable { }
+                .clickable { navigateToBack() }
         )
         Text(
             text = title,

@@ -56,6 +56,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
@@ -67,9 +68,20 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DeliveryAddRoute(
+    deliveryId: Int? = null,
     viewModel: DeliveryViewModel = hiltViewModel(),
     navigateToDeliveryList: () -> Unit
 ) {
+    val selectedDeliveryInfo by viewModel.selectedDeliveryInfo.collectAsState()
+
+    LaunchedEffect(deliveryId) {
+        if (deliveryId != null) {
+            viewModel.getDeliveryInfoById(deliveryId)
+        } else {
+            viewModel.clearSelectedDeliveryInfo()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
@@ -77,17 +89,24 @@ fun DeliveryAddRoute(
             }
         }
     }
+
     DeliveryAddScreen(
+        selectedDeliveryInfo = selectedDeliveryInfo,
         onSaveClick = { deliveryInfo ->
             viewModel.saveDeliveryInfo(deliveryInfo)
         },
         onBackClick = {
             navigateToDeliveryList()
-        })
+        }
+    )
 }
 
 @Composable
-fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit, onBackClick: () -> Unit) {
+fun DeliveryAddScreen(
+    selectedDeliveryInfo: DeliveryInfo? = null,
+    onSaveClick: (DeliveryInfo) -> Unit,
+    onBackClick: () -> Unit
+) {
     var address by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     var detailAddress by remember { mutableStateOf("") }
@@ -96,14 +115,26 @@ fun DeliveryAddScreen(onSaveClick: (DeliveryInfo) -> Unit, onBackClick: () -> Un
     var showWebView by remember { mutableStateOf(false) }
     var isDefaultDelivery by remember { mutableStateOf(false) }
 
+    LaunchedEffect(selectedDeliveryInfo) {
+        selectedDeliveryInfo?.let { info ->
+            address = info.address
+            zipCode = info.zipCode
+            detailAddress = info.detailAddress
+            recipientName = info.name
+            phoneNumber = info.phoneNumber
+            isDefaultDelivery = info.isDefault
+        } ?: run {
+            address = ""
+            zipCode = ""
+            detailAddress = ""
+            recipientName = ""
+            phoneNumber = ""
+            isDefaultDelivery = false
+        }
+    }
+
     val isFormValid = zipCode.isNotEmpty() && address.isNotEmpty() &&
             detailAddress.isNotEmpty() && recipientName.isNotEmpty() && phoneNumber.isNotEmpty()
-
-    Log.d(
-        "DeliveryForm",
-        "zipCode: '$zipCode', address: '$address', detailAddress: '$detailAddress', recipientName: '$recipientName', phoneNumber: '$phoneNumber'"
-    )
-    Log.d("DeliveryForm", "isFormValid: $isFormValid")
 
     Column(
         modifier = Modifier
@@ -294,7 +325,15 @@ fun UserInfoDeliveryWidget(
     onRecipientNameChange: (String) -> Unit,
     onPhoneNumberChange: (String) -> Unit
 ) {
-    var phoneNumberValue by remember { mutableStateOf(TextFieldValue(phoneNumber)) }
+    var phoneNumberValue by remember { mutableStateOf(TextFieldValue("")) }
+
+    // phoneNumber가 변경될 때마다 phoneNumberValue 업데이트
+    LaunchedEffect(phoneNumber) {
+        phoneNumberValue = TextFieldValue(
+            text = phoneNumber,
+            selection = TextRange(phoneNumber.length)
+        )
+    }
 
     Column {
         OutlinedTextField(

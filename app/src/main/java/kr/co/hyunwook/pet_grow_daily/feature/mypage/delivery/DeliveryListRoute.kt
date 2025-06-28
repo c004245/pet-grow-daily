@@ -27,16 +27,15 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayAD
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun DeliveryListRoute(
     navigateToMyPage: () -> Unit,
-    navigateToDeliveryAdd: () -> Unit,
+    navigateToDeliveryAdd: (Int?) -> Unit,
     viewModel: DeliveryViewModel = hiltViewModel()
 ) {
 
@@ -50,8 +49,8 @@ fun DeliveryListRoute(
         deliveryInfos = deliveryInfos,
         navigateToMyPage = navigateToMyPage,
         navigateToDeliveryAdd = navigateToDeliveryAdd,
-        onEditClick = {
-
+        onEditClick = { deliveryId ->
+            navigateToDeliveryAdd(deliveryId)
         },
         onDeleteClick = { deliveryId ->
             viewModel.deleteDeliveryInfo(deliveryId)
@@ -64,8 +63,8 @@ fun DeliveryListRoute(
 fun DeliveryListScreen(
     deliveryInfos: List<DeliveryInfo>,
     navigateToMyPage: () -> Unit = {},
-    navigateToDeliveryAdd: () -> Unit = {},
-    onEditClick: (DeliveryInfo) -> Unit = {},
+    navigateToDeliveryAdd: (Int?) -> Unit = {},
+    onEditClick: (Int) -> Unit = {},
     onDeleteClick: (Int) -> Unit = {},
 ) {
     Column(
@@ -79,7 +78,9 @@ fun DeliveryListScreen(
 
         if (deliveryInfos.isEmpty()) {
             EmptyDeliveryState(
-                navigateToDeliveryAdd = navigateToDeliveryAdd
+                navigateToDeliveryAdd = {
+                    navigateToDeliveryAdd(null)
+                }
             )
         } else {
             LazyColumn(
@@ -89,13 +90,11 @@ fun DeliveryListScreen(
                     DeliveryInfoItem(
                         deliveryInfo = deliveryInfo,
                         onEditClick = {
-                            onEditClick(deliveryInfo)
+                            onEditClick(deliveryInfo.id)
                         },
                         onDeleteClick = {
                             onDeleteClick(deliveryInfo.id)
-
                         }
-
                     )
                 }
             }
@@ -103,7 +102,7 @@ fun DeliveryListScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = navigateToDeliveryAdd,
+                onClick = { navigateToDeliveryAdd(null) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(BorderStroke(1.dp, grayDE)),

@@ -10,5 +10,6 @@ interface DeliveryRepository {
 
     suspend fun deleteDeliveryInfo(id: Int)
 
+    suspend fun getDeliveryInfoById(id: Int): Flow<DeliveryInfo>
 
 }

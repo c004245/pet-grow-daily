@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.DeleteDeliveryInfoUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
 import javax.inject.Inject
@@ -18,7 +20,9 @@ import javax.inject.Inject
 class DeliveryViewModel @Inject constructor(
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
     private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
-    private val deleteDeliveryInfoUseCase: DeleteDeliveryInfoUseCase
+    private val deleteDeliveryInfoUseCase: DeleteDeliveryInfoUseCase,
+    private val getDeliveryInfoUseCase: GetDeliveryInfoUseCase
+
 ) : ViewModel() {
 
     private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
@@ -27,6 +31,8 @@ class DeliveryViewModel @Inject constructor(
     private val _saveDeliveryDoneEvent = MutableSharedFlow<Boolean>()
     val saveDeliveryDoneEvent: SharedFlow<Boolean> get() = _saveDeliveryDoneEvent
 
+    private val _selectedDeliveryInfo = MutableStateFlow<DeliveryInfo?>(null)
+    val selectedDeliveryInfo: StateFlow<DeliveryInfo?> get() = _selectedDeliveryInfo
 
     fun getDeliveryList() {
         viewModelScope.launch {
@@ -36,6 +42,18 @@ class DeliveryViewModel @Inject constructor(
         }
     }
 
+    fun getDeliveryInfoById(id: Int) {
+        viewModelScope.launch {
+            getDeliveryInfoUseCase(id).collect {
+                _selectedDeliveryInfo.value = it
+            }
+        }
+    }
+
+    fun clearSelectedDeliveryInfo() {
+        _selectedDeliveryInfo.value = null
+    }
+
     fun deleteDeliveryInfo(id: Int) {
         viewModelScope.launch {
             try {
@@ -43,7 +61,6 @@ class DeliveryViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 
@@ -54,7 +71,6 @@ class DeliveryViewModel @Inject constructor(
                 _saveDeliveryDoneEvent.emit(true)
             } catch (e: Exception) {
                 _saveDeliveryDoneEvent.emit(false)
-
             }
         }
     }

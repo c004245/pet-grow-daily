@@ -3,9 +3,11 @@ package kr.co.hyunwook.pet_grow_daily.feature.main
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
@@ -14,14 +16,12 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoardi
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
-import android.util.Log
-import androidx.navigation.NavHostController
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
 
 
 class MainNavigator(
@@ -84,9 +84,10 @@ class MainNavigator(
     }
 
     fun navigateToDeliveryAdd(
+        deliveryId: Int? = null,
         navOptions: NavOptions? = null
     ) {
-        navController.navigate(DeliveryAdd, navOptions = navOptions)
+        navController.navigate(DeliveryAdd(deliveryId), navOptions = navOptions)
     }
 
     fun navigateToRecordWrite(
@@ -100,13 +101,11 @@ class MainNavigator(
     @Composable
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        Log.d("HWO", "currentRoute -> $currentRoute")
         return currentRoute == Album || currentRoute == Order || currentRoute == MyPage || currentRoute == AnotherPet
     }
 }
 
 fun findRouteFromDestination(route: String?): Route? {
-    Log.d("HWO", "findRouteFrom -> $route")
     return when (route) {
         Splash.route -> Splash
         Album.route -> Album
@@ -119,7 +118,7 @@ fun findRouteFromDestination(route: String?): Route? {
         RecordWriteTab.route -> RecordWriteTab
         AnotherPet.route -> AnotherPet
         DeliveryList.route -> DeliveryList
-        DeliveryAdd.route -> DeliveryAdd
+        DeliveryAdd().route -> DeliveryAdd()
         else -> null
     }
 }

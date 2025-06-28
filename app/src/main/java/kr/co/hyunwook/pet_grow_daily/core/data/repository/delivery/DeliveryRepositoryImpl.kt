@@ -7,11 +7,12 @@ import javax.inject.Inject
 
 class DeliveryRepositoryImpl @Inject constructor(
     private val deliveryInfoDao: DeliveryInfoDao,
-): DeliveryRepository {
+) : DeliveryRepository {
 
     override suspend fun insertDeliveryInfo(deliveryInfo: DeliveryInfo) {
         deliveryInfoDao.insertDeliveryInfo(deliveryInfo)
     }
+
     override suspend fun getDeliveryList(): Flow<List<DeliveryInfo>> {
         return deliveryInfoDao.getDeliveryList()
 
@@ -20,4 +21,9 @@ class DeliveryRepositoryImpl @Inject constructor(
     override suspend fun deleteDeliveryInfo(id: Int) {
         deliveryInfoDao.deleteDeliveryInfo(id)
     }
+
+    override suspend fun getDeliveryInfoById(id: Int): Flow<DeliveryInfo> {
+        return deliveryInfoDao.getDeliveryInfoById(id)
+    }
+
 }

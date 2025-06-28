@@ -34,14 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.navOptions
-import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
@@ -54,8 +53,11 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.navOptions
+import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
 
@@ -123,7 +125,6 @@ internal fun MainScreen(
                     totalNavGraph()
                     myPageNavGraph(
                         navigateToDeliveryList = {
-                            Log.d("HWO", "navigateToDelivary")
                              navigate(navigator, NavigateEnum.DELIVERY_LIST)
                         }
                     )
@@ -168,14 +169,10 @@ internal fun MainScreen(
                     deliveryListNavGraph(
                         navigateToMyPage = {
                             navigate(navigator, NavigateEnum.MYPAGE)
-
                         },
-                        navigateToDeliveryAdd = {
-                            navigate(navigator, NavigateEnum.DELIVERY_ADD)
-
-
+                        navigateToDeliveryAdd = { deliveryId ->
+                            navigator.navigateToDeliveryAdd(deliveryId)
                         }
-
                     )
 
                 }
@@ -196,13 +193,13 @@ internal fun MainScreen(
                         navigatorEnum = NavigateEnum.ORDER
                         navigate(navigator, NavigateEnum.ORDER)
                     },
-                    onMyPageClick = {
-                        navigatorEnum = NavigateEnum.MYPAGE
-                        navigate(navigator, NavigateEnum.MYPAGE)
-                    },
                     onAnotherPetClick = {
                         navigatorEnum = NavigateEnum.ANOTHERPET
                         navigate(navigator, NavigateEnum.ANOTHERPET)
+                    },
+                    onMyPageClick = {
+                        navigatorEnum = NavigateEnum.MYPAGE
+                        navigate(navigator, NavigateEnum.MYPAGE)
                     },
                     navigateEnum = navigatorEnum
                 )
@@ -404,4 +401,3 @@ fun MainScreenPreview() {
 enum class NavigateEnum {
     ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY_ADD, DELIVERY_LIST
 }
-

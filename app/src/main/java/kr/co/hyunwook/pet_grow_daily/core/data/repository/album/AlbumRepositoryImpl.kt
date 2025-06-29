@@ -29,6 +29,9 @@ class AlbumRepositoryImpl @Inject constructor(
         val userId = getUserId()
         firestoreDataSource.savePetProfile(profile, userId)
     }
+    override suspend fun getPetProfile(): Flow<PetProfile?> {
+        return albumRecordDao.getPetProfile()
+    }
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
         albumRecordDao.insertAlbumRecord(albumRecord)
 

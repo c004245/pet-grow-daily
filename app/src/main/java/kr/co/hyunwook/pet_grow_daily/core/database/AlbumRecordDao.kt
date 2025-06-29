@@ -33,6 +33,10 @@ interface AlbumRecordDao {
         ORDER BY date DESC
     """)
     fun getAllImageAsList(): Flow<List<AlbumImageModel>>
+
+    @Query("SELECT * FROM PetProfile LIMIT 1")
+    fun getPetProfile(): Flow<PetProfile?>
+
 //    @Query(""" SELECT * FROM GrowRecord  WHERE strftime('%m', DATE(timeStamp / 1000, 'unixepoch', 'localtime')) = :month""")
 //    fun getMonthlyGrowRecords(month: String): Flow<List<GrowRecord>>
 //
@@ -42,6 +46,5 @@ interface AlbumRecordDao {
 //        categoryType: CategoryType,
 //        month: String
 //    ): Flow<List<GrowRecord>>
-
 
 }

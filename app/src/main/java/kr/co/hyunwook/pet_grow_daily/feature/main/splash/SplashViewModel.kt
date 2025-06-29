@@ -9,14 +9,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetHasCompletedOnBoardingUseCase
-import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetPetProfileUseCase
-import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.OnBoardingViewModel.LoginState
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasPetProfileUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val getHasCompletedOnBoardingUseCase: GetHasCompletedOnBoardingUseCase,
-    private val getPetProfileUseCase: GetPetProfileUseCase
+    private val hasPetProfileUseCase: HasPetProfileUseCase
 ) : ViewModel() {
     private val _sideEffects = MutableSharedFlow<SplashSideEffect>()
     val sideEffects: SharedFlow<SplashSideEffect> get() = _sideEffects.asSharedFlow()
@@ -26,7 +25,7 @@ class SplashViewModel @Inject constructor(
             delay(SPLASH_DURATION)
             getHasCompletedOnBoardingUseCase.invoke().collect { isComplete ->
                 if (isComplete) {
-                    getPetProfileUseCase().collect { hasPetProfile ->
+                    hasPetProfileUseCase().collect { hasPetProfile ->
                         if (hasPetProfile) {
                             _sideEffects.emit(SplashSideEffect.NavigateToAlbum)
                         } else {

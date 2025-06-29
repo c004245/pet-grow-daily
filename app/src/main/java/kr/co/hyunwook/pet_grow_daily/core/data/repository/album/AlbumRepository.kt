@@ -16,8 +16,10 @@ interface AlbumRepository {
     suspend fun getUserAlbumCount(): Int
 
     suspend fun hasPetProfile(): Flow<Boolean>
-    suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
 
+    suspend fun getPetProfile(): Flow<PetProfile?>
+
+    suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
 
     suspend fun getAlbumRecord(): Flow<List<AlbumRecord>>
 

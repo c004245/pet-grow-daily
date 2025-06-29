@@ -4,16 +4,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetPetProfileUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveLoginStateUseCase
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasPetProfileUseCase
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
     private val saveLoginStateUseCase: SaveLoginStateUseCase,
-    private val getPetProfileUseCase: GetPetProfileUseCase
+    private val hasPetProfileUseCase: HasPetProfileUseCase
 
 ): ViewModel() {
 
@@ -25,7 +25,7 @@ class OnBoardingViewModel @Inject constructor(
             try {
                 saveLoginStateUseCase(userId)
 
-                getPetProfileUseCase().collect { hasPetProfile ->
+                hasPetProfileUseCase().collect { hasPetProfile ->
                     if (hasPetProfile) {
                         _loginState.value = LoginState.SuccessAlbum
                     } else {

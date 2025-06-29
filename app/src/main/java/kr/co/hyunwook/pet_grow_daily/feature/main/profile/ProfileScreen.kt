@@ -48,6 +48,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalFocusManager
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun ProfileScreen(
@@ -127,14 +131,20 @@ fun ProfileScreen(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator(
-                        color = purple6C,
-                        modifier = Modifier.size(48.dp)
+                    val composition by rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(R.raw.loading_animation)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .height(200.dp)
+                    )
                     Text(
-                        text = "프로필을 저장하는 중입니다...",
-                        style = PetgrowTheme.typography.medium,
+                        text = stringResource(R.string.text_save_profile),
+                        style = PetgrowTheme.typography.bold,
                         color = Color.White,
                         fontSize = 16.sp
                     )

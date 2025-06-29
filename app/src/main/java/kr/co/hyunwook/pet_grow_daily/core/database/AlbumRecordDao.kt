@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 
 @Dao
 interface AlbumRecordDao {
@@ -17,6 +18,9 @@ interface AlbumRecordDao {
     //저장
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAlbumRecord(record: AlbumRecord)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun savePetProfile(petProfile: PetProfile)
 
     //앨범 데이터 불러오기
     @Query("SELECT * FROM AlbumRecord ORDER BY date DESC")

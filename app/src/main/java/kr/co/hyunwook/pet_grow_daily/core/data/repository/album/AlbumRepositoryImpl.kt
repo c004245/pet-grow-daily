@@ -24,6 +24,8 @@ class AlbumRepositoryImpl @Inject constructor(
         return firestoreDataSource.hasPetProfile(userId)
     }
     override suspend fun savePetProfile(profile: PetProfile) {
+        albumRecordDao.savePetProfile(profile)
+
         val userId = getUserId()
         firestoreDataSource.savePetProfile(profile, userId)
     }

@@ -24,7 +24,9 @@ data class AnotherPetModel(
     val content: String
 )
 
+@Entity
 data class PetProfile(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val profileImageUrl: String,
 )

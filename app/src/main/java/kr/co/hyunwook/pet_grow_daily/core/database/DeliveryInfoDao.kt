@@ -23,4 +23,7 @@ interface DeliveryInfoDao {
     @Query("SELECT * FROM deliveryinfo WHERE id = :id")
     fun getDeliveryInfoById(id: Int): Flow<DeliveryInfo>
 
+    @Query("UPDATE DeliveryInfo SET isDefault = 0 WHERE isDefault = 1")
+    suspend fun clearAllDefaultDelivery()
+
 }

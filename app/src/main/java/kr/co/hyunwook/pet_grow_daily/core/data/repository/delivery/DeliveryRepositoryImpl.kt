@@ -10,12 +10,14 @@ class DeliveryRepositoryImpl @Inject constructor(
 ) : DeliveryRepository {
 
     override suspend fun insertDeliveryInfo(deliveryInfo: DeliveryInfo) {
+        if (deliveryInfo.isDefault) {
+            deliveryInfoDao.clearAllDefaultDelivery()
+        }
         deliveryInfoDao.insertDeliveryInfo(deliveryInfo)
     }
 
     override suspend fun getDeliveryList(): Flow<List<DeliveryInfo>> {
         return deliveryInfoDao.getDeliveryList()
-
     }
 
     override suspend fun deleteDeliveryInfo(id: Int) {

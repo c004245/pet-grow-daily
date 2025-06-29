@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
+import android.net.Uri
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -48,6 +48,9 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
 
 @Composable
 fun MyPageRoute(
@@ -57,12 +60,24 @@ fun MyPageRoute(
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
 
+    // 갤러리 런처
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.updateProfileImage(it.toString())
+        }
+    }
+
     LaunchedEffect(Unit) {
 
     }
 
     MyPageScreen(
         petProfile = petProfile,
+        onCameraClick = {
+            galleryLauncher.launch("image/*")
+        },
         onClickLogout = {
 
         },
@@ -87,6 +102,7 @@ fun MyPageRoute(
 @Composable
 fun MyPageScreen(
     petProfile: PetProfile?,
+    onCameraClick: () -> Unit,
     onClickLogout: () -> Unit,
     onClickTerm: () -> Unit,
     onClickPrivacy: () -> Unit,
@@ -114,7 +130,7 @@ fun MyPageScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            MyProfileInfo(petProfile)
+            MyProfileInfo(petProfile, onCameraClick)
             Spacer(Modifier.height(12.dp))
             AlarmInfo(onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
@@ -141,7 +157,7 @@ fun MyPageScreen(
 }
 
 @Composable
-fun MyProfileInfo(petProfile: PetProfile?) {
+fun MyProfileInfo(petProfile: PetProfile?, onCameraClick: () -> Unit) {
     CommonRoundedBox {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -184,6 +200,7 @@ fun MyProfileInfo(petProfile: PetProfile?) {
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .size(20.dp)
+                        .clickable { onCameraClick() }
                 )
             }
 
@@ -214,7 +231,7 @@ fun AlarmInfo(
     ) {
         Column {
 
-        Row(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {

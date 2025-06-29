@@ -16,6 +16,7 @@ androidxDatastore = "1.1.1"
 kotest = "5.7.2"
 kotest-mockk = "1.2.0"
 mockk = "1.13.14"
+lottie-compose  = "6.1.0"
 
 ## Hilt
 hilt = "2.51.1"
@@ -87,6 +88,7 @@ accompanist-pager-indicator = { group = "com.google.accompanist", name = "accomp
 kakao-login = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakao"}
 firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx"}
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebase-storage"}
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie-compose" }
 
 
 [plugins]

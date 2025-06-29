@@ -113,6 +113,9 @@ dependencies {
     // 아임포트 SDK
     implementation("com.github.iamport:iamport-android:1.4.8")
 
+    implementation(libs.lottie.compose)
+
+
 }
 
 tasks.withType<Test> {

@@ -2,6 +2,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -114,6 +118,10 @@ fun AlbumListSelectWidget(
     modifier: Modifier,
     albumRecordItem: List<AlbumRecord>
 ) {
+    var selectedItems by remember { mutableStateOf(setOf<Int>()) }
+
+    val selectedCount = selectedItems.size * 2
+    val isButtonEnabled = selectedCount == 40
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -128,7 +136,15 @@ fun AlbumListSelectWidget(
             itemsIndexed(albumRecordItem) { index, item ->
                 AlbumSelectCard(
                     albumRecord = item,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isSelected = selectedItems.contains(index),
+                    onSelectionChange = {
+                        selectedItems = if (selectedItems.contains(index)) {
+                            selectedItems - index
+                        } else {
+                            selectedItems + index
+                        }
+                    }
                 )
             }
         }
@@ -137,17 +153,21 @@ fun AlbumListSelectWidget(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-                .clickable {  }
+                .clickable {
+                    if (isButtonEnabled) { /* 버튼 클릭 로직 */
+                    }
+                }
                 .clip(RoundedCornerShape(14.dp))
-                .background(purple6C)
+                .background(if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f))
         ) {
-
             Text(
-                text = "사진 선택 (0/40)",
+                text = "사진 선택 ($selectedCount/40)",
                 color = Color.White,
                 fontSize = 14.sp,
                 style = PetgrowTheme.typography.medium,
-                modifier = Modifier.padding(top = 14.dp, bottom = 14.dp).align(Alignment.Center)
+                modifier = Modifier
+                    .padding(top = 14.dp, bottom = 14.dp)
+                    .align(Alignment.Center)
             )
         }
     }
@@ -156,12 +176,15 @@ fun AlbumListSelectWidget(
 @Composable
 fun AlbumSelectCard(
     albumRecord: AlbumRecord,
-    modifier: Modifier
+    modifier: Modifier,
+    isSelected: Boolean = false,
+    onSelectionChange: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .clickable { onSelectionChange() }
     ) {
         Box(
             modifier = Modifier
@@ -173,7 +196,14 @@ fun AlbumSelectCard(
                     spotColor = Color(0x0D000000),
                     ambientColor = Color(0x0D000000)
                 )
-                .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
+                .clip(RoundedCornerShape(16.dp))
+                .then(
+                    if (isSelected) {
+                        Modifier.border(2.dp, purple6C, RoundedCornerShape(16.dp))
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             Box(
                 modifier = Modifier
@@ -209,6 +239,17 @@ fun AlbumSelectCard(
                 )
             }
         }
+
+        // 선택 상태 아이콘
+        Image(
+            painter = painterResource(
+                if (isSelected) R.drawable.ic_select else R.drawable.ic_unselect
+            ),
+            contentDescription = if (isSelected) "selected" else "unselected",
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+        )
     }
 }
 

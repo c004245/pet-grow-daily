@@ -10,10 +10,13 @@ import android.util.Log
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
-    private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase
+    private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase,
+    private val getAlbumRecordUseCase: GetAlbumRecordUseCase
 ): ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -26,6 +29,16 @@ class OrderViewModel @Inject constructor(
     val paymentResult: StateFlow<PaymentResult?> = _paymentResult
 
 
+    private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
+    val albumRecord: StateFlow<List<AlbumRecord>> get() = _albumRecord
+
+    fun getAlbumSelectRecord() {
+        viewModelScope.launch {
+            getAlbumRecordUseCase().collect { records ->
+                _albumRecord.value = records
+            }
+        }
+    }
     fun getUserAlbumCount() {
         viewModelScope.launch {
             val userAlbumCount = getUserAlbumCountUseCase()

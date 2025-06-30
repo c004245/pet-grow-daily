@@ -76,6 +76,7 @@ import android.os.Bundle
 
 @Composable
 fun OrderRoute(
+    navigateToAlbumSelect: () -> Unit,
     viewModel: OrderViewModel = hiltViewModel()
 ) {
 
@@ -121,7 +122,8 @@ fun OrderRoute(
     } else {
         OrderScreen(
             onClickRequestPayment = {
-                viewModel.requestKakaoPayPayment()
+                navigateToAlbumSelect()
+//                viewModel.requestKakaoPayPayment()
             }
         )
     }

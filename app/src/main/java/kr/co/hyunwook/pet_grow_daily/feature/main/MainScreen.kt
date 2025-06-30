@@ -60,6 +60,7 @@ import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,7 +151,14 @@ internal fun MainScreen(
                         }
                     )
 
-                    orderNavGraph()
+                    orderNavGraph(
+                        navigateToAlbumSelect = {
+                            navigate(navigator, NavigateEnum.ALBUM_SELECT)
+
+                        }
+                    )
+
+                    albumSelectNavGraph()
                     recordWriteGraph(
                         navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
@@ -241,6 +249,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.DELIVERY_ADD -> {
             navigator.navigateToDeliveryAdd(navOptions = navOptions)
+        }
+        NavigateEnum.ALBUM_SELECT -> {
+            navigator.navigateToAlbumSelect(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -399,5 +410,5 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY_ADD, DELIVERY_LIST
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT
 }

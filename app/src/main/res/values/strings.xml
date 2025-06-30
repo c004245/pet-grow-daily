@@ -9,6 +9,7 @@
     <string name="text_total_title">모아보기</string>
     <string name="text_not_today_grow">오늘의 기록이 없어요.</string>
     <string name="text_picture_add">사진 추가</string>
+    <string name="text_picture_select">앨범에 만들 사진 고르기</string>
     <string name="text_take_a_look">둘러보기</string>
     <string name="text_record_write">기록 작성</string>
     <string name="text_category_add">카테고리</string>

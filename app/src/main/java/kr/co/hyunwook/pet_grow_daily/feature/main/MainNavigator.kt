@@ -18,6 +18,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
@@ -96,6 +97,12 @@ class MainNavigator(
     ) {
         navController.navigate(
             RecordWrite.createRoute(selectedImageUris), navOptions = navOptions)
+    }
+
+    fun navigateToAlbumSelect(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(AlbumSelect, navOptions)
     }
 
     @Composable

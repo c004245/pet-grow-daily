@@ -16,7 +16,9 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoardi
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
@@ -90,6 +92,20 @@ class MainNavigator(
     ) {
         navController.navigate(DeliveryAdd(deliveryId), navOptions = navOptions)
     }
+
+    fun navigateToDeliveryRegister(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(DeliveryRegister, navOptions = navOptions)
+    }
+
+    fun navigateToDeliveryCheck(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(DeliveryCheck, navOptions = navOptions)
+    }
+
+
 
     fun navigateToRecordWrite(
         selectedImageUris: List<String>,

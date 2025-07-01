@@ -33,6 +33,22 @@ fun NavGraphBuilder.deliveryAddNavGraph(
     }
 }
 
+fun NavGraphBuilder.deliveryCheckNavGraph(
+
+
+) {
+    composable<DeliveryCheck> {
+
+    }
+
+}
+
+fun NavGraphBuilder.deliveryRegisterNavGraph(
+) {
+    composable<DeliveryRegister> {  }
+
+}
+
 @Serializable
 data object DeliveryList : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList"
@@ -41,4 +57,16 @@ data object DeliveryList : Route {
 @Serializable
 data class DeliveryAdd(val deliveryId: Int? = null) : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd"
+}
+
+
+@Serializable
+data object DeliveryRegister: Route {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister"
+}
+
+
+@Serializable
+data object DeliveryCheck: Route {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck"
 }

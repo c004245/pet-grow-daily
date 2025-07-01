@@ -59,7 +59,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryCheckNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryRegisterNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,7 +128,7 @@ internal fun MainScreen(
                     totalNavGraph()
                     myPageNavGraph(
                         navigateToDeliveryList = {
-                             navigate(navigator, NavigateEnum.DELIVERY_LIST)
+                            navigate(navigator, NavigateEnum.DELIVERY_LIST)
                         }
                     )
 
@@ -158,7 +160,16 @@ internal fun MainScreen(
                         }
                     )
 
-                    albumSelectNavGraph()
+                    albumSelectNavGraph(
+                        navigateToDeliveryCheck = {
+                            navigate(navigator, NavigateEnum.DELIVERY_CHECK)
+
+                        },
+                        navigateToDeliveryRegister = {
+                            navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
+
+                        }
+                    )
                     recordWriteGraph(
                         navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
@@ -168,7 +179,9 @@ internal fun MainScreen(
 
                     anotherPetGraph()
 
-                    deliveryAddNavGraph (
+                    deliveryCheckNavGraph()
+                    deliveryRegisterNavGraph()
+                    deliveryAddNavGraph(
                         navigateToDeliveryList = {
                             navigate(navigator, NavigateEnum.DELIVERY_LIST)
                         }
@@ -229,30 +242,47 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         NavigateEnum.ALBUM -> {
             navigator.navigateToAlbum(navOptions = navOptions)
         }
+
         NavigateEnum.ORDER -> {
             navigator.navigateToOrder(navOptions = navOptions)
         }
+
         NavigateEnum.ANOTHERPET -> {
             navigator.navigateToAnotherPet(navOptions = navOptions)
         }
+
         NavigateEnum.MYPAGE -> {
             navigator.navigateToMyPage(navOptions = navOptions)
         }
+
         NavigateEnum.ADD -> {
             navigator.navigateToAdd(navOptions = navOptions)
         }
+
         NavigateEnum.PROFILE -> {
             navigator.navigateToProfile(navOptions = navOptions)
         }
+
         NavigateEnum.DELIVERY_LIST -> {
             navigator.navigateToDeliveryList(navOptions = navOptions)
         }
+
         NavigateEnum.DELIVERY_ADD -> {
             navigator.navigateToDeliveryAdd(navOptions = navOptions)
         }
+
+        NavigateEnum.DELIVERY_CHECK -> {
+            navigator.navigateToDeliveryCheck(navOptions = navOptions)
+        }
+
+        NavigateEnum.DELIVERY_REGISTER -> {
+            navigator.navigateToDeliveryRegister(navOptions = navOptions)
+        }
+
         NavigateEnum.ALBUM_SELECT -> {
             navigator.navigateToAlbumSelect(navOptions = navOptions)
         }
+
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
         }
@@ -300,103 +330,103 @@ fun CustomBottomBar(
                 )
             },
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-    )  {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clickable {
-                            onAlbumClick()
-                        }
-                        .weight(1f)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable {
+                        onAlbumClick()
+                    }
+                    .weight(1f)
 
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = R.drawable.ic_album_tab
-                        ),
-                        tint = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86,
-                        contentDescription = "Album",
-                    )
-                    Text(
-                        text = stringResource(id = R.string.text_album_title),
-                        style = PetgrowTheme.typography.medium,
-                        fontSize = 11.sp,
-                        color = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clickable {
-                            onOrderClick()
-                        }
-                        .weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = R.drawable.ic_order_tab
-                        ),
-                        tint = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
-                        contentDescription = "order",
-                    )
-                    Text(
-                        text = stringResource(id = R.string.text_order_title),
-                        fontSize = 11.sp,
-                        style = PetgrowTheme.typography.medium,
-                        color = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clickable {
-                            onAnotherPetClick()
-                        }
-                        .weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = R.drawable.ic_anotherpet_tab
-                        ),
-                        tint = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86, // 상태에 따른 색상 변경
-                        contentDescription = "order",
-                    )
-                    Text(
-                        text = stringResource(id = R.string.text_another_title),
-                        fontSize = 11.sp,
-                        style = PetgrowTheme.typography.medium,
-                        color = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clickable {
-                            onMyPageClick()
-                        }
-                        .weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = R.drawable.ic_mypage_tab
-                        ),
-                        tint = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
-                        contentDescription = "order",
-                    )
-                    Text(
-                        text = stringResource(id = R.string.text_mypage_title),
-                        fontSize = 11.sp,
-                        style = PetgrowTheme.typography.medium,
-                        color = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86
-                    )
-                }
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.ic_album_tab
+                    ),
+                    tint = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86,
+                    contentDescription = "Album",
+                )
+                Text(
+                    text = stringResource(id = R.string.text_album_title),
+                    style = PetgrowTheme.typography.medium,
+                    fontSize = 11.sp,
+                    color = if (navigateEnum == NavigateEnum.ALBUM) purple6C else gray86
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable {
+                        onOrderClick()
+                    }
+                    .weight(1f)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.ic_order_tab
+                    ),
+                    tint = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
+                    contentDescription = "order",
+                )
+                Text(
+                    text = stringResource(id = R.string.text_order_title),
+                    fontSize = 11.sp,
+                    style = PetgrowTheme.typography.medium,
+                    color = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable {
+                        onAnotherPetClick()
+                    }
+                    .weight(1f)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.ic_anotherpet_tab
+                    ),
+                    tint = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86, // 상태에 따른 색상 변경
+                    contentDescription = "order",
+                )
+                Text(
+                    text = stringResource(id = R.string.text_another_title),
+                    fontSize = 11.sp,
+                    style = PetgrowTheme.typography.medium,
+                    color = if (navigateEnum == NavigateEnum.ANOTHERPET) purple6C else gray86
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable {
+                        onMyPageClick()
+                    }
+                    .weight(1f)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.ic_mypage_tab
+                    ),
+                    tint = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86, // 상태에 따른 색상 변경
+                    contentDescription = "order",
+                )
+                Text(
+                    text = stringResource(id = R.string.text_mypage_title),
+                    fontSize = 11.sp,
+                    style = PetgrowTheme.typography.medium,
+                    color = if (navigateEnum == NavigateEnum.MYPAGE) purple6C else gray86
+                )
             }
         }
+    }
 
 }
 
@@ -410,5 +440,7 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE, PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT
+    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
+    PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
+    DELIVERY_REGISTER, DELIVERY_CHECK
 }

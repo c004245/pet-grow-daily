@@ -18,10 +18,14 @@ fun NavGraphBuilder.orderNavGraph(
 }
 
 fun NavGraphBuilder.albumSelectNavGraph(
+    navigateToDeliveryCheck: () -> Unit,
+    navigateToDeliveryRegister: () -> Unit
 
 ) {
     composable<AlbumSelect> {
         AlbumSelectRoute(
+            navigateToDeliveryCheck = navigateToDeliveryCheck,
+            navigateToDeliveryRegister = navigateToDeliveryRegister
 
         )
     }

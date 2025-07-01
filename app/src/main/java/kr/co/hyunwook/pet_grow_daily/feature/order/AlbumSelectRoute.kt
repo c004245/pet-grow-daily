@@ -58,7 +58,9 @@ import kr.co.hyunwook.pet_grow_daily.util.formatDate
 
 @Composable
 fun AlbumSelectRoute(
-    viewModel: OrderViewModel = hiltViewModel()
+    viewModel: OrderViewModel = hiltViewModel(),
+    navigateToDeliveryRegister: () -> Unit,
+    navigateToDeliveryCheck: () -> Unit
 
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -74,7 +76,9 @@ fun AlbumSelectRoute(
             delay(100)
             if (hasDeliveryInfo) {
                 Log.d("HWO", "hasDeliveryInfo true")
+                navigateToDeliveryCheck()
             } else {
+                navigateToDeliveryRegister()
                 Log.d("HWO", "hasDeliveryInfo false")
             }
             shouldNavigate = false

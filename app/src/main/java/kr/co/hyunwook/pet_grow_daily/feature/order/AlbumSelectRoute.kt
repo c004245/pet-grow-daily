@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -60,19 +62,38 @@ fun AlbumSelectRoute(
 
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
+    val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
+    var shouldNavigate by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
     }
 
+    LaunchedEffect(hasDeliveryInfo, shouldNavigate) {
+        if (shouldNavigate) {
+            delay(100)
+            if (hasDeliveryInfo) {
+                Log.d("HWO", "hasDeliveryInfo true")
+            } else {
+                Log.d("HWO", "hasDeliveryInfo false")
+            }
+            shouldNavigate = false
+        }
+    }
+
     AlbumSelectScreen(
-        albumRecord = albumRecord
+        albumRecord = albumRecord,
+        navigateToDeliveryInfo = {
+            viewModel.checkDeliveryInfo()
+            shouldNavigate = true
+        }
     )
 }
 
 @Composable
 fun AlbumSelectScreen(
-    albumRecord: List<AlbumRecord>
+    albumRecord: List<AlbumRecord>,
+    navigateToDeliveryInfo: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -80,7 +101,8 @@ fun AlbumSelectScreen(
         TitleAppBar()
         AlbumListSelectWidget(
             modifier = Modifier.padding(top = 16.dp),
-            albumRecordItem = albumRecord
+            albumRecordItem = albumRecord,
+            navigateToDeliveryInfo = navigateToDeliveryInfo
         )
     }
 }
@@ -116,12 +138,13 @@ fun TitleAppBar() {
 @Composable
 fun AlbumListSelectWidget(
     modifier: Modifier,
-    albumRecordItem: List<AlbumRecord>
+    albumRecordItem: List<AlbumRecord>,
+    navigateToDeliveryInfo: () -> Unit
 ) {
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
 
     val selectedCount = selectedItems.size * 2
-    val isButtonEnabled = selectedCount == 40
+    val isButtonEnabled = selectedCount == 4
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -154,14 +177,15 @@ fun AlbumListSelectWidget(
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .clickable {
-                    if (isButtonEnabled) { /* 버튼 클릭 로직 */
+                    if (isButtonEnabled) {
+                        navigateToDeliveryInfo()
                     }
                 }
                 .clip(RoundedCornerShape(14.dp))
                 .background(if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f))
         ) {
             Text(
-                text = "사진 선택 ($selectedCount/40)",
+                text = "사진 선택 ($selectedCount/4)",
                 color = Color.White,
                 fontSize = 14.sp,
                 style = PetgrowTheme.typography.medium,

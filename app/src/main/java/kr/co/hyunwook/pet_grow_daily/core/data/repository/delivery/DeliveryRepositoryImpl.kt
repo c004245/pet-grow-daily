@@ -28,4 +28,7 @@ class DeliveryRepositoryImpl @Inject constructor(
         return deliveryInfoDao.getDeliveryInfoById(id)
     }
 
+    override suspend fun hasDeliveryInfo(): Flow<Boolean> {
+        return deliveryInfoDao.hasDeliveryInfo()
+    }
 }

@@ -26,4 +26,6 @@ interface DeliveryInfoDao {
     @Query("UPDATE DeliveryInfo SET isDefault = 0 WHERE isDefault = 1")
     suspend fun clearAllDefaultDelivery()
 
+    @Query("SELECT EXISTS(SELECT 1 FROM DeliveryInfo LIMIT 1)")
+    fun hasDeliveryInfo(): Flow<Boolean>
 }

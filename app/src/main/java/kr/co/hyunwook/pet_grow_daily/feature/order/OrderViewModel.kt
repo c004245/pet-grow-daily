@@ -12,11 +12,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
     private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase,
-    private val getAlbumRecordUseCase: GetAlbumRecordUseCase
+    private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
+    private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase
 ): ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -31,6 +33,19 @@ class OrderViewModel @Inject constructor(
 
     private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
     val albumRecord: StateFlow<List<AlbumRecord>> get() = _albumRecord
+
+    private val _hasDeliveryInfo = MutableStateFlow<Boolean>(false)
+    val hasDeliveryInfo: StateFlow<Boolean> get() = _hasDeliveryInfo
+
+    fun checkDeliveryInfo() {
+        viewModelScope.launch {
+            hasDeliveryInfoUseCase().collect { hasInfo ->
+                Log.d("HWO", "hasDelivery Info -> $hasInfo")
+
+                _hasDeliveryInfo.value = hasInfo
+            }
+        }
+    }
 
     fun getAlbumSelectRecord() {
         viewModelScope.launch {

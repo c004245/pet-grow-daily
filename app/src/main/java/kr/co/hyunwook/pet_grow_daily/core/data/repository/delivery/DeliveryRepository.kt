@@ -12,4 +12,6 @@ interface DeliveryRepository {
 
     suspend fun getDeliveryInfoById(id: Int): Flow<DeliveryInfo>
 
+    suspend fun hasDeliveryInfo(): Flow<Boolean>
+
 }

@@ -1,4 +1,4 @@
-package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
+package kr.co.hyunwook.pet_grow_daily.feature.delivery
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -84,9 +84,10 @@ fun DeliveryListScreen(
             )
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.padding(top = 24.dp)
             ) {
-                items(deliveryInfos) { deliveryInfo ->
+                items(deliveryInfos.size) { index ->
+                    val deliveryInfo = deliveryInfos[index]
                     DeliveryInfoItem(
                         deliveryInfo = deliveryInfo,
                         onEditClick = {
@@ -96,6 +97,16 @@ fun DeliveryListScreen(
                             onDeleteClick(deliveryInfo.id)
                         }
                     )
+
+                    // Add divider after each item except the last one
+                    if (index < deliveryInfos.size - 1) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = grayDE
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
             }
 
@@ -283,8 +294,6 @@ fun DeliveryInfoItem(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
-
-            Spacer(Modifier.height(24.dp))
 
         }
 

@@ -15,10 +15,10 @@ import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.AnotherPet
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoarding
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryAdd
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryCheck
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryList
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryRegister
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order

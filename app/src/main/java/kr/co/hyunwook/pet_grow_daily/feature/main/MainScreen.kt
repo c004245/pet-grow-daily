@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryAddNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryListNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
@@ -58,10 +58,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryAddNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryCheckNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryListNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.deliveryRegisterNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryAddNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryCheckNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryListNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryRegisterNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)

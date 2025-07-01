@@ -1,13 +1,14 @@
-package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation
+package kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation
 
+import DeliveryCheckRoute
 import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.DeliveryListRoute
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryListRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.DeliveryAddRoute
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryAddRoute
 
 fun NavGraphBuilder.deliveryListNavGraph(
     navigateToMyPage: () -> Unit,
@@ -38,6 +39,7 @@ fun NavGraphBuilder.deliveryCheckNavGraph(
 
 ) {
     composable<DeliveryCheck> {
+        DeliveryCheckRoute()
 
     }
 

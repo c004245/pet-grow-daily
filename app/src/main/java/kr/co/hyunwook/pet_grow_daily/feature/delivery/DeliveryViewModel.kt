@@ -1,4 +1,4 @@
-package kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery
+package kr.co.hyunwook.pet_grow_daily.feature.delivery
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

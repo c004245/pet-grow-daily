@@ -11,14 +11,18 @@ import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryInfoUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
     private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase,
     private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
-    private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase
+    private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase,
+    private val getDeliveryListUseCase: GetDeliveryListUseCase
 ): ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -37,6 +41,10 @@ class OrderViewModel @Inject constructor(
     private val _hasDeliveryInfo = MutableStateFlow<Boolean>(false)
     val hasDeliveryInfo: StateFlow<Boolean> get() = _hasDeliveryInfo
 
+    private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
+    val deliveryInfos: StateFlow<List<DeliveryInfo>> get() = _deliveryInfos
+
+
     fun checkDeliveryInfo() {
         viewModelScope.launch {
             hasDeliveryInfoUseCase().collect { hasInfo ->
@@ -51,6 +59,14 @@ class OrderViewModel @Inject constructor(
         viewModelScope.launch {
             getAlbumRecordUseCase().collect { records ->
                 _albumRecord.value = records
+            }
+        }
+    }
+
+    fun getDeliveryList() {
+        viewModelScope.launch {
+            getDeliveryListUseCase().collect {
+                _deliveryInfos.value = it
             }
         }
     }

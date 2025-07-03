@@ -67,6 +67,14 @@ fun DeliveryListScreen(
     onEditClick: (Int) -> Unit = {},
     onDeleteClick: (Int) -> Unit = {},
 ) {
+    var selectedIndex by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(deliveryInfos) {
+        if (selectedIndex == null && deliveryInfos.isNotEmpty()) {
+            selectedIndex = deliveryInfos.find { it.isDefault }?.id
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,6 +98,11 @@ fun DeliveryListScreen(
                     val deliveryInfo = deliveryInfos[index]
                     DeliveryInfoItem(
                         deliveryInfo = deliveryInfo,
+                        isSelected = selectedIndex == deliveryInfo.id,
+                        onItemClick = {
+                            selectedIndex =
+                                if (selectedIndex == deliveryInfo.id) null else deliveryInfo.id
+                        },
                         onEditClick = {
                             onEditClick(deliveryInfo.id)
                         },
@@ -98,7 +111,6 @@ fun DeliveryListScreen(
                         }
                     )
 
-                    // Add divider after each item except the last one
                     if (index < deliveryInfos.size - 1) {
                         Spacer(modifier = Modifier.height(24.dp))
                         HorizontalDivider(
@@ -193,11 +205,15 @@ fun EmptyDeliveryState(
 @Composable
 fun DeliveryInfoItem(
     deliveryInfo: DeliveryInfo,
+    isSelected: Boolean = false,
+    onItemClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onItemClick() }
     ) {
         Column {
             Row(
@@ -242,10 +258,10 @@ fun DeliveryInfoItem(
                     color = black21,
                 )
 
-                if (deliveryInfo.isDefault) {
+                if (isSelected) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_delivery_check),
-                        contentDescription = "Default icon"
+                        contentDescription = "Selected icon"
                     )
                 }
             }

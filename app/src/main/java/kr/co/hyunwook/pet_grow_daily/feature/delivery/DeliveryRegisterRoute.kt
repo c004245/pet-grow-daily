@@ -1,6 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.delivery
 
 import TitleDeliveryAppBarOnlyButton
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
@@ -31,15 +33,29 @@ fun DeliveryRegisterRoute(
     viewModel: OrderViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
+        viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                Log.d("HWO", "saveDeliveryDone ")
+            }
+        }
     }
 
     DeliveryRegisterScreen(
+        onSaveClick =  { deliveryInfo ->
+            viewModel.saveDeliveryInfo(deliveryInfo)
+
+        },
+        onBackClick =  {
+
+        }
 
     )
 }
 
 @Composable
 fun DeliveryRegisterScreen(
+    onBackClick: () -> Unit,
+    onSaveClick: (DeliveryInfo) -> Unit
 
 ) {
 
@@ -51,6 +67,11 @@ fun DeliveryRegisterScreen(
     var showWebView by remember { mutableStateOf(false) }
     var isDefaultDelivery by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+
+
+    val isFormValid = zipCode.isNotEmpty() && address.isNotEmpty() &&
+            detailAddress.isNotEmpty() && recipientName.isNotEmpty() && phoneNumber.isNotEmpty()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,14 +103,6 @@ fun DeliveryRegisterScreen(
             onDetailAddressChange = { detailAddress = it }
         )
 
-        Spacer(Modifier.height(8.dp))
-        AddressDetailWidget(
-            address = address,
-            detailAddress = detailAddress,
-            onAddressChange = { address = it },
-            onDetailAddressChange = { detailAddress = it }
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
         HorizontalDivider(
             thickness = 1.dp,
@@ -111,7 +124,7 @@ fun DeliveryRegisterScreen(
         Spacer(Modifier.weight(1f))
 
         SaveButton(
-            isEnabled = true,
+            isEnabled = isFormValid,
             onSaveClick = {
                 val deliveryInfo = DeliveryInfo(
                     zipCode = zipCode,
@@ -121,7 +134,7 @@ fun DeliveryRegisterScreen(
                     phoneNumber = phoneNumber,
                     isDefault = isDefaultDelivery
                 )
-//                onSaveClick(deliveryInfo)
+                onSaveClick(deliveryInfo)
             }
         )
     }

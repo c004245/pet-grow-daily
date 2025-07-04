@@ -10,20 +10,25 @@ import android.util.Log
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
     private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase,
     private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
     private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase,
-    private val getDeliveryListUseCase: GetDeliveryListUseCase
-): ViewModel() {
+    private val getDeliveryListUseCase: GetDeliveryListUseCase,
+    private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
+
+    ): ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
     val userAlbumCount: StateFlow<Int> get() = _userAlbumCount
@@ -43,6 +48,10 @@ class OrderViewModel @Inject constructor(
 
     private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
     val deliveryInfos: StateFlow<List<DeliveryInfo>> get() = _deliveryInfos
+
+
+    private val _saveDeliveryDoneEvent = MutableSharedFlow<Boolean>()
+    val saveDeliveryDoneEvent: SharedFlow<Boolean> get() = _saveDeliveryDoneEvent
 
 
     fun checkDeliveryInfo() {
@@ -97,6 +106,17 @@ class OrderViewModel @Inject constructor(
 
     fun setPaymentResult(result: PaymentResult) {
         _paymentResult.value = result
+    }
+
+    fun saveDeliveryInfo(deliveryInfo: DeliveryInfo) {
+        viewModelScope.launch {
+            try {
+                saveDeliveryInfoUseCase(deliveryInfo)
+                _saveDeliveryDoneEvent.emit(true)
+            } catch (e: Exception) {
+                _saveDeliveryDoneEvent.emit(false)
+            }
+        }
     }
 
     fun clearPaymentRequest() {

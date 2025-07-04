@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryAddRoute
+import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryRegisterRoute
 
 fun NavGraphBuilder.deliveryListNavGraph(
     navigateToMyPage: () -> Unit,
@@ -47,7 +48,10 @@ fun NavGraphBuilder.deliveryCheckNavGraph(
 
 fun NavGraphBuilder.deliveryRegisterNavGraph(
 ) {
-    composable<DeliveryRegister> {  }
+    composable<DeliveryRegister> {
+        DeliveryRegisterRoute()
+
+    }
 
 }
 

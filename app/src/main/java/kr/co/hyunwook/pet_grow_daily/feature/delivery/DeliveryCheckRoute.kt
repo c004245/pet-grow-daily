@@ -125,6 +125,7 @@ fun DeliveryCheckScreen(
                 .fillMaxWidth()
                 .clickable {
 
+
                 }
                 .clip(RoundedCornerShape(14.dp))
                 .background(purple6C)

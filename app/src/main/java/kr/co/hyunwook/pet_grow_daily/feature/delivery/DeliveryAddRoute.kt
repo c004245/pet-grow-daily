@@ -179,6 +179,7 @@ fun DeliveryAddScreen(
         Spacer(Modifier.weight(1f))
         SaveButton(
             isEnabled = isFormValid,
+            message = "저장",
             onSaveClick = {
                 val deliveryInfo = DeliveryInfo(
                     zipCode = zipCode,
@@ -208,7 +209,8 @@ fun DeliveryAddScreen(
 @Composable
 fun SaveButton(
     isEnabled: Boolean,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    message: String,
 ) {
     Button(
         onClick = onSaveClick,

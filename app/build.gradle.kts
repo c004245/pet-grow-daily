@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.functions.ktx)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
@@ -95,6 +96,7 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-functions-ktx")
 
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)

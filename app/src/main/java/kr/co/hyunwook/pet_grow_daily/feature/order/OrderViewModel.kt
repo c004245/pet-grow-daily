@@ -20,6 +20,10 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveOrderRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -28,9 +32,10 @@ class OrderViewModel @Inject constructor(
     private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase,
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
     private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
-    private val saveOrderRecordUseCase: SaveOrderRecordUseCase
+    private val saveOrderRecordUseCase: SaveOrderRecordUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase
 
-    ): ViewModel() {
+) : ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
     val userAlbumCount: StateFlow<Int> get() = _userAlbumCount
@@ -139,6 +144,9 @@ class OrderViewModel @Inject constructor(
     fun saveOrderRecord(selectedDeliveryInfo: DeliveryInfo) {
         viewModelScope.launch {
             try {
+                // 실제 사용자 ID 가져오기
+                val userId = getUserIdUseCase.invoke()
+
                 // 결제 정보 가져오기
                 val paymentInfo = _paymentData.value ?: mapOf(
                     "merchant_uid" to "album_${System.currentTimeMillis()}",
@@ -147,22 +155,51 @@ class OrderViewModel @Inject constructor(
                 )
 
                 Log.d("HWO", "주문 저장 시작:")
+                Log.d("HWO", "- 사용자 ID: $userId")
                 Log.d("HWO", "- 선택된 앨범: ${_selectedAlbumRecords.value.size}개")
                 Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address}")
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
 
-                saveOrderRecordUseCase(
+                val orderId = saveOrderRecordUseCase(
                     selectedAlbumRecords = _selectedAlbumRecords.value,
                     deliveryInfo = selectedDeliveryInfo,
                     paymentInfo = paymentInfo
                 )
 
+                Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
+
+                // Firebase Function 호출하여 PDF 생성 요청
+                callPdfGenerationFunction(orderId, userId)
+
                 _saveOrderDoneEvent.emit(true)
-                Log.d("HWO", "주문 저장 완료")
             } catch (e: Exception) {
                 _saveOrderDoneEvent.emit(false)
                 Log.e("HWO", "주문 저장 실패: ${e.message}")
             }
         }
+    }
+
+    private fun callPdfGenerationFunction(orderId: String, userId: Long) {
+        // 실제 Firebase Functions 호출 구현
+        val functionData = hashMapOf(
+            "orderId" to orderId,
+            "userId" to userId.toString()
+        )
+
+
+        Firebase.functions
+            .getHttpsCallable("generateAlbumPdf")
+            .call(functionData)
+            .addOnSuccessListener { result ->
+                val data = result.data as Map<*, *>
+                val pdfUrl = data["pdfUrl"] as? String
+                val message = data["message"] as? String
+
+                Log.d("HWO", "PDF 생성 성공: $pdfUrl")
+                Log.d("HWO", "메시지: $message")
+            }
+            .addOnFailureListener { e ->
+                Log.e("HWO", "PDF 생성 실패", e)
+            }
     }
 }

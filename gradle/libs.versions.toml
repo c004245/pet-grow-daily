@@ -34,6 +34,7 @@ kotestRunnerJunit5Jvm = "5.7.2"
 pager = "0.28.0"
 kakao = "2.19.0"
 firebase-storage = "20.2.1"
+firebaseFunctionsKtx = "21.2.1"
 
 
 [libraries]
@@ -89,6 +90,7 @@ kakao-login = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakao"
 firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx"}
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebase-storage"}
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie-compose" }
+firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx", version.ref = "firebaseFunctionsKtx" }
 
 
 [plugins]

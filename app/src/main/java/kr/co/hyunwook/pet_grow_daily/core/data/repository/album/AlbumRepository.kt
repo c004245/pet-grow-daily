@@ -11,6 +11,12 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 interface AlbumRepository {
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
 
+    suspend fun saveOrderRecord(
+        selectedAlbumRecords: List<AlbumRecord>,
+        deliveryInfo: DeliveryInfo,
+        paymentInfo: Map<String, String>
+    ): String
+
     suspend fun savePetProfile(profile: PetProfile)
 
     suspend fun getUserAlbumCount(): Int

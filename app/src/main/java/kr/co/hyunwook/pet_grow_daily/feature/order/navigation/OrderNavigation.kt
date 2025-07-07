@@ -6,27 +6,32 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.OrderRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumSelectRoute
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 
 fun NavGraphBuilder.orderNavGraph(
-    navigateToAlbumSelect: () -> Unit
+    navigateToAlbumSelect: () -> Unit,
+    viewModel: OrderViewModel
 ) {
-    composable<Order> {
+    composable<Order> { backStackEntry ->
         OrderRoute (
-            navigateToAlbumSelect = navigateToAlbumSelect
+            navigateToAlbumSelect = navigateToAlbumSelect,
+            viewModel = viewModel
         )
     }
 }
 
 fun NavGraphBuilder.albumSelectNavGraph(
     navigateToDeliveryCheck: () -> Unit,
-    navigateToDeliveryRegister: () -> Unit
-
+    navigateToDeliveryRegister: () -> Unit,
+    viewModel: OrderViewModel
 ) {
-    composable<AlbumSelect> {
+    composable<AlbumSelect> { backStackEntry ->
         AlbumSelectRoute(
+            viewModel = viewModel,
             navigateToDeliveryCheck = navigateToDeliveryCheck,
             navigateToDeliveryRegister = navigateToDeliveryRegister
-
         )
     }
 }

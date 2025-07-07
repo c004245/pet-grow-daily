@@ -58,10 +58,9 @@ import kr.co.hyunwook.pet_grow_daily.util.formatDate
 
 @Composable
 fun AlbumSelectRoute(
-    viewModel: OrderViewModel = hiltViewModel(),
+    viewModel: OrderViewModel,
     navigateToDeliveryRegister: () -> Unit,
     navigateToDeliveryCheck: () -> Unit
-
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
     val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
@@ -87,7 +86,10 @@ fun AlbumSelectRoute(
 
     AlbumSelectScreen(
         albumRecord = albumRecord,
-        navigateToDeliveryInfo = {
+        navigateToDeliveryInfo = { selectedItems ->
+            val selectedRecords = selectedItems.map { albumRecord[it] }
+            Log.d("HWO", "selectedREcord-> ${selectedRecords.size}")
+            viewModel.setSelectedAlbumRecords(selectedRecords)
             viewModel.checkDeliveryInfo()
             shouldNavigate = true
         }
@@ -97,7 +99,7 @@ fun AlbumSelectRoute(
 @Composable
 fun AlbumSelectScreen(
     albumRecord: List<AlbumRecord>,
-    navigateToDeliveryInfo: () -> Unit
+    navigateToDeliveryInfo: (Set<Int>) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -143,7 +145,7 @@ fun TitleAppBar() {
 fun AlbumListSelectWidget(
     modifier: Modifier,
     albumRecordItem: List<AlbumRecord>,
-    navigateToDeliveryInfo: () -> Unit
+    navigateToDeliveryInfo: (Set<Int>) -> Unit
 ) {
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
 
@@ -182,7 +184,7 @@ fun AlbumListSelectWidget(
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .clickable {
                     if (isButtonEnabled) {
-                        navigateToDeliveryInfo()
+                        navigateToDeliveryInfo(selectedItems)
                     }
                 }
                 .clip(RoundedCornerShape(14.dp))

@@ -14,6 +14,7 @@ import android.util.Log
 import java.io.File
 import javax.inject.Inject
 import androidx.compose.animation.core.snap
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -76,6 +77,55 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
             e.printStackTrace()
         }
     }
+
+    override suspend fun saveOrderRecord(
+        selectedAlbumRecords: List<AlbumRecord>,
+        deliveryInfo: DeliveryInfo,
+        paymentInfo: Map<String, String>,
+        userId: Long
+    ): String {
+        val orderId = "order_${System.currentTimeMillis()}"
+
+        try {
+            val selectedImageUrls = selectedAlbumRecords.flatMap { record ->
+                listOfNotNull(
+                    record.firstImage.takeIf { it.isNotEmpty() },
+                    record.secondImage.takeIf { it.isNotEmpty() }
+                )
+            }
+
+            Log.d("HWO", "주문 저장 시작 - OrderId: $orderId")
+            Log.d("HWO", "선택된 이미지: ${selectedImageUrls.size}개")
+
+            val orderMap = hashMapOf(
+                "selectedImages" to selectedImageUrls,
+                "deliveryInfo" to mapOf(
+                    "zipCode" to deliveryInfo.zipCode,
+                    "address" to deliveryInfo.address,
+                    "detailAddress" to deliveryInfo.detailAddress,
+                    "name" to deliveryInfo.name,
+                    "phoneNumber" to deliveryInfo.phoneNumber
+                ),
+                "paymentInfo" to paymentInfo,
+                "orderDate" to System.currentTimeMillis()
+            )
+
+            firestore.collection("users")
+                .document(userId.toString())
+                .collection("orders")
+                .document(orderId)
+                .set(orderMap)
+                .await()
+
+            Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
+            return orderId
+
+        } catch (e: Exception) {
+            Log.e("HWO", "주문 저장 실패: ${e.message}", e)
+            throw e
+        }
+    }
+
 
     override suspend fun getUserAlbumCount(userId: Long): Int {
         return try {

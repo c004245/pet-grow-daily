@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -27,6 +28,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,35 +37,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryAddNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryListNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
-import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
-import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
-import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
-import android.util.Log
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.albumNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.anotherpet.navigation.anotherPetGraph
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryAddNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryCheckNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryListNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryRegisterNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
+import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +69,9 @@ internal fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+
+    val orderViewModel: OrderViewModel = hiltViewModel()
 
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(
@@ -156,20 +157,27 @@ internal fun MainScreen(
                     orderNavGraph(
                         navigateToAlbumSelect = {
                             navigate(navigator, NavigateEnum.ALBUM_SELECT)
-
-                        }
+                        },
+                        viewModel = orderViewModel
                     )
 
                     albumSelectNavGraph(
                         navigateToDeliveryCheck = {
                             navigate(navigator, NavigateEnum.DELIVERY_CHECK)
-
                         },
                         navigateToDeliveryRegister = {
                             navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
-
-                        }
+                        },
+                        viewModel = orderViewModel
                     )
+
+                    deliveryCheckNavGraph(
+                        viewModel = orderViewModel
+                    )
+                    deliveryRegisterNavGraph(
+                        viewModel = orderViewModel
+                    )
+
                     recordWriteGraph(
                         navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
@@ -179,8 +187,6 @@ internal fun MainScreen(
 
                     anotherPetGraph()
 
-                    deliveryCheckNavGraph()
-                    deliveryRegisterNavGraph()
                     deliveryAddNavGraph(
                         navigateToDeliveryList = {
                             navigate(navigator, NavigateEnum.DELIVERY_LIST)

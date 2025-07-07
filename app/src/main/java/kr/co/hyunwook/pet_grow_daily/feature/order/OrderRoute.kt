@@ -77,7 +77,7 @@ import android.os.Bundle
 @Composable
 fun OrderRoute(
     navigateToAlbumSelect: () -> Unit,
-    viewModel: OrderViewModel = hiltViewModel()
+    viewModel: OrderViewModel
 ) {
 
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
@@ -155,7 +155,9 @@ fun OrderScreen(
                 )
 
             Column(
-                modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
             ) {
                 Spacer(Modifier.height(13.dp))
                 ImageSliderWithIndicator()
@@ -167,7 +169,10 @@ fun OrderScreen(
         }
             OrderButtonWidget(
                 onClickRequestPayment = onClickRequestPayment,
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
             )
         }
 
@@ -207,7 +212,9 @@ fun ImageSliderWithIndicator() {
     }
 
     Box(
-        modifier = Modifier.fillMaxWidth().height(300.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
     ) {
 
         HorizontalPager(
@@ -224,7 +231,10 @@ fun ImageSliderWithIndicator() {
             )
         }
         Row(
-            Modifier.align(Alignment.BottomCenter).padding(8.dp).fillMaxWidth(),
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(8.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             Log.d("HWO", "images -> ${images.size}")
@@ -253,7 +263,9 @@ fun ImageSliderWithIndicator() {
 @Composable
 fun ProductDescriptionWidget() {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
 
     ) {
         Text(
@@ -307,7 +319,9 @@ fun OrderCountWidget() {
             .clip(RoundedCornerShape(8.dp))
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
@@ -338,7 +352,8 @@ fun OrderButtonWidget(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier.background(purple6C, RoundedCornerShape(4.dp))
+            modifier = Modifier
+                .background(purple6C, RoundedCornerShape(4.dp))
                 .clip(RoundedCornerShape(4.dp)),
         ) {
             Text(
@@ -355,8 +370,11 @@ fun OrderButtonWidget(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Box(
-            modifier = Modifier.fillMaxWidth().background(purple6C, RoundedCornerShape(14.dp))
-                .clip(RoundedCornerShape(14.dp)).clickable {
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(purple6C, RoundedCornerShape(14.dp))
+                .clip(RoundedCornerShape(14.dp))
+                .clickable {
                     onClickRequestPayment()
                 },
             contentAlignment = Alignment.Center

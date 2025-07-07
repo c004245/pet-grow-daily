@@ -35,13 +35,14 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun DeliveryRegisterRoute(
-    viewModel: OrderViewModel = hiltViewModel()
+    viewModel: OrderViewModel
 ) {
 
     val paymentData by viewModel.paymentData.collectAsState()
     var showPaymentWebView by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val paymentResult by viewModel.paymentResult.collectAsState()
+    var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
@@ -58,19 +59,35 @@ fun DeliveryRegisterRoute(
         }
     }
 
+    LaunchedEffect(paymentResult) {
+        when (val result = paymentResult) {
+            is PaymentResult.Success -> {
+                Log.d("HWO", "결제 성공 - 주문 저장 시작")
+                deliveryInfo?.let { info ->
+                    viewModel.saveOrderRecord(info)
+                }
+                Toast.makeText(context, "결제가 완료되었습니다! 주문을 저장 중입니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            is PaymentResult.Failure -> {
+                Log.d("HWO", "결제 실패: ${result.message}")
+                Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
+            else -> {}
+        }
+    }
 
     if (showPaymentWebView) {
         PaymentWebView(
             onPaymentResult = { success, message, transactionId ->
                 if (success) {
                     viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
-                    Log.d("HWO", "message done -> ")
-
-                    Toast.makeText(context, "결제가 완료되었습니다!", Toast.LENGTH_SHORT).show()
+                    Log.d("HWO", "결제 완료")
                 } else {
                     viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
-                    Log.d("HWO", "message error -> $message")
-                    Toast.makeText(context, "결제에 실패했습니다: $message", Toast.LENGTH_SHORT).show()
+                    Log.d("HWO", "결제 실패: $message")
                 }
                 showPaymentWebView = false
             },
@@ -80,14 +97,13 @@ fun DeliveryRegisterRoute(
         )
     } else {
         DeliveryRegisterScreen(
-            onSaveClick = { deliveryInfo ->
-                viewModel.saveDeliveryInfo(deliveryInfo)
-
+            onSaveClick = { info ->
+                deliveryInfo = info
+                viewModel.saveDeliveryInfo(info)
             },
             onBackClick = {
 
             }
-
         )
     }
 }

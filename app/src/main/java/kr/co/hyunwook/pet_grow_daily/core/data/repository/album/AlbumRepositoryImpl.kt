@@ -29,6 +29,22 @@ class AlbumRepositoryImpl @Inject constructor(
         val userId = getUserId()
         firestoreDataSource.savePetProfile(profile, userId)
     }
+
+    override suspend fun saveOrderRecord(
+        selectedAlbumRecords: List<AlbumRecord>,
+        deliveryInfo: DeliveryInfo,
+        paymentInfo: Map<String, String>,
+    ): String {
+
+        val userId = getUserId()
+
+        return firestoreDataSource.saveOrderRecord(
+            selectedAlbumRecords,
+            deliveryInfo,
+            paymentInfo,
+            userId
+        )
+    }
     override suspend fun getPetProfile(): Flow<PetProfile?> {
         return albumRecordDao.getPetProfile()
     }
@@ -40,6 +56,7 @@ class AlbumRepositoryImpl @Inject constructor(
             firestoreDataSource.saveAlbumRecord(albumRecord, userId)
         }
     }
+
 
     override suspend fun getUserAlbumCount(): Int {
         val userId = getUserId()

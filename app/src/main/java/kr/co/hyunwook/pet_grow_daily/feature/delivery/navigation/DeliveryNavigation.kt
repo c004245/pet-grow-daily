@@ -10,6 +10,9 @@ import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryAddRoute
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryRegisterRoute
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 
 fun NavGraphBuilder.deliveryListNavGraph(
     navigateToMyPage: () -> Unit,
@@ -36,23 +39,23 @@ fun NavGraphBuilder.deliveryAddNavGraph(
 }
 
 fun NavGraphBuilder.deliveryCheckNavGraph(
-
-
+    viewModel: OrderViewModel
 ) {
-    composable<DeliveryCheck> {
-        DeliveryCheckRoute()
-
+    composable<DeliveryCheck> { backStackEntry ->
+        DeliveryCheckRoute(
+            viewModel = viewModel
+        )
     }
-
 }
 
 fun NavGraphBuilder.deliveryRegisterNavGraph(
+    viewModel: OrderViewModel
 ) {
-    composable<DeliveryRegister> {
-        DeliveryRegisterRoute()
-
+    composable<DeliveryRegister> { backStackEntry ->
+        DeliveryRegisterRoute(
+            viewModel = viewModel
+        )
     }
-
 }
 
 @Serializable

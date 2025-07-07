@@ -19,6 +19,7 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveOrderRecordUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -27,6 +28,7 @@ class OrderViewModel @Inject constructor(
     private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase,
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
     private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
+    private val saveOrderRecordUseCase: SaveOrderRecordUseCase
 
     ): ViewModel() {
 
@@ -52,6 +54,12 @@ class OrderViewModel @Inject constructor(
 
     private val _saveDeliveryDoneEvent = MutableSharedFlow<Boolean>()
     val saveDeliveryDoneEvent: SharedFlow<Boolean> get() = _saveDeliveryDoneEvent
+
+    private val _selectedAlbumRecords = MutableStateFlow<List<AlbumRecord>>(emptyList())
+    val selectedAlbumRecords: StateFlow<List<AlbumRecord>> get() = _selectedAlbumRecords
+
+    private val _saveOrderDoneEvent = MutableSharedFlow<Boolean>()
+    val saveOrderDoneEvent: SharedFlow<Boolean> get() = _saveOrderDoneEvent
 
 
     fun checkDeliveryInfo() {
@@ -121,5 +129,40 @@ class OrderViewModel @Inject constructor(
 
     fun clearPaymentRequest() {
         _paymentData.value = null
+    }
+
+    //선택한 앨범 리스트
+    fun setSelectedAlbumRecords(records: List<AlbumRecord>) {
+        _selectedAlbumRecords.value = records
+    }
+
+    fun saveOrderRecord(selectedDeliveryInfo: DeliveryInfo) {
+        viewModelScope.launch {
+            try {
+                // 결제 정보 가져오기
+                val paymentInfo = _paymentData.value ?: mapOf(
+                    "merchant_uid" to "album_${System.currentTimeMillis()}",
+                    "amount" to "27000",
+                    "name" to "코팅형 고급 앨범"
+                )
+
+                Log.d("HWO", "주문 저장 시작:")
+                Log.d("HWO", "- 선택된 앨범: ${_selectedAlbumRecords.value.size}개")
+                Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address}")
+                Log.d("HWO", "- 결제 정보: $paymentInfo")
+
+                saveOrderRecordUseCase(
+                    selectedAlbumRecords = _selectedAlbumRecords.value,
+                    deliveryInfo = selectedDeliveryInfo,
+                    paymentInfo = paymentInfo
+                )
+
+                _saveOrderDoneEvent.emit(true)
+                Log.d("HWO", "주문 저장 완료")
+            } catch (e: Exception) {
+                _saveOrderDoneEvent.emit(false)
+                Log.e("HWO", "주문 저장 실패: ${e.message}")
+            }
+        }
     }
 }

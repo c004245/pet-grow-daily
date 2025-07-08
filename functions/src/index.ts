@@ -11,8 +11,8 @@ import {setGlobalOptions} from "firebase-functions";
 import {onCall} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
-import PDFDocument from "pdfkit";
 import axios from "axios";
+import archiver from "archiver";
 
 // Firebase Admin 초기화
 admin.initializeApp();
@@ -32,24 +32,26 @@ admin.initializeApp();
 // this will be the maximum concurrent request count.
 setGlobalOptions({ maxInstances: 10 });
 
-// PDF 생성 Function
-export const generateAlbumPdf = onCall(async (request) => {
+// ZIP 파일 생성 Function
+export const generateAlbumZipfile = onCall({
+  enforceAppCheck: false, // AppCheck 비활성화
+}, async (request) => {
   try {
-    const { orderId } = request.data;
+    const { orderId, userId } = request.data;
     
-    // 1. Firebase Auth 인증 확인
-    if (!request.auth) {
-      throw new Error('로그인이 필요합니다.');
+    // 파라미터 검증
+    if (!orderId || !userId) {
+      throw new Error('orderId와 userId가 필요합니다.');
     }
 
-    // 2. 인증된 사용자 ID 가져오기
-    const userId = request.auth.uid;
-    logger.info(`PDF 생성 시작 - OrderId: ${orderId}, UserId: ${userId}`);
+    logger.info(`ZIP 파일 생성 시작 - OrderId: ${orderId}, UserId: ${userId}`);
 
-    // 3. 해당 사용자의 주문인지 확인
+    // 주문 데이터 조회
     const orderDoc = await admin.firestore()
-      .collection('users').doc(userId)
-      .collection('orders').doc(orderId)
+      .collection('users')
+      .doc(userId.toString())
+      .collection('orders')
+      .doc(orderId)
       .get();
 
     if (!orderDoc.exists) {
@@ -59,119 +61,129 @@ export const generateAlbumPdf = onCall(async (request) => {
     const orderData = orderDoc.data()!;
     const { selectedImages } = orderData;
 
-    logger.info(`선택된 이미지 개수: ${selectedImages?.length || 0}`);
+    if (!selectedImages || selectedImages.length === 0) {
+      throw new Error('선택된 이미지가 없습니다.');
+    }
 
-    // 4. PDF 생성 (이미지만)
-    const pdfBuffer = await createAlbumPdf(selectedImages);
+    logger.info(`선택된 이미지 개수: ${selectedImages.length}`);
 
-    // 5. Storage에 PDF 업로드 (orders 폴더에)
+    // ZIP 파일 생성
+    const zipBuffer = await createImageZip(selectedImages, orderId);
+
+    // Storage에 ZIP 업로드
     const bucket = admin.storage().bucket();
-    const pdfFileName = `${orderId}_pdf.pdf`;
-    const fileName = `orders/${pdfFileName}`;
+    const zipFileName = `${orderId}.zip`;
+    const fileName = `orders/${zipFileName}`;
     const file = bucket.file(fileName);
 
-    await file.save(pdfBuffer, {
+    await file.save(zipBuffer, {
       metadata: {
-        contentType: 'application/pdf',
+        contentType: 'application/zip',
+        contentDisposition: 'attachment',
+        cacheControl: 'no-cache',
       },
+      resumable: false,
+      validation: false,
     });
 
-    // 6. 공개 URL 생성
+    // 공개 URL 생성
     await file.makePublic();
-    const pdfUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-    // 7. Firestore에 PDF URL 업데이트
-    await orderDoc.ref.update({
-      pdfUrl: pdfUrl,
-      pdfGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+    
+    // 파일 메타데이터 재설정 (Firebase Console 호환성)
+    await file.setMetadata({
+      contentType: 'application/zip',
+      contentDisposition: 'attachment',
+      cacheControl: 'no-cache',
+      metadata: {
+        firebaseStorageDownloadTokens: 'public'
+      }
     });
 
-    logger.info(`PDF 생성 완료 - URL: ${pdfUrl}`);
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 24 * 60 * 60 * 1000, // 24시간
+    });
+    const zipUrl = url;
+
+    // Firestore에 ZIP URL 업데이트
+    await orderDoc.ref.update({
+      zipUrl: zipUrl,
+      zipGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info(`ZIP 파일 생성 완료 - URL: ${zipUrl}`);
 
     return {
       success: true,
-      pdfUrl: pdfUrl,
-      message: 'PDF 생성이 완료되었습니다.'
+      zipUrl: zipUrl,
+      imageCount: selectedImages.length,
+      message: 'ZIP 파일 생성이 완료되었습니다.'
     };
 
   } catch (error) {
-    logger.error('PDF 생성 실패:', error);
-    throw new Error('PDF 생성에 실패했습니다.');
+    logger.error('ZIP 파일 생성 실패:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`ZIP 파일 생성에 실패했습니다: ${errorMessage}`);
   }
 });
 
-// PDF 생성 함수 (이미지만)
-async function createAlbumPdf(
-  imageUrls: string[], 
+// ZIP 파일 생성 함수
+async function createImageZip(
+  imageUrls: string[],
+  orderId: string
 ): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     try {
-      const doc = new PDFDocument({ 
-        size: 'A4', 
-        margin: 0
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // 최대 압축
       });
-      
+
       const chunks: Buffer[] = [];
 
-      doc.on('data', (chunk) => chunks.push(chunk));
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
-      doc.on('error', (error) => reject(error));
+      archive.on('data', (chunk) => chunks.push(chunk));
+      archive.on('end', () => resolve(Buffer.concat(chunks)));
+      archive.on('error', (error) => reject(error));
 
-      // 이미지가 없는 경우
-      if (!imageUrls || imageUrls.length === 0) {
-        doc.end();
-        return;
-      }
-
-      // 각 이미지를 한 페이지씩 배치
-      const pageWidth = doc.page.width;
-      const pageHeight = doc.page.height;
-      const maxImages = Math.min(imageUrls.length, 4); // 최대 4개 이미지
-
-      for (let i = 0; i < maxImages; i++) {
+      // 각 이미지 다운로드하여 ZIP에 추가
+      for (let i = 0; i < imageUrls.length; i++) {
         const imageUrl = imageUrls[i];
         
-        if (imageUrl) {
-          // 첫 번째 이미지가 아니면 새 페이지 추가
-          if (i > 0) {
-            doc.addPage();
-          }
-
-          try {
-            logger.info(`이미지 다운로드 시작: ${imageUrl}`);
-            
-            const response = await axios.get(imageUrl, { 
-              responseType: 'arraybuffer',
-              timeout: 15000,
-              headers: {
-                'User-Agent': 'Pet-Grow-Daily-PDF-Generator'
-              }
-            });
-            
-            const imageBuffer = Buffer.from(response.data);
-
-            // 이미지를 전체 페이지에 맞춰 배치
-            doc.image(imageBuffer, 0, 0, { 
-              width: pageWidth, 
-              height: pageHeight,
-              fit: [pageWidth, pageHeight],
-              align: 'center',
-              valign: 'center'
-            });
-            
-            logger.info(`이미지 ${i + 1} 추가 완료`);
-            
-          } catch (imageError) {
-            logger.error(`이미지 로드 실패: ${imageUrl}`, imageError);
-          }
+        try {
+          logger.info(`이미지 다운로드 시작: ${i + 1}/${imageUrls.length}`);
+          
+          const response = await axios.get(imageUrl, { 
+            responseType: 'arraybuffer',
+            timeout: 30000,
+            headers: {
+              'User-Agent': 'Pet-Grow-Daily-ZIP-Generator'
+            }
+          });
+          
+          const imageBuffer = Buffer.from(response.data);
+          
+          // 파일 확장자 추출
+          const urlParts = imageUrl.split('.');
+          const extension = urlParts[urlParts.length - 1].split('?')[0]; // ? 이후 제거
+          
+          // ZIP에 파일 추가 (순서대로 번호 매기기)
+          const filename = `${orderId}_image_${String(i + 1).padStart(3, '0')}.${extension}`;
+          archive.append(imageBuffer, { name: filename });
+          
+          logger.info(`이미지 ${i + 1} ZIP에 추가 완료: ${filename}`);
+          
+        } catch (imageError) {
+          logger.error(`이미지 다운로드 실패: ${imageUrl}`, imageError);
+          // 실패한 이미지는 건너뛰고 계속 진행
         }
       }
 
-      doc.end();
+      // ZIP 파일 완료
+      archive.finalize();
 
     } catch (error) {
-      logger.error('PDF 생성 중 오류:', error);
+      logger.error('ZIP 생성 중 오류:', error);
       reject(error);
     }
   });
 }
+

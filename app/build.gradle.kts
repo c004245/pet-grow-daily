@@ -27,12 +27,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "DEBUG", "false")
         }
     }
     compileOptions {
@@ -44,6 +48,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
@@ -97,6 +102,10 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-functions-ktx")
+    implementation("com.google.firebase:firebase-appcheck")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    implementation("com.google.firebase:firebase-appcheck-debug")
+    implementation("com.google.firebase:firebase-auth-ktx")
 
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)

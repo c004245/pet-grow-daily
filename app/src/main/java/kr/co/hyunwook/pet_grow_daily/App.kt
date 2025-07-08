@@ -18,6 +18,7 @@ class App: Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+
         KakaoSdk.init(this, "42cb5a001e4aad8458c0b26f5e582da7")
 
         db = Firebase.firestore

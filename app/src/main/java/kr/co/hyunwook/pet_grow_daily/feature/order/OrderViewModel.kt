@@ -180,26 +180,28 @@ class OrderViewModel @Inject constructor(
     }
 
     private fun callPdfGenerationFunction(orderId: String, userId: Long) {
-        // 실제 Firebase Functions 호출 구현
         val functionData = hashMapOf(
             "orderId" to orderId,
             "userId" to userId.toString()
         )
 
+        Log.d("HWO", "Firebase Functions 호출 - orderId: $orderId, userId: $userId")
 
         Firebase.functions
-            .getHttpsCallable("generateAlbumPdf")
+            .getHttpsCallable("generateAlbumZipfile")
             .call(functionData)
             .addOnSuccessListener { result ->
                 val data = result.data as Map<*, *>
-                val pdfUrl = data["pdfUrl"] as? String
+                val zipUrl = data["zipUrl"] as? String
+                val imageCount = data["imageCount"] as? Int
                 val message = data["message"] as? String
 
-                Log.d("HWO", "PDF 생성 성공: $pdfUrl")
+                Log.d("HWO", "ZIP 파일 생성 성공: $zipUrl")
+                Log.d("HWO", "이미지 개수: $imageCount")
                 Log.d("HWO", "메시지: $message")
             }
             .addOnFailureListener { e ->
-                Log.e("HWO", "PDF 생성 실패", e)
+                Log.e("HWO", "ZIP 파일 생성 실패", e)
             }
     }
 }

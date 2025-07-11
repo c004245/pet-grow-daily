@@ -54,6 +54,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.deliveryRegiste
 import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardingNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.alarmNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
@@ -127,9 +128,18 @@ internal fun MainScreen(
                         }
                     )
                     totalNavGraph()
+
+                    alarmNavGraph(
+                        navigateToMyPage = {
+                            navigate(navigator, NavigateEnum.MYPAGE)
+                        }
+                    )
                     myPageNavGraph(
                         navigateToDeliveryList = {
                             navigate(navigator, NavigateEnum.DELIVERY_LIST)
+                        },
+                        navigateToAlarm = {
+                            navigate(navigator, NavigateEnum.ALARM)
                         }
                     )
 
@@ -289,6 +299,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
             navigator.navigateToAlbumSelect(navOptions = navOptions)
         }
 
+        NavigateEnum.ALARM -> {
+            navigator.navigateToAlarm(navOptions = navOptions)
+        }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
         }
@@ -448,5 +461,5 @@ fun MainScreenPreview() {
 enum class NavigateEnum {
     ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
     PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
-    DELIVERY_REGISTER, DELIVERY_CHECK
+    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM
 }

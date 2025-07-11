@@ -19,6 +19,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryAdd
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryCheck
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryList
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation.DeliveryRegister
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
@@ -121,6 +122,11 @@ class MainNavigator(
         navController.navigate(AlbumSelect, navOptions)
     }
 
+    fun navigateToAlarm(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(Alarm, navOptions)
+    }
     @Composable
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)

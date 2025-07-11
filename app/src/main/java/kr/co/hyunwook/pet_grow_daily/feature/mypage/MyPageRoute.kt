@@ -56,7 +56,8 @@ import androidx.compose.foundation.layout.padding
 @Composable
 fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
-    onClickDeliveryList: () -> Unit
+    onClickDeliveryList: () -> Unit,
+    onClickAlarm: () -> Unit
 ) {
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
@@ -97,6 +98,8 @@ fun MyPageRoute(
             context.startActivity(intent)
         },
         onClickAlarm = {
+            onClickAlarm()
+
 
         },
         onClickDeliveryList = {

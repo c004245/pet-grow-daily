@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.firebase.messaging.FirebaseMessaging
 import kr.co.hyunwook.pet_grow_daily.feature.main.MainNavigator
 import kr.co.hyunwook.pet_grow_daily.feature.main.MainScreen
 import kr.co.hyunwook.pet_grow_daily.feature.main.rememberMainNavigator
@@ -29,8 +31,12 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             android.Manifest.permission.READ_MEDIA_IMAGES
         else
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            android.Manifest.permission.POST_NOTIFICATIONS
+        else
+            null
+    ).filterNotNull().toTypedArray()
 
     private val requestPermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -48,11 +54,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         installSplashScreen().setKeepOnScreenCondition { false }
 
+        // FCM 초기화
+        initializeFCM()
 
         if (hasAllPermissions()) {
             showMainScreen()
         } else {
             requestPermissionsLauncher.launch(permissions)
+        }
+    }
+
+    private fun initializeFCM() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            // FCM 등록 토큰 가져오기
+            val token = task.result
+            Log.d("FCM", "FCM Registration Token: $token")
+            // TODO: 서버로 토큰 전송
         }
     }
 

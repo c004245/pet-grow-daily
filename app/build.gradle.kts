@@ -101,11 +101,12 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-functions-ktx")
-    implementation("com.google.firebase:firebase-appcheck")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity")
-    implementation("com.google.firebase:firebase-appcheck-debug")
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.google.firebase.functions.ktx)
+    implementation(libs.firebase.appcheck)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.messaging.ktx)
 
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)

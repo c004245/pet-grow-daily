@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
+import android.content.Intent
 import android.net.Uri
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -82,10 +83,18 @@ fun MyPageRoute(
 
         },
         onClickPrivacy = {
-
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data =
+                    Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180fbbd18d5bb86cf2988?source=copy_link")
+            }
+            context.startActivity(intent)
         },
         onClickTerm = {
-
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data =
+                    Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180a8943eea44d6d1d4e6?source=copy_link")
+            }
+            context.startActivity(intent)
         },
         onClickAlarm = {
 

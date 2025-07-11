@@ -28,6 +28,9 @@ class DeliveryViewModel @Inject constructor(
     private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
     val deliveryInfos: StateFlow<List<DeliveryInfo>> get() = _deliveryInfos
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
     private val _saveDeliveryDoneEvent = MutableSharedFlow<Boolean>()
     val saveDeliveryDoneEvent: SharedFlow<Boolean> get() = _saveDeliveryDoneEvent
 
@@ -36,8 +39,10 @@ class DeliveryViewModel @Inject constructor(
 
     fun getDeliveryList() {
         viewModelScope.launch {
+            _isLoading.value = true
             getDeliveryListUseCase().collect {
                 _deliveryInfos.value = it
+                _isLoading.value = false
             }
         }
     }

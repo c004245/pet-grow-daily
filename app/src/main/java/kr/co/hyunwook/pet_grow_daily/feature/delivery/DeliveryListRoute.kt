@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.delivery
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ fun DeliveryListRoute(
 ) {
 
     val deliveryInfos by viewModel.deliveryInfos.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getDeliveryList()
@@ -47,6 +49,7 @@ fun DeliveryListRoute(
 
     DeliveryListScreen(
         deliveryInfos = deliveryInfos,
+        isLoading = isLoading,
         navigateToMyPage = navigateToMyPage,
         navigateToDeliveryAdd = navigateToDeliveryAdd,
         onEditClick = { deliveryId ->
@@ -62,6 +65,7 @@ fun DeliveryListRoute(
 @Composable
 fun DeliveryListScreen(
     deliveryInfos: List<DeliveryInfo>,
+    isLoading: Boolean = false,
     navigateToMyPage: () -> Unit = {},
     navigateToDeliveryAdd: (Int?) -> Unit = {},
     onEditClick: (Int) -> Unit = {},
@@ -84,7 +88,16 @@ fun DeliveryListScreen(
             navigateToMyPage()
         })
 
-        if (deliveryInfos.isEmpty()) {
+        Log.d("HWO", "DeliveryList -> $isLoading -- ${deliveryInfos.isEmpty()}")
+        if (isLoading) {
+            // Loading state - show nothing or a loading indicator
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (deliveryInfos.isEmpty()) {
             EmptyDeliveryState(
                 navigateToDeliveryAdd = {
                     navigateToDeliveryAdd(null)

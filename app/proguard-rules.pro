@@ -19,3 +19,28 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Kakao SDK ProGuard rules
+-keep class com.kakao.** { *; }
+-keep class com.kakao.sdk.** { *; }
+-keep class com.kakao.auth.** { *; }
+-keep class com.kakao.network.** { *; }
+-keep class com.kakao.usermgmt.** { *; }
+-keep class com.kakao.util.** { *; }
+-dontwarn com.kakao.**
+
+# Keep all classes that have @Keep annotation
+-keep @androidx.annotation.Keep class *
+-keepclassmembers class * {
+    @androidx.annotation.Keep *;
+}
+
+# Keep retrofit and okhttp classes for network calls
+-keep class retrofit2.** { *; }
+-keep class okhttp3.** { *; }
+-dontwarn retrofit2.**
+-dontwarn okhttp3.**
+
+# Keep gson classes for JSON parsing
+-keep class com.google.gson.** { *; }
+-dontwarn com.google.gson.**

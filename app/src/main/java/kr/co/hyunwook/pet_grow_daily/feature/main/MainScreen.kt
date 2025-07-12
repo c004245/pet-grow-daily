@@ -161,6 +161,10 @@ internal fun MainScreen(
                     addNavGraph(
                         navigateToRecordWrite = { selectedImageUris ->
                             navigator.navigateToRecordWrite(selectedImageUris)
+                        },
+                        onBackClick = {
+                            navigatorEnum = NavigateEnum.ALBUM
+                            navigate(navigator, NavigateEnum.ALBUM)
                         }
                     )
 

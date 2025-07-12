@@ -7,6 +7,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purpleC4
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,17 +20,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -43,7 +45,8 @@ fun ProfileNamePage(
     val keyboardHeight = with(LocalDensity.current) { insets.getBottom(LocalDensity.current).toDp() }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(bottom = if (keyboardHeight > 0.dp) keyboardHeight else 16.dp) // 키보드 높이에 따라 버튼 이동
     ) {
         Column(
@@ -52,7 +55,7 @@ fun ProfileNamePage(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                modifier = Modifier.padding(top = 100.dp),
+                modifier = Modifier.padding(top = 100.dp, start = 8.dp),
                 text = stringResource(id = R.string.text_name_string),
                 style = PetgrowTheme.typography.bold,
                 color = black21,
@@ -112,26 +115,34 @@ fun DogNameTextField(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .height(56.dp)
             .border(BorderStroke(1.dp, grayDE), shape = RoundedCornerShape(8.dp))
+            .background(Color.White, RoundedCornerShape(8.dp))
             .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.CenterStart
     ) {
-        OutlinedTextField(
+        BasicTextField(
             value = text,
             onValueChange = onTextChange,
-            label = { Text("반려견 이름",
-                modifier = Modifier.padding(bottom = 8.dp)) },
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                unfocusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                cursorColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                disabledTextColor = Color.Gray
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(
+                color = black21,
+                fontSize = 16.sp
             ),
-            singleLine = true, // 한 줄로 제한
+            cursorBrush = SolidColor(black21),
+            singleLine = true,
+            decorationBox = { innerTextField ->
+                if (text.isEmpty()) {
+                    Text(
+                        text = "반려견 이름",
+                        style = TextStyle(
+                            color = Color.Gray,
+                            fontSize = 16.sp
+                        )
+                    )
+                }
+                innerTextField()
+            }
         )
     }
 }

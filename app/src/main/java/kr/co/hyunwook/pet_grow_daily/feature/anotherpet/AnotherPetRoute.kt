@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
@@ -113,20 +114,30 @@ fun LookAnotherItem(item: AnotherPetModel) {
             pageCount = { 2 })
 
         Box(
-            modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .padding(horizontal = 12.dp)
         ) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                GlideImage(
-                    model = imageList[page],
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    loading = placeholder(ColorPainter(grayEF)),
-                    failure = placeholder(ColorPainter(grayEF))
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .shadow(8.dp, RoundedCornerShape(12.dp), clip = false)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    GlideImage(
+                        model = imageList[page],
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        loading = placeholder(ColorPainter(grayEF)),
+                        failure = placeholder(ColorPainter(grayEF))
+                    )
+                }
             }
 
             Box(
@@ -160,7 +171,8 @@ fun LookAnotherItem(item: AnotherPetModel) {
             color = gray5E,
             fontSize = 13.sp,
             modifier = Modifier
-                .fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp)
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 16.dp)
         )
 
     }

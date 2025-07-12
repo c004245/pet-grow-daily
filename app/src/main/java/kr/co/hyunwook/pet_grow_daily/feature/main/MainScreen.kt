@@ -195,8 +195,10 @@ internal fun MainScreen(
                     recordWriteGraph(
                         navigateToAlbum = {
                             navigate(navigator, NavigateEnum.ALBUM)
+                        },
+                        onBackClick = {
+                            navigate(navigator, NavigateEnum.ADD)
                         }
-
                     )
 
                     anotherPetGraph()

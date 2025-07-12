@@ -16,6 +16,10 @@ import kr.co.hyunwook.pet_grow_daily.feature.add.MemoTextField
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.util.Log
 import android.widget.Space
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,8 +42,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,22 +64,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.compose.material3.MaterialTheme
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun RecordWriteRoute(
     viewModel: AddViewModel = hiltViewModel(),
     selectedImageUris: List<String> = emptyList(),
-    navigateToAlbum: () -> Unit
+    navigateToAlbum: () -> Unit,
+    onBackClick: () -> Unit = {}
 ) {
-
     var memoText by remember { mutableStateOf("") }
     var isUploading by remember { mutableStateOf(false) }
     var isPublic by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collectLatest { isSuccess ->
@@ -85,24 +97,49 @@ fun RecordWriteRoute(
         }
     }
 
-    RecordWriteScreen(
-        selectedImageUris = selectedImageUris,
-        memoText = memoText,
-        isUploading = isUploading,
-        isPublic = isPublic,
-        onMemoTextChange = { memoText = it },
-        onPublicChange = { isPublic = it },
-        onDoneClick = {
-            isUploading = true
-            viewModel.uploadAndSaveAlbumRecord(
+    fun handleBackClick() {
+        isVisible = false
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(300)
+            onBackClick()
+        }
+    }
+
+    BackHandler(enabled = isVisible) {
+        handleBackClick()
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInHorizontally(initialOffsetX = { it }),
+        exit = slideOutHorizontally(targetOffsetX = { it }),
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(1f)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            RecordWriteScreen(
                 selectedImageUris = selectedImageUris,
-                content = memoText,
-                isPublic = isPublic
+                memoText = memoText,
+                isUploading = isUploading,
+                isPublic = isPublic,
+                onMemoTextChange = { memoText = it },
+                onPublicChange = { isPublic = it },
+                onDoneClick = {
+                    isUploading = true
+                    viewModel.uploadAndSaveAlbumRecord(
+                        selectedImageUris = selectedImageUris,
+                        content = memoText,
+                        isPublic = isPublic
+                    )
+                },
+                onBackClick = ::handleBackClick
             )
-        },
-        )
-
-
+        }
+    }
 }
 
 @Composable
@@ -113,16 +150,21 @@ fun RecordWriteScreen(
     isPublic: Boolean,
     onMemoTextChange: (String) -> Unit,
     onPublicChange: (Boolean) -> Unit,
-    onDoneClick: () -> Unit
+    onDoneClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
 
     Box(
-        modifier = Modifier.fillMaxSize().background(grayF8)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(grayF8)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TitleAppBar()
+            TitleAppBar {
+                onBackClick()
+            }
             RecordWriteContentCard(
                 selectedImageUris = selectedImageUris,
                 memoText = memoText,
@@ -179,9 +221,12 @@ fun RecordWriteScreen(
 }
 
 @Composable
-fun TitleAppBar() {
+fun TitleAppBar(onBackClick: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth().height(40.dp).background(Color.White),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -190,6 +235,7 @@ fun TitleAppBar() {
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp)
+                .clickable { onBackClick() }
         )
         Text(
             text = stringResource(R.string.text_record_write),
@@ -208,7 +254,10 @@ fun RecordWriteContentCard(
     onMemoTextChange: (String) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(16.dp).wrapContentHeight()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .wrapContentHeight()
     ) {
         Box(
             modifier = Modifier
@@ -219,11 +268,14 @@ fun RecordWriteContentCard(
                     shape = RoundedCornerShape(16.dp),
                     spotColor = Color(0x0D000000),
                     ambientColor = Color(0x0D000000)
-                ).clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
+                )
+                .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
 
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().matchParentSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .matchParentSize()
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -237,7 +289,8 @@ fun RecordWriteContentCard(
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth().wrapContentHeight()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
 
             ) {
                 SelectAlbumWidget(
@@ -267,7 +320,8 @@ fun SelectAlbumWidget(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .aspectRatio(1f)
         ) {
             if (selectedImageUris.isNotEmpty()) {
@@ -289,7 +343,8 @@ fun SelectAlbumWidget(
         Spacer(modifier = Modifier.width(2.dp))
 
         Box(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .aspectRatio(1f)
 
         ) {
@@ -320,7 +375,9 @@ fun RecordWriteField(
 
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp)
     ) {
         Text(
             text = "2025년 3월 18일",
@@ -357,30 +414,44 @@ fun RecordWriteMemoField(text: String, onTextChange: (String) -> Unit) {
                 grayF8
             )
             .border(BorderStroke(1.dp, grayf1), shape = RoundedCornerShape(8.dp))
-
+            .padding(8.dp)
     ) {
-        OutlinedTextField(
+        BasicTextField(
             value = text,
             onValueChange = { newText ->
                 if (newText.length <= 30) {
                     onTextChange(newText)
                 }
-
             },
-            label = { Text("반려견과의 기록을 작성해보세요.") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                unfocusedBorderColor = Color.Transparent, // 내부 테두리 제거
-                cursorColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                disabledTextColor = Color.Gray
+            modifier = Modifier
+                .fillMaxWidth()
+                .matchParentSize()
+                .padding(4.dp),
+            maxLines = 4,
+            textStyle = PetgrowTheme.typography.regular.copy(
+                fontSize = 14.sp,
+                color = Color.Black
             ),
+            keyboardOptions = KeyboardOptions.Default,
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 4.dp, start = 8.dp, end = 8.dp, bottom = 4.dp)
+                ) {
+                    if (text.isEmpty()) {
+                        Text(
+                            text = "반려견과의 기록을 작성해보세요.",
+                            style = PetgrowTheme.typography.regular.copy(
+                                fontSize = 14.sp,
+                                color = gray60
+                            )
+                        )
+                    }
+                    innerTextField()
+                }
+            }
         )
-        Spacer(modifier = Modifier.height(36.dp))
-
     }
 }
 
@@ -396,7 +467,9 @@ fun AddDoneWriteButton(
     val cornerRadius = 12.dp
     Button(
         onClick = onDoneClick,
-        modifier = Modifier.fillMaxWidth().then(modifier),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
         colors = ButtonDefaults.buttonColors(
             containerColor = buttonColor
         ),

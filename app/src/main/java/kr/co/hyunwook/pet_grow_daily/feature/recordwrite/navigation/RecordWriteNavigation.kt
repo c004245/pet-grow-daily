@@ -7,13 +7,17 @@ import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.RecordWriteRoute
 import android.net.Uri
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 
 fun NavGraphBuilder.recordWriteGraph(
-    navigateToAlbum: () -> Unit
+    navigateToAlbum: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     composable(
         route = "record-write?selectedImageUris={selectedImageUris}",
@@ -23,7 +27,19 @@ fun NavGraphBuilder.recordWriteGraph(
                 defaultValue = ""
                 nullable = true
             }
-        )
+        ),
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
     ) {backStackEntry ->
         val encodedUris = backStackEntry.arguments?.getString("selectedImageUris") ?: ""
         val selectedImageUris = if (encodedUris.isNotEmpty()) {
@@ -38,7 +54,8 @@ fun NavGraphBuilder.recordWriteGraph(
 
         RecordWriteRoute(
             selectedImageUris = selectedImageUris,
-            navigateToAlbum = navigateToAlbum
+            navigateToAlbum = navigateToAlbum,
+            onBackClick = onBackClick
         )
     }
 

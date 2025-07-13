@@ -22,6 +22,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderProductList
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
@@ -54,6 +55,12 @@ class MainNavigator(
         navController.navigate(Order, navOptions = navOptions)
     }
 
+
+    fun navigateToOrderProductList(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(OrderProductList, navOptions)
+    }
     fun navigateToAnotherPet(
         navOptions: NavOptions
     ) {
@@ -129,7 +136,7 @@ class MainNavigator(
     @Composable
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
-        return currentRoute == Album || currentRoute == Order || currentRoute == MyPage || currentRoute == AnotherPet
+        return currentRoute == Album || currentRoute == OrderProductList || currentRoute == Order || currentRoute == MyPage || currentRoute == AnotherPet
     }
 }
 

@@ -59,6 +59,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderProductListGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.totalNavGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -168,6 +169,14 @@ internal fun MainScreen(
                         }
                     )
 
+                    orderProductListGraph(
+                        navigateToOrder =  {
+                            navigate(navigator, NavigateEnum.ORDER)
+
+                        },
+                        viewModel = orderViewModel
+                    )
+
                     orderNavGraph(
                         navigateToAlbumSelect = {
                             navigate(navigator, NavigateEnum.ALBUM_SELECT)
@@ -232,9 +241,9 @@ internal fun MainScreen(
 //                        }
 //                        isSheetOpen = true
                     },
-                    onOrderClick = {
-                        navigatorEnum = NavigateEnum.ORDER
-                        navigate(navigator, NavigateEnum.ORDER)
+                    onOrderProductListClick = {
+                        navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                        navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
                     },
                     onAnotherPetClick = {
                         navigatorEnum = NavigateEnum.ANOTHERPET
@@ -267,6 +276,10 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
 
         NavigateEnum.ORDER -> {
             navigator.navigateToOrder(navOptions = navOptions)
+        }
+
+        NavigateEnum.ORDER_PRODUCT_LIST -> {
+            navigator.navigateToOrderProductList(navOptions = navOptions)
         }
 
         NavigateEnum.ANOTHERPET -> {
@@ -317,7 +330,7 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
 @Composable
 fun CustomBottomBar(
     onAlbumClick: () -> Unit,
-    onOrderClick: () -> Unit,
+    onOrderProductListClick: () -> Unit,
     onAnotherPetClick: () -> Unit,
     onMyPageClick: () -> Unit,
     navigateEnum: NavigateEnum
@@ -388,7 +401,7 @@ fun CustomBottomBar(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .clickable {
-                        onOrderClick()
+                        onOrderProductListClick()
                     }
                     .weight(1f)
             ) {
@@ -465,7 +478,7 @@ fun MainScreenPreview() {
 }
 
 enum class NavigateEnum {
-    ALBUM, ORDER, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
+    ALBUM, ORDER, ORDER_PRODUCT_LIST, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
     PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
     DELIVERY_REGISTER, DELIVERY_CHECK, ALARM
 }

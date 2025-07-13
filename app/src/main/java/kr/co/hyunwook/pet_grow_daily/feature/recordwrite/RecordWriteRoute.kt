@@ -466,7 +466,11 @@ fun AddDoneWriteButton(
 
     val cornerRadius = 12.dp
     Button(
-        onClick = onDoneClick,
+        onClick = {
+            if (isEnabled) {
+                onDoneClick()
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
             .then(modifier),

@@ -6,6 +6,6 @@ import javax.inject.Inject
 class SaveLoginStateUseCase @Inject constructor(
     private val albumRepository: AlbumRepository
 ) {
-    suspend operator fun invoke(userId: Long) =
-        albumRepository.saveLoginState(userId)
+    suspend operator fun invoke(userId: Long, nickName: String?, email: String?) =
+        albumRepository.saveLoginState(userId, nickName, email)
 }

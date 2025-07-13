@@ -20,10 +20,10 @@ class OnBoardingViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Initial)
     val loginState: StateFlow<LoginState> = _loginState
 
-    fun handleKakaoLoginSuccess(userId: Long) {
+    fun handleKakaoLoginSuccess(userId: Long, nickName: String?, email: String?) {
         viewModelScope.launch {
             try {
-                saveLoginStateUseCase(userId)
+                saveLoginStateUseCase(userId, nickName, email)
 
                 hasPetProfileUseCase().collect { hasPetProfile ->
                     if (hasPetProfile) {

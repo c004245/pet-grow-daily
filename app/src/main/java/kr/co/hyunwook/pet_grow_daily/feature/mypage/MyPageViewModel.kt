@@ -21,11 +21,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetPetProfileUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SavePetProfileUseCase
 import java.io.IOException
 import javax.inject.Inject
@@ -35,9 +38,11 @@ import kotlin.math.min
 class MyPageViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getPetProfileUseCase: GetPetProfileUseCase,
-    private val savePetProfileUseCase: SavePetProfileUseCase
+    private val savePetProfileUseCase: SavePetProfileUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
 
+    
     val petProfile: StateFlow<PetProfile?> = flow {
         emit(Unit)
     }.flatMapLatest {
@@ -47,6 +52,17 @@ class MyPageViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = null
     )
+
+    private val _userInfo = MutableStateFlow<Pair<String?, String?>>(value = Pair("견주", "DailyDog"))
+    val userInfo: StateFlow<Pair<String?, String?>> = _userInfo.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val userInfoData = getUserInfoUseCase()
+            Log.d("HWO", "userInfoData -> $userInfoData")
+            _userInfo.value = userInfoData
+        }
+    }
 
     fun updateProfileImage(imageUri: String) {
         viewModelScope.launch {

@@ -101,8 +101,8 @@ class AlbumRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun saveLoginState(userId: Long) {
-        albumDataSource.saveLoginState(userId)
+    override suspend fun saveLoginState(userId: Long, nickName: String?, email: String?) {
+        albumDataSource.saveLoginState(userId, nickName, email)
 
     }
 

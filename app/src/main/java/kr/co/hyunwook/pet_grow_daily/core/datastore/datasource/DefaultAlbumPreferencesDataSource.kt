@@ -11,6 +11,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.preferencesOf
 
 class DefaultAlbumPreferencesDataSource @Inject constructor(
     @Named("album") private val dataStore: DataStore<Preferences>
@@ -23,8 +24,22 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         }.firstOrNull()
     }
 
+    override suspend fun getNickName(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.NICKNAME]
+        }.firstOrNull()
+    }
+
+    override suspend fun getEmail(): String? {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.EMAIL]
+        }.firstOrNull()
+    }
+
     object PreferencesKey {
         val USER_ID = longPreferencesKey("USER_ID")
+        val NICKNAME = stringPreferencesKey("NICK_NAME")
+        val EMAIL = stringPreferencesKey("EMAIL")
         val hasCompletedOnBoarding = booleanPreferencesKey("HAS_COMPLETED_ONBOARDING")
     }
 
@@ -33,9 +48,11 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
     }
 
 
-    override suspend fun saveLoginState(userId: Long) {
+    override suspend fun saveLoginState(userId: Long, nickName: String?, email: String?) {
         dataStore.edit { preferences ->
             preferences[PreferencesKey.USER_ID] = userId
+            preferences[PreferencesKey.NICKNAME] = nickName ?: "견주"
+            preferences[PreferencesKey.EMAIL] = email ?: "dailydog@gmail.com"
             preferences[PreferencesKey.hasCompletedOnBoarding] = true
         }
     }

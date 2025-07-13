@@ -91,7 +91,8 @@ fun OnBoardingScreen(
                     pageCount = 4,
                     currentPage = pagerState.currentPage,
                     modifier = Modifier
-                        .align(Alignment.BottomCenter).padding(bottom = 30.dp)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 30.dp)
                 )
             }
             OnBoardingBottomButton(
@@ -99,9 +100,9 @@ fun OnBoardingScreen(
                 onKakaoLogin = {
                     handleKakaoLogin(
                         context = context,
-                        onSuccess = { userId ->
-                            Log.d("HWO", "userId -> $userId")
-                            viewModel.handleKakaoLoginSuccess(userId)
+                        onSuccess = { userId, nickName, email  ->
+                            Log.d("HWO", "userId -> $userId -- $nickName -- $email")
+                            viewModel.handleKakaoLoginSuccess(userId, nickName, email)
                         },
                         onError = { error ->
                             Log.d(
@@ -158,7 +159,8 @@ fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifie
     ) {
         repeat(pageCount) { index ->
             Box(
-                modifier = Modifier.size(8.dp)
+                modifier = Modifier
+                    .size(8.dp)
                     .background(
                         color = if (index == currentPage) black29 else black29.copy(alpha = 0.2f),
                         shape = CircleShape
@@ -175,7 +177,9 @@ fun OnBoardingBottomButton(
     onNextClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 24.dp),
         contentAlignment = Alignment.Center
     ) {
         if (currentPage == 3) {
@@ -194,7 +198,9 @@ fun OnBoardingBottomButton(
                     .background(purple6C)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -212,7 +218,7 @@ fun OnBoardingBottomButton(
 
 private fun handleKakaoLogin(
     context: Context,
-    onSuccess: (Long) -> Unit,
+    onSuccess: (Long, String?, String?) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -234,7 +240,7 @@ private fun handleKakaoLogin(
 
 private fun loginWithKakaoAccount(
     context: Context,
-    onSuccess: (Long) -> Unit,
+    onSuccess: (Long, String?, String?) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
@@ -247,15 +253,14 @@ private fun loginWithKakaoAccount(
 }
 
 private fun getUserInfo(
-    onSuccess: (Long) -> Unit,
+    onSuccess: (Long, String?, String?) -> Unit,
     onError: (Throwable) -> Unit
 ) {
     UserApiClient.instance.me { user, error ->
         if (error != null) {
             onError(error)
-        } else if (user?.id != null) {  // user.id가 null이 아닌 경우에만 성공
-            // 사용자의 고유 ID 전달
-            onSuccess(user.id!!)
+        } else if (user?.id != null) {
+            onSuccess(user.id!!, user.kakaoAccount?.profile?.nickname, user.kakaoAccount?.email)
         } else {
             // user가 null이거나 user.id가 null인 경우 오류로 처리
             val errorMessage = "사용자 ID를 가져올 수 없습니다."
@@ -263,6 +268,7 @@ private fun getUserInfo(
         }
     }
 }
+
 @Preview
 @Composable
 fun OnBoardingScreenPreview() {

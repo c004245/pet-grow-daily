@@ -61,6 +61,7 @@ fun MyPageRoute(
 ) {
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
+    val userInfo by viewModel.userInfo.collectAsState()
 
     // 갤러리 런처
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -77,6 +78,7 @@ fun MyPageRoute(
 
     MyPageScreen(
         petProfile = petProfile,
+        userInfo = userInfo,
         onCameraClick = {
             galleryLauncher.launch("image/*")
         },
@@ -114,6 +116,7 @@ fun MyPageRoute(
 @Composable
 fun MyPageScreen(
     petProfile: PetProfile?,
+    userInfo: Pair<String?, String?>,
     onCameraClick: () -> Unit,
     onClickLogout: () -> Unit,
     onClickTerm: () -> Unit,
@@ -142,7 +145,7 @@ fun MyPageScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            MyProfileInfo(petProfile, onCameraClick)
+            MyProfileInfo(petProfile, userInfo, onCameraClick)
             Spacer(Modifier.height(12.dp))
             AlarmInfo(onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
@@ -169,7 +172,9 @@ fun MyPageScreen(
 }
 
 @Composable
-fun MyProfileInfo(petProfile: PetProfile?, onCameraClick: () -> Unit) {
+fun MyProfileInfo(petProfile: PetProfile?,
+                  userInfo: Pair<String?, String?>,
+                  onCameraClick: () -> Unit) {
     CommonRoundedBox {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -219,13 +224,13 @@ fun MyProfileInfo(petProfile: PetProfile?, onCameraClick: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = "${petProfile?.name ?: "사용자"}님, 안녕하세요.",
+                    text = "${userInfo.first ?: "사용자"}님, 안녕하세요.",
                     style = PetgrowTheme.typography.medium,
                     fontSize = 16.sp,
                     color = black21
                 )
                 Text(
-                    text = "c004112@gmail.com",
+                    text = "${userInfo.second}",
                     style = PetgrowTheme.typography.regular,
                     fontSize = 13.sp,
                     color = gray86

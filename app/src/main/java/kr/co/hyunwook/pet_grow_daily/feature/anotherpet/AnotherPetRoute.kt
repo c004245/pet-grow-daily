@@ -118,6 +118,7 @@ fun LookAnotherItem(item: AnotherPetModel) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .padding(horizontal = 12.dp)
+                .clip(RoundedCornerShape(12.dp))
         ) {
             HorizontalPager(
                 state = pagerState,

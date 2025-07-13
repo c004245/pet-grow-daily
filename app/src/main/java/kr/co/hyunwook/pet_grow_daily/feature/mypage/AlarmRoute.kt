@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,25 +33,29 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun AlarmRoute (
-    navigateToMyPage: () -> Unit
+    navigateToMyPage: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     AlarmScreen(
-        navigateToMyPage = navigateToMyPage
+        navigateToMyPage = navigateToMyPage,
+        modifier = modifier
     )
 }
 
 @Composable
 fun AlarmScreen(
     navigateToMyPage: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     var photoReminderEnabled by remember { mutableStateOf(true) }
     var deliveryNotificationEnabled by remember { mutableStateOf(true) }
     var marketingNotificationEnabled by remember { mutableStateOf(true) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
+            .background(grayF8)
             .padding(24.dp)
     ) {
         TitleDeliveryAppBar(stringResource(R.string.text_mypage_alarm_title), navigateToBack = {

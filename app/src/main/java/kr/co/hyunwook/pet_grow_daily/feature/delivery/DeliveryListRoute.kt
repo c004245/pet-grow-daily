@@ -29,6 +29,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -82,6 +83,7 @@ fun DeliveryListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(grayF8)
             .padding(24.dp)
     ) {
         TitleDeliveryAppBar(stringResource(R.string.text_delivery_list), navigateToBack = {

@@ -1,5 +1,10 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.MainTabRoute
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
@@ -26,9 +31,23 @@ fun NavGraphBuilder.alarmNavGraph(
     navigateToMyPage: () -> Unit
 ) {
 
-    composable<Alarm> {
+    composable<Alarm>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) {
         AlarmRoute(
-            navigateToMyPage = navigateToMyPage
+            navigateToMyPage = navigateToMyPage,
+            modifier = Modifier.zIndex(1f)
         )
     }
 

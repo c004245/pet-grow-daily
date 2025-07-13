@@ -1,6 +1,9 @@
 package kr.co.hyunwook.pet_grow_daily.feature.delivery.navigation
 
 import DeliveryCheckRoute
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryListRoute
@@ -18,7 +21,20 @@ fun NavGraphBuilder.deliveryListNavGraph(
     navigateToMyPage: () -> Unit,
     navigateToDeliveryAdd: (Int?) -> Unit
 ) {
-    composable<DeliveryList> {
+    composable<DeliveryList>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) {
         DeliveryListRoute(
             navigateToMyPage = navigateToMyPage,
             navigateToDeliveryAdd = navigateToDeliveryAdd

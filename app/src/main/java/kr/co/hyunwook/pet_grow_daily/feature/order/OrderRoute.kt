@@ -164,9 +164,12 @@ fun OrderScreen(
                 Spacer(Modifier.height(13.dp))
                 ImageSliderWithIndicator()
                 Spacer(Modifier.height(24.dp))
-                ProductDescriptionWidget(orderProduct = orderProduct)
+                ProductInfoWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
                 OrderCountWidget()
+                Spacer(Modifier.height(16.dp).background(grayF8))
+                ProductDescriptionWidget(orderProduct.productDescription)
+                Spacer(Modifier.height(120.dp))
             }
         }
             OrderButtonWidget(
@@ -263,7 +266,7 @@ fun ImageSliderWithIndicator() {
 
 //추후에 Firebase remote config 로 가격 조정
 @Composable
-fun ProductDescriptionWidget(
+fun ProductInfoWidget(
     orderProduct: OrderProduct
 ) {
     Column(
@@ -402,6 +405,19 @@ fun OrderButtonWidget(
 }
 
 @Composable
+fun ProductDescriptionWidget(description: String) {
+    Text(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
+        style = PetgrowTheme.typography.regular,
+        color = black21,
+        fontSize = 14.sp,
+        lineHeight = 21.sp,
+        text = description
+
+    )
+}
+
+@Composable
 fun PaymentWebView(
     onPaymentResult: (Boolean, String?, String?) -> Unit,
     onBackPressed: () -> Unit
@@ -525,3 +541,5 @@ fun PaymentWebView(
         modifier = Modifier.fillMaxSize()
     )
 }
+
+

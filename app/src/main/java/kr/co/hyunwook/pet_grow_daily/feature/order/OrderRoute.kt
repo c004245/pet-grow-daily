@@ -74,6 +74,7 @@ import android.webkit.WebViewClient
 import android.webkit.JavascriptInterface
 import android.os.Bundle
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 
 @Composable
 fun OrderRoute(
@@ -143,7 +144,7 @@ fun OrderScreen(
 
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()

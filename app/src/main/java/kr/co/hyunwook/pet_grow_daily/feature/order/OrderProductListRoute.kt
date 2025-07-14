@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumProgressWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -74,7 +76,7 @@ fun OrderProductListScreen(
     navigateToOrder: (OrderProduct) -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(grayF8)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()

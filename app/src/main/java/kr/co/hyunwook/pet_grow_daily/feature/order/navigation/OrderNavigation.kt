@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumSelectRoute
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductListRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductType
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
@@ -30,9 +31,11 @@ fun NavGraphBuilder.orderNavGraph(
     viewModel: OrderViewModel
 ) {
     composable<Order> { backStackEntry ->
+        val args = backStackEntry.toRoute<Order>()
         OrderRoute (
             navigateToAlbumSelect = navigateToAlbumSelect,
-            viewModel = viewModel
+            viewModel = viewModel,
+            orderProductType = args.orderProductType
         )
     }
 }
@@ -52,7 +55,7 @@ fun NavGraphBuilder.albumSelectNavGraph(
 }
 
 @Serializable
-data object Order: Route {
+data class Order(val orderProductType: OrderProductType) : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order"
 }
 

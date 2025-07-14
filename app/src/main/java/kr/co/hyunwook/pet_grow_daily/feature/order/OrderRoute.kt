@@ -77,7 +77,8 @@ import android.os.Bundle
 @Composable
 fun OrderRoute(
     navigateToAlbumSelect: () -> Unit,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    orderProductType: OrderProductType
 ) {
 
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()

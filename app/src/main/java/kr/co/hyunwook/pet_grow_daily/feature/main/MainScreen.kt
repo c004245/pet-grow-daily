@@ -170,9 +170,13 @@ internal fun MainScreen(
                     )
 
                     orderProductListGraph(
-                        navigateToOrder =  {
-                            navigate(navigator, NavigateEnum.ORDER)
-
+                        navigateToOrder = { orderProductType ->
+                            navigator.navigateToOrder(orderProductType, navOptions {
+                                popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            })
                         },
                         viewModel = orderViewModel
                     )
@@ -272,10 +276,6 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
     when (navigateEnum) {
         NavigateEnum.ALBUM -> {
             navigator.navigateToAlbum(navOptions = navOptions)
-        }
-
-        NavigateEnum.ORDER -> {
-            navigator.navigateToOrder(navOptions = navOptions)
         }
 
         NavigateEnum.ORDER_PRODUCT_LIST -> {

@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
+import TitleDeliveryAppBarOnlyButton
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.delay
@@ -75,6 +76,8 @@ import android.webkit.JavascriptInterface
 import android.os.Bundle
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
+import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
+import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 
 @Composable
 fun OrderRoute(
@@ -149,16 +152,9 @@ fun OrderScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-                CommonTopBar(
-                    title = {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(id = R.string.text_order_title),
-                            style = PetgrowTheme.typography.bold,
-                            color = black21
-                        )
-                    }
-                )
+            CommonAppBarOnlyButton {
+
+            }
 
             Column(
                 modifier = Modifier
@@ -274,46 +270,52 @@ fun ProductDescriptionWidget(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-
     ) {
         Text(
             text = orderProduct.productTitle,
             style = PetgrowTheme.typography.bold,
             color = black21,
-            fontSize = 18.sp
+            fontSize = 18.sp,
+            lineHeight = 18.sp,
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "${orderProduct.productCost}원",
+            text = formatPrice(orderProduct.productCost),
             style = PetgrowTheme.typography.medium,
             textDecoration = TextDecoration.LineThrough,
             color = gray86,
             fontSize = 13.sp,
+            lineHeight = 13.sp,
         )
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "${orderProduct.productDiscount}%",
                 style = PetgrowTheme.typography.bold,
                 color = redF3,
-                fontSize = 22.sp
+                fontSize = 22.sp,
+                lineHeight = 22.sp,
             )
             Spacer(Modifier.width(2.dp))
             Text(
                 text = "${orderProduct.productCost * (100 - orderProduct.productDiscount) / 100}원",
                 color = black21,
                 fontSize = 22.sp,
+                lineHeight = 22.sp,
                 style = PetgrowTheme.typography.bold
             )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = "배송비 포함",
+                style = PetgrowTheme.typography.medium,
+                color = gray86,
+                fontSize = 14.sp,
+                lineHeight = 14.sp
+            )
         }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = "배송비 3,000원",
-            style = PetgrowTheme.typography.medium,
-            color = gray86,
-            fontSize = 14.sp
-        )
+
     }
 
 }
@@ -334,7 +336,7 @@ fun OrderCountWidget() {
         ) {
             Text(
                 modifier = Modifier.padding(start = 16.dp),
-                text = "오늘 주문 가능 수량",
+                text = "오늘 제작 가능 수량",
                 fontSize = 16.sp,
                 style = PetgrowTheme.typography.bold,
                 color = black21

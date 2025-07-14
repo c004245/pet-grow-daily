@@ -43,6 +43,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumProgressWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -226,7 +227,4 @@ private fun getProductDrawableResource(productTitle: String): Int {
     }
 }
 
-private fun formatPrice(price: Int): String {
-    val formatter = NumberFormat.getNumberInstance(Locale.KOREA)
-    return "${formatter.format(price)}원"
-}
+

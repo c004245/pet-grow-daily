@@ -1,7 +1,11 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +53,7 @@ import java.util.Locale
 //주문 상품 고를 수 있는 화면
 @Composable
 fun OrderProductListRoute(
-    navigateToOrder: () -> Unit,
+    navigateToOrder: (OrderProductType) -> Unit,
     viewModel: OrderViewModel
 ) {
 
@@ -71,7 +76,7 @@ fun OrderProductListRoute(
 fun OrderProductListScreen(
     albumRecord: List<AlbumRecord>,
     orderProducts: List<OrderProduct>,
-    navigateToOrder: () -> Unit,
+    navigateToOrder: (OrderProductType) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -92,18 +97,29 @@ fun OrderProductListScreen(
             )
             Spacer(Modifier.height(16.dp))
             AlbumProgressWidget(
-                albumRecord.size,
-                navigateToOrder = navigateToOrder
+                albumRecord.size
             )
             Spacer(Modifier.height(20.dp))
-            OrderProductListWidget(orderProducts = orderProducts)
+            OrderProductListWidget(
+                orderProducts = orderProducts,
+                onProductClick = { productIndex ->
+                    val orderProductType = when (productIndex) {
+                        0 -> OrderProductType.INSTABOOK
+                        1 -> OrderProductType.PHOTO_BOOK_LIGHT
+                        2 -> OrderProductType.PHOTO_BOOK_PREMIUM
+                        else -> OrderProductType.INSTABOOK
+                    }
+                    navigateToOrder(orderProductType)
+                }
+            )
         }
     }
 }
 
 @Composable
 fun OrderProductListWidget(
-    orderProducts: List<OrderProduct> = emptyList()
+    orderProducts: List<OrderProduct> = emptyList(),
+    onProductClick: (Int) -> Unit = {}
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -111,15 +127,22 @@ fun OrderProductListWidget(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             itemsIndexed(orderProducts) { index, product ->
-                OrderProductItem(product = product)
+                OrderProductItem(
+                    product = product,
+                    index = index,
+                    onItemClick = onProductClick
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OrderProductItem(
-    product: OrderProduct
+    product: OrderProduct,
+    index: Int,
+    onItemClick: (Int) -> Unit
 ) {
 
     val discountPrice = product.productCost * (100 - product.productDiscount) / 100
@@ -127,12 +150,17 @@ fun OrderProductItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .combinedClickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = LocalIndication.current,
+                onClick = { onItemClick(index) }
+            )
+            .padding(vertical = 16.dp, horizontal = 0.dp)
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
-            ,
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
 
         ) {
@@ -210,4 +238,10 @@ private fun getProductDrawableResource(productTitle: String): Int {
 private fun formatPrice(price: Int): String {
     val formatter = NumberFormat.getNumberInstance(Locale.KOREA)
     return "${formatter.format(price)}원"
+}
+
+enum class OrderProductType {
+    INSTABOOK,
+    PHOTO_BOOK_LIGHT,
+    PHOTO_BOOK_PREMIUM
 }

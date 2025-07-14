@@ -14,6 +14,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.AlbumImageRoute
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductType
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import androidx.compose.foundation.Image
@@ -68,7 +69,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun AlbumRoute(
     paddingValues: PaddingValues,
     navigateToAdd: () -> Unit = {},
-    navigateToOrder: () -> Unit = {},
+    navigateToOrderProductList: () -> Unit = {},
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -79,7 +80,7 @@ fun AlbumRoute(
     AlbumScreen(
         albumRecord = albumRecord,
         navigateToAdd = navigateToAdd,
-        navigateToOrder = navigateToOrder
+        navigateToOrderProductList  = navigateToOrderProductList
     )
 }
 
@@ -87,7 +88,7 @@ fun AlbumRoute(
 fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
     navigateToAdd: () -> Unit = {},
-    navigateToOrder: () -> Unit = {}
+    navigateToOrderProductList: () -> Unit
 ) {
 
     var selectedTab by remember { mutableStateOf(AlbumTab.LIST) }
@@ -105,7 +106,9 @@ fun AlbumScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(grayF8)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(grayF8)
     ) {
         Column(
             modifier = Modifier
@@ -132,8 +135,8 @@ fun AlbumScreen(
             Spacer(Modifier.height(16.dp))
             if (pagerState.currentPage == 0) {
                 AlbumProgressWidget(
-                    albumRecord.size,
-                    navigateToOrder = navigateToOrder
+                    progress = albumRecord.size,
+                    navigateToOrderProductList = { navigateToOrderProductList() }
                 )
             }
 
@@ -176,7 +179,9 @@ fun CustomAlbumListWidget(
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(
                 top = 16.dp,
@@ -230,7 +235,9 @@ fun AlbumCard(
     modifier: Modifier
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         Box(
             modifier = Modifier
@@ -245,7 +252,9 @@ fun AlbumCard(
                 .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().matchParentSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .matchParentSize()
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -257,7 +266,9 @@ fun AlbumCard(
                     .blur(radius = 3.dp)
             )
             Column(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
                 AlbumImageWidget(
                     firstImageUri = albumRecord.firstImage,
@@ -268,7 +279,8 @@ fun AlbumCard(
                 AlbumText(
                     date = albumRecord.date,
                     content = albumRecord.content,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
                 )
             }
@@ -289,7 +301,9 @@ fun AlbumImageWidget(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(
-            modifier = Modifier.weight(1f).aspectRatio(1f)
+            modifier = Modifier
+                .weight(1f)
+                .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topStart = 16.dp))
         ) {
             GlideImage(
@@ -304,7 +318,9 @@ fun AlbumImageWidget(
         Spacer(modifier = Modifier.width(2.dp))
 
         Box(
-            modifier = Modifier.weight(1f).aspectRatio(1f)
+            modifier = Modifier
+                .weight(1f)
+                .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topEnd = 16.dp))
         ) {
             GlideImage(
@@ -369,7 +385,8 @@ fun EmptyAlbumWidget(
             )
             Spacer(modifier = Modifier.height(20.dp))
             Box(
-                modifier = Modifier.wrapContentWidth()
+                modifier = Modifier
+                    .wrapContentWidth()
                     .clickable {
                         navigateToAdd()
                     }
@@ -440,9 +457,10 @@ fun ToggleTabItem(
     unSelectedIconRes: Int
 ) {
     Box(
-        modifier = Modifier.clip(
-            RoundedCornerShape(6.dp)
-        )
+        modifier = Modifier
+            .clip(
+                RoundedCornerShape(6.dp)
+            )
             .background(if (isSelected) Color.White else Color.Transparent)
             .clickable { onClick(tab) }
             .padding(6.dp)
@@ -458,7 +476,7 @@ fun ToggleTabItem(
 @Composable
 fun AlbumProgressWidget(
     progress: Int,
-    navigateToOrder: () -> Unit
+    navigateToOrderProductList: (() -> Unit)? = null
 ) {
     val currentCount = progress * 2
     val maxCount = ALBUM_CREATE_COMPLETE
@@ -467,7 +485,8 @@ fun AlbumProgressWidget(
     val isCompleted = currentCount == maxCount
 
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .shadow(
                 elevation = 4.dp,
@@ -478,16 +497,20 @@ fun AlbumProgressWidget(
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .clickable {
-                if (isCompleted) {
-                    navigateToOrder()
+                if (isCompleted && navigateToOrderProductList != null) {
+                    navigateToOrderProductList()
                 }
             }
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (isCompleted) {
@@ -502,10 +525,12 @@ fun AlbumProgressWidget(
                             fontSize = 12.sp,
                         )
                         Spacer(Modifier.width(4.dp))
-                        Image(
-                            painter = painterResource(R.drawable.ic_progress_arrow),
-                            contentDescription = null
-                        )
+                        if (navigateToOrderProductList != null) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_progress_arrow),
+                                contentDescription = null
+                            )
+                        }
                     }
                 } else {
                     // 기존 텍스트 표시

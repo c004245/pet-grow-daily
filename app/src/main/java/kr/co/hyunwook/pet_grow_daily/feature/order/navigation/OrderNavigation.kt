@@ -9,11 +9,12 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumSelectRoute
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductListRoute
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductType
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 
 
 fun NavGraphBuilder.orderProductListGraph(
-    navigateToOrder: () -> Unit,
+    navigateToOrder: (OrderProductType) -> Unit,
     viewModel: OrderViewModel
 ) {
     composable<OrderProductList> {

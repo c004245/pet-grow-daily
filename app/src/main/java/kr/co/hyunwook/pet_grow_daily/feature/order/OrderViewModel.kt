@@ -78,9 +78,9 @@ class OrderViewModel @Inject constructor(
             } else {
                 // 기본값 사용
                 _orderProducts.value = listOf(
-                    OrderProduct("인스타북", 20000, 10),
-                    OrderProduct("포토북 라이트", 35000, 10),
-                    OrderProduct("포토북 고급", 50000, 10)
+                    OrderProduct( "인스타북", 20000, 10),
+                    OrderProduct( "포토북 라이트", 35000, 10),
+                    OrderProduct( "포토북 고급", 50000, 10)
                 )
             }
         }

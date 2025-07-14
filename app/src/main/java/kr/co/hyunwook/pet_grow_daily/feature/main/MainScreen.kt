@@ -123,9 +123,9 @@ internal fun MainScreen(
                         navigateToAdd = {
                             navigate(navigator, NavigateEnum.ADD)
                         },
-                        navigateToOrder = {
-                            navigatorEnum = NavigateEnum.ORDER
-                            navigate(navigator, NavigateEnum.ORDER)
+                        navigateToOrderProductList = {
+                            navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
                         }
                     )
                     totalNavGraph()

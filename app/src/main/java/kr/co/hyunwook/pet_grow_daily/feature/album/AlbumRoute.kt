@@ -14,7 +14,6 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.AlbumImageRoute
-import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductType
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import androidx.compose.foundation.Image

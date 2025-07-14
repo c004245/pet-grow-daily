@@ -3,7 +3,6 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -42,7 +38,6 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumProgressWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -53,7 +48,7 @@ import java.util.Locale
 //주문 상품 고를 수 있는 화면
 @Composable
 fun OrderProductListRoute(
-    navigateToOrder: (OrderProductType) -> Unit,
+    navigateToOrder: (OrderProduct) -> Unit,
     viewModel: OrderViewModel
 ) {
 
@@ -76,7 +71,7 @@ fun OrderProductListRoute(
 fun OrderProductListScreen(
     albumRecord: List<AlbumRecord>,
     orderProducts: List<OrderProduct>,
-    navigateToOrder: (OrderProductType) -> Unit,
+    navigateToOrder: (OrderProduct) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -102,14 +97,8 @@ fun OrderProductListScreen(
             Spacer(Modifier.height(20.dp))
             OrderProductListWidget(
                 orderProducts = orderProducts,
-                onProductClick = { productIndex ->
-                    val orderProductType = when (productIndex) {
-                        0 -> OrderProductType.INSTABOOK
-                        1 -> OrderProductType.PHOTO_BOOK_LIGHT
-                        2 -> OrderProductType.PHOTO_BOOK_PREMIUM
-                        else -> OrderProductType.INSTABOOK
-                    }
-                    navigateToOrder(orderProductType)
+                onProductClick = { selectedProduct ->
+                    navigateToOrder(selectedProduct)
                 }
             )
         }
@@ -119,7 +108,7 @@ fun OrderProductListScreen(
 @Composable
 fun OrderProductListWidget(
     orderProducts: List<OrderProduct> = emptyList(),
-    onProductClick: (Int) -> Unit = {}
+    onProductClick: (OrderProduct) -> Unit = {}
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -142,7 +131,7 @@ fun OrderProductListWidget(
 fun OrderProductItem(
     product: OrderProduct,
     index: Int,
-    onItemClick: (Int) -> Unit
+    onItemClick: (OrderProduct) -> Unit
 ) {
 
     val discountPrice = product.productCost * (100 - product.productDiscount) / 100
@@ -154,7 +143,7 @@ fun OrderProductItem(
             .combinedClickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = LocalIndication.current,
-                onClick = { onItemClick(index) }
+                onClick = { onItemClick(product) }
             )
             .padding(vertical = 16.dp, horizontal = 0.dp)
     ) {
@@ -238,10 +227,4 @@ private fun getProductDrawableResource(productTitle: String): Int {
 private fun formatPrice(price: Int): String {
     val formatter = NumberFormat.getNumberInstance(Locale.KOREA)
     return "${formatter.format(price)}원"
-}
-
-enum class OrderProductType {
-    INSTABOOK,
-    PHOTO_BOOK_LIGHT,
-    PHOTO_BOOK_PREMIUM
 }

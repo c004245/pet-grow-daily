@@ -10,9 +10,9 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
-import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
@@ -73,14 +73,16 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.JavascriptInterface
 import android.os.Bundle
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 
 @Composable
 fun OrderRoute(
     navigateToAlbumSelect: () -> Unit,
     viewModel: OrderViewModel,
-    orderProductType: OrderProductType
+    orderProduct: OrderProduct
 ) {
 
+    Log.d("HWO", "orderProduct -> $orderProduct")
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
@@ -122,6 +124,7 @@ fun OrderRoute(
         )
     } else {
         OrderScreen(
+            orderProduct = orderProduct,
             onClickRequestPayment = {
                 navigateToAlbumSelect()
 //                viewModel.requestKakaoPayPayment()
@@ -132,6 +135,7 @@ fun OrderRoute(
 
 @Composable
 fun OrderScreen(
+    orderProduct: OrderProduct,
     onClickRequestPayment: () -> Unit
 
 ) {
@@ -163,7 +167,7 @@ fun OrderScreen(
                 Spacer(Modifier.height(13.dp))
                 ImageSliderWithIndicator()
                 Spacer(Modifier.height(24.dp))
-                ProductDescriptionWidget()
+                ProductDescriptionWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
                 OrderCountWidget()
             }
@@ -262,7 +266,9 @@ fun ImageSliderWithIndicator() {
 
 //추후에 Firebase remote config 로 가격 조정
 @Composable
-fun ProductDescriptionWidget() {
+fun ProductDescriptionWidget(
+    orderProduct: OrderProduct
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -270,14 +276,14 @@ fun ProductDescriptionWidget() {
 
     ) {
         Text(
-            text = "코팅형 고급 앨범 (사진 최대 40장)",
+            text = orderProduct.productTitle,
             style = PetgrowTheme.typography.bold,
             color = black21,
             fontSize = 18.sp
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "30,000원",
+            text = "${orderProduct.productCost}원",
             style = PetgrowTheme.typography.medium,
             textDecoration = TextDecoration.LineThrough,
             color = gray86,
@@ -287,14 +293,14 @@ fun ProductDescriptionWidget() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "10%",
+                text = "${orderProduct.productDiscount}%",
                 style = PetgrowTheme.typography.bold,
                 color = redF3,
                 fontSize = 22.sp
             )
             Spacer(Modifier.width(2.dp))
             Text(
-                text = "27,000원",
+                text = "${orderProduct.productCost * (100 - orderProduct.productDiscount) / 100}원",
                 color = black21,
                 fontSize = 22.sp,
                 style = PetgrowTheme.typography.bold

@@ -10,12 +10,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductListRoute
-import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductType
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
-
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
+import com.google.gson.Gson
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 fun NavGraphBuilder.orderProductListGraph(
-    navigateToOrder: (OrderProductType) -> Unit,
+    navigateToOrder: (OrderProduct) -> Unit,
     viewModel: OrderViewModel
 ) {
     composable<OrderProductList> {
@@ -32,10 +34,13 @@ fun NavGraphBuilder.orderNavGraph(
 ) {
     composable<Order> { backStackEntry ->
         val args = backStackEntry.toRoute<Order>()
+        val decodedJson =
+            URLDecoder.decode(args.orderProductJson, StandardCharsets.UTF_8.toString())
+        val orderProduct = Gson().fromJson(decodedJson, OrderProduct::class.java)
         OrderRoute (
             navigateToAlbumSelect = navigateToAlbumSelect,
             viewModel = viewModel,
-            orderProductType = args.orderProductType
+            orderProduct = orderProduct
         )
     }
 }
@@ -55,7 +60,7 @@ fun NavGraphBuilder.albumSelectNavGraph(
 }
 
 @Serializable
-data class Order(val orderProductType: OrderProductType) : Route {
+data class Order(val orderProductJson: String) : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order"
 }
 

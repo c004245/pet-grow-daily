@@ -170,8 +170,8 @@ internal fun MainScreen(
                     )
 
                     orderProductListGraph(
-                        navigateToOrder = { orderProductType ->
-                            navigator.navigateToOrder(orderProductType, navOptions {
+                        navigateToOrder = { orderProduct ->
+                            navigator.navigateToOrder(orderProduct, navOptions {
                                 popUpTo(navigator.navController.graph.findStartDestination().id) {
                                     inclusive = true
                                 }

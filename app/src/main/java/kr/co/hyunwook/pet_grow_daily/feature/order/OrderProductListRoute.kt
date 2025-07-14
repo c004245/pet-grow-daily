@@ -1,6 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,15 +24,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumProgressWidget
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import java.text.NumberFormat
@@ -114,75 +121,78 @@ fun OrderProductListWidget(
 fun OrderProductItem(
     product: OrderProduct
 ) {
-    Card(
+
+    val discountPrice = product.productCost * (100 - product.productDiscount) / 100
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        elevation = 4.dp,
-        shape = RoundedCornerShape(12.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .clip(RoundedCornerShape(16.dp)) // 전체 카드에 클립 적용
+            ,
+            contentAlignment = Alignment.Center
+
         ) {
+            Image(
+                painter = painterResource(id = getProductDrawableResource(product.productTitle)),
+                contentDescription = product.productTitle,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = product.productTitle,
+                style = PetgrowTheme.typography.medium,
+                fontSize = 16.sp,
+                lineHeight = 16.sp,
+                color = black21
+            )
+
+
+            Text(
+                text = formatPrice(product.productCost),
+                style = PetgrowTheme.typography.medium,
+                color = gray86,
+                fontSize = 13.sp,
+                lineHeight = 13.sp,
+                textDecoration = TextDecoration.LineThrough  // 취소선
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // 제품 이미지
-                Image(
-                    painter = painterResource(id = getProductDrawableResource(product.productTitle)),
-                    contentDescription = product.productTitle,
-                    modifier = Modifier.size(80.dp)
+                Text(
+                    text = "${product.productDiscount}%",
+                    style = PetgrowTheme.typography.medium,
+                    color = redF3,
+                    fontSize = 18.sp,
+                    lineHeight = 18.sp
                 )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // 제품 정보
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = product.productTitle,
-                        style = PetgrowTheme.typography.bold,
-                        color = black21
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // 할인 정보
-                    if (product.productDiscount > 0) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "${product.productDiscount}%",
-                                style = PetgrowTheme.typography.medium,
-                                color = Color.Red
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = formatPrice(product.productCost),
-                                style = PetgrowTheme.typography.medium,
-                                color = Color.Gray,
-                                textDecoration = TextDecoration.LineThrough
-                            )
-                        }
-                    }
-
-                    // 할인된 가격
-                    val discountedPrice =
-                        product.productCost * (100 - product.productDiscount) / 100
-                    Text(
-                        text = formatPrice(discountedPrice),
-                        style = PetgrowTheme.typography.bold,
-                        color = black21
-                    )
-                }
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = formatPrice(discountPrice),
+                    style = PetgrowTheme.typography.medium,
+                    color = black21,
+                    fontSize = 18.sp,
+                    lineHeight = 18.sp
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "배송비 포함",
+                    style = PetgrowTheme.typography.medium,
+                    color = gray86,
+                    fontSize = 13.sp,
+                    lineHeight = 13.sp
+                )
             }
         }
     }
@@ -190,10 +200,10 @@ fun OrderProductItem(
 
 private fun getProductDrawableResource(productTitle: String): Int {
     return when (productTitle) {
-        "인스타북" -> R.drawable.ic_order_dummy
-        "포토북 라이트" -> R.drawable.ic_order_dummy
-        "포토북 고급" -> R.drawable.ic_order_dummy
-        else -> R.drawable.ic_order_dummy
+        "인스타북" -> R.drawable.ic_order_dummy2
+        "포토북 라이트" -> R.drawable.ic_order_dummy2
+        "포토북 고급" -> R.drawable.ic_order_dummy2
+        else -> R.drawable.ic_order_dummy2
     }
 }
 

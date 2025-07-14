@@ -1,0 +1,98 @@
+{
+  "rules": [
+    "Write clear, concise code comments",
+    "Follow Android security best practices",
+    "Optimize for Korean market requirements",
+    "Use Korean fonts (Noto Sans) for proper text rendering",
+    "Handle Korean input methods properly",
+    "Consider Korean cultural context in UX design",
+    {
+      "filePathMatches": "**/*.kt",
+      "rules": [
+        "Follow Kotlin coding conventions",
+        "Use nullable types sparingly",
+        "Implement proper error handling for network calls",
+        "Add proper logging for debugging",
+        "Use data classes for simple data containers",
+        "Prefer sealed classes for state management",
+        "Use Hilt for dependency injection",
+        "Follow Clean Architecture principles with feature modules"
+      ]
+    },
+    {
+      "filePathMatches": "**/feature/**/*Screen.kt",
+      "rules": [
+        "Use Compose for UI development",
+        "Follow feature-based architecture",
+        "Use proper state management with ViewModels",
+        "Add semantics for accessibility",
+        "Use LazyColumn/LazyRow for scrollable content",
+        "Implement proper navigation with Compose Navigation",
+        "Use consistent naming: *Screen.kt for screens",
+        "Follow the established design system (PetgrowTheme)"
+      ]
+    },
+    {
+      "filePathMatches": "**/core/designsystem/**/*.kt",
+      "rules": [
+        "Maintain consistent design system components",
+        "Use proper typography scaling",
+        "Define colors with meaningful names",
+        "Create reusable UI components",
+        "Follow Material Design 3 guidelines"
+      ]
+    },
+    {
+      "filePathMatches": "**/core/data/**/*.kt",
+      "rules": [
+        "Use Repository pattern for data management",
+        "Implement proper caching strategies",
+        "Handle network errors gracefully",
+        "Use Kotlin coroutines for async operations",
+        "Implement proper data mapping between layers"
+      ]
+    },
+    {
+      "filePathMatches": "**/core/database/**/*.kt",
+      "rules": [
+        "Use Room for local database operations",
+        "Define proper database migrations",
+        "Use DAOs for database access",
+        "Implement proper database versioning"
+      ]
+    },
+    {
+      "filePathMatches": "**/test/**/*.kt",
+      "rules": [
+        "Use descriptive test method names",
+        "Follow AAA pattern: Arrange, Act, Assert",
+        "Mock external dependencies properly",
+        "Use Kotest for testing framework",
+        "Test Korean text handling and formatting"
+      ]
+    },
+    {
+      "filePathMatches": "**/navigation/**/*.kt",
+      "rules": [
+        "Use Compose Navigation for screen navigation",
+        "Define clear navigation graphs",
+        "Handle deep linking properly",
+        "Use type-safe navigation arguments"
+      ]
+    }
+  ],
+  "ignore": [
+    "build/**",
+    ".gradle/**",
+    "**/generated/**",
+    "firebase-admin-key.json",
+    ".env",
+    "*.keystore",
+    "*.jks",
+    "app/google-services.json",
+    "app/key.properties",
+    "functions/node_modules/**"
+  ],
+  "mcpServers": {},
+  "mcpEnvFile": ".env"
+}

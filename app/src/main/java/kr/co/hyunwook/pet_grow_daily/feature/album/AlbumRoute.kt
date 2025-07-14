@@ -510,7 +510,7 @@ fun AlbumProgressWidget(
                 } else {
                     // 기존 텍스트 표시
                     Text(
-                        text = stringResource(R.string.text_add_picture_progress),
+                        text = "${40 - currentCount}장만 더 채우면 앨범을 주문할 수 있어요.",
                         style = PetgrowTheme.typography.medium,
                         color = purple6C,
                         fontSize = 12.sp,

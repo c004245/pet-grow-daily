@@ -23,7 +23,11 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveOrderRecordUseCase
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.google.gson.annotations.SerializedName
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
+import kr.co.hyunwook.pet_grow_daily.core.config.RemoteConfigWrapper
+import kotlinx.serialization.Serializable
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -33,8 +37,8 @@ class OrderViewModel @Inject constructor(
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
     private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
     private val saveOrderRecordUseCase: SaveOrderRecordUseCase,
-    private val getUserIdUseCase: GetUserIdUseCase
-
+    private val getUserIdUseCase: GetUserIdUseCase,
+    private val remoteConfigWrapper: RemoteConfigWrapper
 ) : ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -46,7 +50,6 @@ class OrderViewModel @Inject constructor(
     private val _paymentResult = MutableStateFlow<PaymentResult?>(PaymentResult.Initial)
     val paymentResult: StateFlow<PaymentResult?> = _paymentResult
 
-
     private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
     val albumRecord: StateFlow<List<AlbumRecord>> get() = _albumRecord
 
@@ -55,7 +58,6 @@ class OrderViewModel @Inject constructor(
 
     private val _deliveryInfos = MutableStateFlow<List<DeliveryInfo>>(emptyList())
     val deliveryInfos: StateFlow<List<DeliveryInfo>> get() = _deliveryInfos
-
 
     private val _saveDeliveryDoneEvent = MutableSharedFlow<Boolean>()
     val saveDeliveryDoneEvent: SharedFlow<Boolean> get() = _saveDeliveryDoneEvent
@@ -66,6 +68,23 @@ class OrderViewModel @Inject constructor(
     private val _saveOrderDoneEvent = MutableSharedFlow<Boolean>()
     val saveOrderDoneEvent: SharedFlow<Boolean> get() = _saveOrderDoneEvent
 
+    private val _orderProducts = MutableStateFlow<List<OrderProduct>>(emptyList())
+    val orderProducts: StateFlow<List<OrderProduct>> get() = _orderProducts
+
+    fun fetchOrderProducts() {
+        remoteConfigWrapper.fetchOrderProductList { orderProductListModel ->
+            if (orderProductListModel != null) {
+                _orderProducts.value = orderProductListModel.orderProducts
+            } else {
+                // 기본값 사용
+                _orderProducts.value = listOf(
+                    OrderProduct("인스타북", 20000, 10),
+                    OrderProduct("포토북 라이트", 35000, 10),
+                    OrderProduct("포토북 고급", 50000, 10)
+                )
+            }
+        }
+    }
 
     fun checkDeliveryInfo() {
         viewModelScope.launch {
@@ -96,9 +115,9 @@ class OrderViewModel @Inject constructor(
         viewModelScope.launch {
             val userAlbumCount = getUserAlbumCountUseCase()
             Log.d("HWO", "userAlbumCount -> $userAlbumCount")
-                _userAlbumCount.value = userAlbumCount
-            }
+            _userAlbumCount.value = userAlbumCount
         }
+    }
 
     fun requestKakaoPayPayment() {
         val paymentData = mapOf(

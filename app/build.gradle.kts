@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.firebase.appcheck.debug)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.config.ktx)
 
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)

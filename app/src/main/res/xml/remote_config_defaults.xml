@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>order_product_list</key>
+        <value>
+            {"order_products":[{"product_title":"인스타북","product_cost":20000,"product_discount":10},{"product_title":"포토북
+            라이트","product_cost":35000,"product_discount":10},{"product_title":"포토북
+            고급","product_cost":50000,"product_discount":10}]}
+        </value>
+    </entry>
+</defaultsMap>

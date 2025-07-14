@@ -2,6 +2,7 @@ package kr.co.hyunwook.pet_grow_daily.core.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
 @Entity
 data class AlbumRecord(
@@ -29,4 +30,19 @@ data class PetProfile(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val profileImageUrl: String,
+)
+
+
+data class OrderProduct(
+    @SerializedName("product_title")
+    val productTitle: String,
+    @SerializedName("product_cost")
+    val productCost: Int,
+    @SerializedName("product_discount")
+    val productDiscount: Int
+)
+
+data class OrderProductListModel(
+    @SerializedName("order_products")
+    val orderProducts: List<OrderProduct>
 )

@@ -150,6 +150,8 @@ dependencies {
 
     // OkHttp for HTTP requests
     implementation(libs.okhttp)
+
+    implementation(libs.work.runtime.ktx)
 }
 
 tasks.withType<Test> {

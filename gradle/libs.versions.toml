@@ -37,8 +37,11 @@ kakao = "2.19.0"
 firebase-storage = "20.2.1"
 firebaseFunctionsKtx = "21.2.1"
 
+work = "2.8.1"
+
 
 [libraries]
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

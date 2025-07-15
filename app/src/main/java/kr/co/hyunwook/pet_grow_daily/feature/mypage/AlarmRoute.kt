@@ -19,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
@@ -34,19 +36,26 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 @Composable
 fun AlarmRoute (
     navigateToMyPage: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AlarmViewModel = hiltViewModel()
 ) {
+
+    val photoReminderEnabled by viewModel.photoReminderEnabled.collectAsState()
 
     AlarmScreen(
         navigateToMyPage = navigateToMyPage,
         modifier = modifier
+        photoReminderEnabled = photoReminderEnabled,
+        onPhotoReminderToggle = { enabled ->
+            viewModel.setPhotoReminderEnabled(enabled)
+        }
     )
 }
 
 @Composable
 fun AlarmScreen(
     navigateToMyPage: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var photoReminderEnabled by remember { mutableStateOf(true) }
     var deliveryNotificationEnabled by remember { mutableStateOf(true) }
@@ -66,7 +75,7 @@ fun AlarmScreen(
 
         // 사진 등록 리마인드
         AlarmToggleItem(
-            title = "사진 등록 리마인드",
+            title = "사진 등록 리마인드 📸",
             isEnabled = photoReminderEnabled,
             onToggle = { photoReminderEnabled = it }
         )
@@ -75,7 +84,7 @@ fun AlarmScreen(
 
         // 제작/배송 알림
         AlarmToggleItem(
-            title = "제작/배송 알림",
+            title = "제작/배송 알림 📦",
             isEnabled = deliveryNotificationEnabled,
             onToggle = { deliveryNotificationEnabled = it }
         )
@@ -83,7 +92,7 @@ fun AlarmScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         AlarmToggleItem(
-            title = "마케팅 알림",
+            title = "마케팅 알림 🎉",
             isEnabled = marketingNotificationEnabled,
             onToggle = { marketingNotificationEnabled = it }
         )

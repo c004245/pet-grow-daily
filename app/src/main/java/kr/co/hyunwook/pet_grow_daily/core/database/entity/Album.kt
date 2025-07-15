@@ -49,3 +49,12 @@ data class OrderProductListModel(
     @SerializedName("order_products")
     val orderProducts: List<OrderProduct>
 )
+
+
+data class SlackNotificationRequest(
+    val orderId: String,
+    val userId: Long,
+    val zipUrl: String? = null,
+    val isSuccess: Boolean,
+    val errorMessage: String? = null
+)

@@ -27,6 +27,8 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetTodayZipFileCountUse
 import kr.co.hyunwook.pet_grow_daily.core.config.RemoteConfigWrapper
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.firebase.ktx.Firebase
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationRequest
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -38,7 +40,8 @@ class OrderViewModel @Inject constructor(
     private val saveOrderRecordUseCase: SaveOrderRecordUseCase,
     private val getUserIdUseCase: GetUserIdUseCase,
     private val remoteConfigWrapper: RemoteConfigWrapper,
-    private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase
+    private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase,
+    private val postSlackUseCase: PostSlackUseCase
 ) : ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -217,10 +220,51 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "ZIP 파일 생성 성공: $zipUrl")
                 Log.d("HWO", "이미지 개수: $imageCount")
                 Log.d("HWO", "메시지: $message")
+
+                // 슬랙 알림 전송
+                sendSlackNotification(
+                    orderId = orderId,
+                    userId = userId,
+                    zipUrl = zipUrl ?: "",
+                    isSuccess = true
+                )
             }
             .addOnFailureListener { e ->
                 Log.e("HWO", "ZIP 파일 생성 실패", e)
+
+                // 실패 시에도 슬랙 알림
+                sendSlackNotification(
+                    orderId = orderId,
+                    userId = userId,
+                    isSuccess = false,
+                    errorMessage = e.message
+                )
             }
+    }
+
+    private fun sendSlackNotification(
+        orderId: String,
+        userId: Long,
+        zipUrl: String? = null,
+        isSuccess: Boolean,
+        errorMessage: String? = null
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = SlackNotificationRequest(
+                    orderId = orderId,
+                    userId = userId,
+                    zipUrl = zipUrl,
+                    isSuccess = isSuccess,
+                    errorMessage = errorMessage
+                )
+
+                postSlackUseCase(request)
+
+            } catch (e: Exception) {
+                Log.e("HWO", "슬랙 알림 전송 실패: ${e.message}")
+            }
+        }
     }
 
     fun getTodayOrderCount() {

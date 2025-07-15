@@ -148,7 +148,8 @@ dependencies {
 
     implementation(libs.lottie.compose)
 
-
+    // OkHttp for HTTP requests
+    implementation(libs.okhttp)
 }
 
 tasks.withType<Test> {

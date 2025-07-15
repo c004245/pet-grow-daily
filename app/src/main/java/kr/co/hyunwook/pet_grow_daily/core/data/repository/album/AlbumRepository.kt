@@ -38,4 +38,6 @@ interface AlbumRepository {
     suspend fun getHasCompleteOnBoarding(): Flow<Boolean>
 
     suspend fun saveLoginState(userId: Long, nickName: String?, email: String?)
+
+    suspend fun getTodayZipFileCount(): Int
 }

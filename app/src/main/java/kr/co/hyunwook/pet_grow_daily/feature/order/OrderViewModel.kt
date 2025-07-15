@@ -10,6 +10,7 @@ import android.util.Log
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.functions.ktx.functions
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
@@ -20,14 +21,12 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetDeliveryListUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveDeliveryInfoUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveOrderRecordUseCase
-import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
-import com.google.firebase.functions.ktx.functions
-import com.google.firebase.ktx.Firebase
-import com.google.gson.annotations.SerializedName
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
+import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetTodayZipFileCountUseCase
 import kr.co.hyunwook.pet_grow_daily.core.config.RemoteConfigWrapper
-import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
+import com.google.firebase.ktx.Firebase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -38,7 +37,8 @@ class OrderViewModel @Inject constructor(
     private val saveDeliveryInfoUseCase: SaveDeliveryInfoUseCase,
     private val saveOrderRecordUseCase: SaveOrderRecordUseCase,
     private val getUserIdUseCase: GetUserIdUseCase,
-    private val remoteConfigWrapper: RemoteConfigWrapper
+    private val remoteConfigWrapper: RemoteConfigWrapper,
+    private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase
 ) : ViewModel() {
 
     private val _userAlbumCount = MutableStateFlow<Int>(0)
@@ -70,6 +70,9 @@ class OrderViewModel @Inject constructor(
 
     private val _orderProducts = MutableStateFlow<List<OrderProduct>>(emptyList())
     val orderProducts: StateFlow<List<OrderProduct>> get() = _orderProducts
+
+    private val _todayZipFileCount = MutableStateFlow<Int>(0)
+    val todayZipFileCount: StateFlow<Int> get() = _todayZipFileCount
 
     fun fetchOrderProducts() {
         remoteConfigWrapper.fetchOrderProductList { orderProductListModel ->
@@ -172,7 +175,7 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "주문 저장 시작:")
                 Log.d("HWO", "- 사용자 ID: $userId")
                 Log.d("HWO", "- 선택된 앨범: ${_selectedAlbumRecords.value.size}개")
-                Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address}")
+                Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address} -- ${selectedDeliveryInfo.detailAddress}")
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
 
                 val orderId = saveOrderRecordUseCase(
@@ -218,5 +221,18 @@ class OrderViewModel @Inject constructor(
             .addOnFailureListener { e ->
                 Log.e("HWO", "ZIP 파일 생성 실패", e)
             }
+    }
+
+    fun getTodayOrderCount() {
+        viewModelScope.launch {
+            try {
+                val count = getTodayZipFileCountUseCase()
+                Log.d("HWO", "오늘 생성된 ZIP 파일 개수: $count")
+                _todayZipFileCount.value = count
+            } catch (e: Exception) {
+                Log.e("HWO", "오늘 ZIP 파일 개수 조회 예외", e)
+                _todayZipFileCount.value = 0
+            }
+        }
     }
 }

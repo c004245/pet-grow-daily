@@ -3,6 +3,8 @@ package kr.co.hyunwook.pet_grow_daily.core.datastore.datasource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -12,9 +14,12 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import android.net.Uri
 import android.util.Log
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 import androidx.compose.animation.core.snap
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -36,6 +41,83 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         } catch (e: Exception) {
             Log.e("DefaultFirestoreAlbumDataSource", "프로필 저장 실패: ${e.message}", e)
             throw e
+        }
+    }
+
+    override suspend fun getTodayZipFileCount(): Int {
+        return suspendCancellableCoroutine { continuation ->
+            try {
+                Log.d("HWO", "Firebase Storage에서 오늘 ZIP 파일 개수 조회 시작")
+
+                val storageRef = Firebase.storage.reference.child("orders")
+
+                storageRef.listAll()
+                    .addOnSuccessListener { listResult ->
+                        val today = Calendar.getInstance()
+                        val todayYear = today.get(Calendar.YEAR)
+                        val todayMonth = today.get(Calendar.MONTH) + 1
+                        val todayDay = today.get(Calendar.DAY_OF_MONTH)
+
+                        // ZIP 파일만 필터링
+                        val zipFiles = listResult.items.filter { it.name.endsWith(".zip") }
+
+                        if (zipFiles.isEmpty()) {
+                            Log.d("HWO", "orders 폴더에 ZIP 파일이 없습니다.")
+                            continuation.resume(0)
+                            return@addOnSuccessListener
+                        }
+
+                        var processedCount = 0
+                        var todayZipCount = 0
+
+                        Log.d("HWO", "총 ${zipFiles.size}개의 ZIP 파일 발견")
+
+                        zipFiles.forEach { fileRef ->
+                            fileRef.metadata.addOnSuccessListener { metadata ->
+                                val creationTime = metadata.creationTimeMillis
+                                val fileDate = Calendar.getInstance().apply {
+                                    timeInMillis = creationTime
+                                }
+
+                                val fileYear = fileDate.get(Calendar.YEAR)
+                                val fileMonth = fileDate.get(Calendar.MONTH) + 1
+                                val fileDay = fileDate.get(Calendar.DAY_OF_MONTH)
+
+                                Log.d("HWO", "${fileRef.name}: $fileYear-$fileMonth-$fileDay")
+
+                                // 오늘 생성된 파일인지 확인
+                                if (fileYear == todayYear && fileMonth == todayMonth && fileDay == todayDay) {
+                                    todayZipCount++
+                                }
+
+                                processedCount++
+
+                                // 모든 파일을 처리했을 때 결과 반환
+                                if (processedCount == zipFiles.size) {
+                                    Log.d("HWO", "오늘 생성된 ZIP 파일 개수: $todayZipCount")
+                                    continuation.resume(todayZipCount)
+                                }
+                            }.addOnFailureListener { exception ->
+                                Log.e("HWO", "${fileRef.name} 메타데이터 조회 실패: ${exception.message}")
+                                processedCount++
+
+                                // 실패한 경우에도 카운트 처리
+                                if (processedCount == zipFiles.size) {
+                                    Log.d("HWO", "오늘 생성된 ZIP 파일 개수: $todayZipCount")
+                                    continuation.resume(todayZipCount)
+                                }
+                            }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("HWO", "Firebase Storage 조회 실패: ${exception.message}")
+                        continuation.resume(0)
+                    }
+
+            } catch (e: Exception) {
+                Log.e("HWO", "오늘 ZIP 파일 개수 조회 예외", e)
+                continuation.resume(0)
+            }
         }
     }
 

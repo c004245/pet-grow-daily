@@ -109,7 +109,7 @@ class AlbumRepositoryImpl @Inject constructor(
     override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> =
         albumDataSource.hasCompletedOnboarding
 
-
-
-
+    override suspend fun getTodayZipFileCount(): Int {
+        return firestoreDataSource.getTodayZipFileCount()
+    }
 }

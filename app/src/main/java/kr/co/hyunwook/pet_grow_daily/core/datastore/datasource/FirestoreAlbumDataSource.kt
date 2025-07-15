@@ -23,7 +23,8 @@ interface FirestoreAlbumDataSource {
     suspend fun savePetProfile(profile: PetProfile, userId: Long)
 
     suspend fun hasPetProfile(userId: Long): Flow<Boolean>
-}
 
+    suspend fun getTodayZipFileCount(): Int
+}
 
 const val ALBUM_CREATE_COMPLETE = 40

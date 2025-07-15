@@ -48,10 +48,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -80,6 +80,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
+import kr.co.hyunwook.pet_grow_daily.util.TODAY_LIMIT_CREATE
 import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 
 @Composable
@@ -90,62 +91,29 @@ fun OrderRoute(
     onBackClick: () -> Unit
 ) {
 
-
     val albumRecord by viewModel.albumRecord.collectAsState()
-
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
+    val todayOrderCount by viewModel.todayZipFileCount.collectAsState()
 
     val context = LocalContext.current
-
-
-
-    var showPaymentWebView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
         viewModel.getUserAlbumCount()
+        viewModel.getTodayOrderCount()
     }
 
-    LaunchedEffect(paymentData) {
-        paymentData?.let { data ->
-            Log.d("HWO", "결제 요청 데이터: $data")
-            showPaymentWebView = true
-        }
-    }
-
-
-    if (showPaymentWebView) {
-        PaymentWebView(
-            onPaymentResult = { success, message, transactionId ->
-                if (success) {
-                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
-                    Log.d("HWO", "message done -> ")
-
-                    Toast.makeText(context, "결제가 완료되었습니다!", Toast.LENGTH_SHORT).show()
-                } else {
-                    viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
-                    Log.d("HWO", "message error -> $message")
-                    Toast.makeText(context, "결제에 실패했습니다: $message", Toast.LENGTH_SHORT).show()
-                }
-                showPaymentWebView = false
-            },
-            onBackPressed = {
-                showPaymentWebView = false
-            }
-        )
-    } else {
-        OrderScreen(
-            albumRecord = albumRecord,
-            orderProduct = orderProduct,
-            onClickRequestPayment = {
-                navigateToAlbumSelect()
-//                viewModel.requestKakaoPayPayment()
-            },
-            onBackClick = onBackClick
-        )
-    }
+    OrderScreen(
+        albumRecord = albumRecord,
+        orderProduct = orderProduct,
+        onClickRequestPayment = {
+            navigateToAlbumSelect()
+        },
+        onBackClick = onBackClick,
+        todayOrderCount = todayOrderCount
+    )
 }
 
 @Composable
@@ -153,8 +121,8 @@ fun OrderScreen(
     albumRecord: List<AlbumRecord>,
     orderProduct: OrderProduct,
     onClickRequestPayment: () -> Unit,
-    onBackClick: () -> Unit
-
+    onBackClick: () -> Unit,
+    todayOrderCount: Int
 ) {
     val scrollState = rememberScrollState()
 
@@ -181,7 +149,7 @@ fun OrderScreen(
                 Spacer(Modifier.height(24.dp))
                 ProductInfoWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
-                OrderCountWidget()
+                OrderCountWidget(todayOrderCount = todayOrderCount)
                 Spacer(Modifier
                     .height(16.dp)
                     .background(grayF8))
@@ -344,7 +312,7 @@ fun ProductInfoWidget(
 }
 
 @Composable
-fun OrderCountWidget() {
+fun OrderCountWidget(todayOrderCount: Int) {
     Box(
         modifier = Modifier
             .padding(horizontal = 24.dp)
@@ -366,7 +334,7 @@ fun OrderCountWidget() {
             )
             Text(
                 modifier = Modifier.padding(end = 16.dp),
-                text = "10개",
+                text = "${TODAY_LIMIT_CREATE - todayOrderCount}개",
                 fontSize = 16.sp,
                 style = PetgrowTheme.typography.bold,
                 color = purple6C
@@ -415,7 +383,7 @@ fun OrderButtonWidget(
                 .clip(RoundedCornerShape(14.dp))
                 .clickable {
                     if (isButtonEnabled) {
-                        onClickRequestPayment()
+                    onClickRequestPayment()
                     }
                 },
             contentAlignment = Alignment.Center

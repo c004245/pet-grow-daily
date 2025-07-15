@@ -416,108 +416,115 @@ fun PostcodeDialog(
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            AndroidView(factory = { context ->
-                WebView(context).apply {
-                    settings.apply {
-                        javaScriptEnabled = true
-                        domStorageEnabled = true
-                        allowContentAccess = true
-                        allowFileAccess = true
-                        allowUniversalAccessFromFileURLs = true
-                        allowFileAccessFromFileURLs = true
-                        mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                        cacheMode = WebSettings.LOAD_NO_CACHE
-                    }
-
-                    addJavascriptInterface(
-                        PostcodeJavaScriptInterface(onAddressSelected),
-                        "Android"
-                    )
-
-                    webViewClient = object : WebViewClient() {
-                        override fun onPageStarted(
-                            view: WebView?,
-                            url: String?,
-                            favicon: android.graphics.Bitmap?
-                        ) {
-                            super.onPageStarted(view, url, favicon)
+            AndroidView(
+                factory = { context ->
+                    WebView(context).apply {
+                        settings.apply {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            allowContentAccess = true
+                            allowFileAccess = true
+                            allowUniversalAccessFromFileURLs = true
+                            allowFileAccessFromFileURLs = true
+                            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                            cacheMode = WebSettings.LOAD_NO_CACHE
                         }
 
-                        override fun onPageFinished(view: WebView, url: String) {
-                            super.onPageFinished(view, url)
-                            view.evaluateJavascript("typeof daum !== 'undefined'") { result ->
-                                if (result == "true") {
-                                    view.evaluateJavascript("typeof daum.Postcode !== 'undefined'") { postcodeResult ->
+                        addJavascriptInterface(
+                            PostcodeJavaScriptInterface(onAddressSelected),
+                            "Android"
+                        )
+
+                        webViewClient = object : WebViewClient() {
+                            override fun onPageStarted(
+                                view: WebView?,
+                                url: String?,
+                                favicon: android.graphics.Bitmap?
+                            ) {
+                                super.onPageStarted(view, url, favicon)
+                            }
+
+                            override fun onPageFinished(view: WebView, url: String) {
+                                super.onPageFinished(view, url)
+                                view.evaluateJavascript("typeof daum !== 'undefined'") { result ->
+                                    if (result == "true") {
+                                        view.evaluateJavascript("typeof daum.Postcode !== 'undefined'") { postcodeResult ->
+                                        }
                                     }
                                 }
                             }
+
+                            override fun onReceivedError(
+                                view: WebView?,
+                                request: WebResourceRequest?,
+                                error: WebResourceError?
+                            ) {
+                                super.onReceivedError(view, request, error)
+                            }
                         }
 
-                        override fun onReceivedError(
-                            view: WebView?,
-                            request: WebResourceRequest?,
-                            error: WebResourceError?
-                        ) {
-                            super.onReceivedError(view, request, error)
-                        }
-                    }
-
-                    loadDataWithBaseURL(
-                        "https://postcode.map.daum.net/",
-                        """
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>우편번호 검색</title>
-                        </head>
-                        <body style="margin:0; padding:0;">
-                            <div id="wrap" style="display:none;border:1px solid;width:500px;height:300px;margin:5px 0;position:relative">
-                                <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1" onclick="foldDaumPostcode()" alt="접기 버튼">
-                            </div>
-                            
-                            <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-                            <script>
-                                var element_wrap = document.getElementById('wrap');
+                        loadDataWithBaseURL(
+                            "https://postcode.map.daum.net/",
+                            """
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <title>우편번호 검색</title>
+                            </head>
+                            <body style="margin:0; padding:0;">
+                                <div id="wrap" style="display:none;border:1px solid;width:100%;height:100%;margin:0;position:relative">
+                                    <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1" onclick="foldDaumPostcode()" alt="접기 버튼">
+                                </div>
                                 
-                                function foldDaumPostcode() {
-                                    element_wrap.style.display = 'none';
-                                }
-                                
-                                new daum.Postcode({
-                                    oncomplete: function(data) {
-                                        // JavaScript Interface를 통해 안드로이드로 데이터 전달
-                                        Android.processDATA(JSON.stringify(data));
-                                        // iframe을 넣은 element를 안보이게 한다.
+                                <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+                                <script>
+                                    var element_wrap = document.getElementById('wrap');
+                                    
+                                    function foldDaumPostcode() {
                                         element_wrap.style.display = 'none';
-                                    },
-                                    onresize : function(size) {
-                                        element_wrap.style.height = size.height+'px';
-                                    },
-                                    width : '100%',
-                                    height : '100%'
-                                }).embed(element_wrap);
+                                    }
+                                    
+                                    new daum.Postcode({
+                                        oncomplete: function(data) {
+                                            // JavaScript Interface를 통해 안드로이드로 데이터 전달
+                                            Android.processDATA(JSON.stringify(data));
+                                            // iframe을 넣은 element를 안보이게 한다.
+                                            element_wrap.style.display = 'none';
+                                        },
+                                        onresize : function(size) {
+                                            element_wrap.style.height = size.height+'px';
+                                        },
+                                        width : '100%',
+                                        height : '100%'
+                                    }).embed(element_wrap);
 
-                                // iframe을 넣은 element를 보이게 한다.
-                                element_wrap.style.display = 'block';
-                            </script>
-                        </body>
-                        </html>
-                        """.trimIndent(),
-                        "text/html",
-                        "UTF-8",
-                        null
-                    )
-                }
-            })
+                                    // iframe을 넣은 element를 보이게 한다.
+                                    element_wrap.style.display = 'block';
+                                </script>
+                            </body>
+                            </html>
+                            """.trimIndent(),
+                            "text/html",
+                            "UTF-8",
+                            null
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
 
             IconButton(
                 onClick = onDismiss,

@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.core.domain.usecase
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationRequest
 import kr.co.hyunwook.pet_grow_daily.util.SLACK_WEBHOOK
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient

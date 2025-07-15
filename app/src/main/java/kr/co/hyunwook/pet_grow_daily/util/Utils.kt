@@ -50,3 +50,6 @@ fun CommonAppBarOnlyButton(
         )
     }
 }
+
+
+const val MAX_ALBUM_COUNT = 40

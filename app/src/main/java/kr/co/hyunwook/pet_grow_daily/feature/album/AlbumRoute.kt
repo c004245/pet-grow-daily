@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 
 @Composable
 fun AlbumRoute(
@@ -534,7 +535,7 @@ fun AlbumProgressWidget(
                 } else {
                     // 기존 텍스트 표시
                     Text(
-                        text = "${40 - currentCount}장만 더 채우면 앨범을 주문할 수 있어요.",
+                        text = "${MAX_ALBUM_COUNT - currentCount}장만 더 채우면 앨범을 주문할 수 있어요.",
                         style = PetgrowTheme.typography.medium,
                         color = purple6C,
                         fontSize = 12.sp,

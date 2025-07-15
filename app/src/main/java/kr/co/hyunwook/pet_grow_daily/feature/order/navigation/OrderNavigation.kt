@@ -30,6 +30,7 @@ fun NavGraphBuilder.orderProductListGraph(
 }
 fun NavGraphBuilder.orderNavGraph(
     navigateToAlbumSelect: () -> Unit,
+    onBackClick: () -> Unit,
     viewModel: OrderViewModel
 ) {
     composable<Order> { backStackEntry ->
@@ -40,7 +41,8 @@ fun NavGraphBuilder.orderNavGraph(
         OrderRoute (
             navigateToAlbumSelect = navigateToAlbumSelect,
             viewModel = viewModel,
-            orderProduct = orderProduct
+            orderProduct = orderProduct,
+            onBackClick = onBackClick
         )
     }
 }

@@ -9,6 +9,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.Commo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
@@ -74,29 +75,36 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.JavascriptInterface
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 
 @Composable
 fun OrderRoute(
     navigateToAlbumSelect: () -> Unit,
     viewModel: OrderViewModel,
-    orderProduct: OrderProduct
+    orderProduct: OrderProduct,
+    onBackClick: () -> Unit
 ) {
 
-    Log.d("HWO", "orderProduct -> $orderProduct")
+
+    val albumRecord by viewModel.albumRecord.collectAsState()
+
     val userAlbumCount by viewModel.userAlbumCount.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
 
     val context = LocalContext.current
-    val activity = context as Activity
+
+
 
     var showPaymentWebView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.getAlbumSelectRecord()
         viewModel.getUserAlbumCount()
     }
 
@@ -106,6 +114,7 @@ fun OrderRoute(
             showPaymentWebView = true
         }
     }
+
 
     if (showPaymentWebView) {
         PaymentWebView(
@@ -128,32 +137,38 @@ fun OrderRoute(
         )
     } else {
         OrderScreen(
+            albumRecord = albumRecord,
             orderProduct = orderProduct,
             onClickRequestPayment = {
                 navigateToAlbumSelect()
 //                viewModel.requestKakaoPayPayment()
-            }
+            },
+            onBackClick = onBackClick
         )
     }
 }
 
 @Composable
 fun OrderScreen(
+    albumRecord: List<AlbumRecord>,
     orderProduct: OrderProduct,
-    onClickRequestPayment: () -> Unit
+    onClickRequestPayment: () -> Unit,
+    onBackClick: () -> Unit
 
 ) {
     val scrollState = rememberScrollState()
 
 
     Box(
-        modifier = Modifier.fillMaxSize().background(grayF8)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(grayF8)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
             CommonAppBarOnlyButton {
-
+                onBackClick()
             }
 
             Column(
@@ -167,17 +182,22 @@ fun OrderScreen(
                 ProductInfoWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
                 OrderCountWidget()
-                Spacer(Modifier.height(16.dp).background(grayF8))
+                Spacer(Modifier
+                    .height(16.dp)
+                    .background(grayF8))
                 ProductDescriptionWidget(orderProduct.productDescription)
                 Spacer(Modifier.height(120.dp))
             }
         }
             OrderButtonWidget(
+                albumRequireCount =  MAX_ALBUM_COUNT - albumRecord.size * 2,
                 onClickRequestPayment = onClickRequestPayment,
+                isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+                    .background(grayF8)
+                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
             )
         }
 
@@ -358,8 +378,11 @@ fun OrderCountWidget() {
 
 @Composable
 fun OrderButtonWidget(
+    albumRequireCount: Int,
+    isButtonEnabled: Boolean,
     onClickRequestPayment: () -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Column (
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -371,7 +394,7 @@ fun OrderButtonWidget(
         ) {
             Text(
                 modifier = Modifier.padding(vertical = 6.dp, horizontal = 14.dp),
-                text = "사진을 6개 더 채우면 주문 가능해요.",
+                text = "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요.",
                 style = PetgrowTheme.typography.bold,
                 color = Color.White,
                 fontSize = 14.sp
@@ -385,10 +408,15 @@ fun OrderButtonWidget(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(purple6C, RoundedCornerShape(14.dp))
+                .background(
+                    if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f),
+                    RoundedCornerShape(14.dp)
+                )
                 .clip(RoundedCornerShape(14.dp))
                 .clickable {
-                    onClickRequestPayment()
+                    if (isButtonEnabled) {
+                        onClickRequestPayment()
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -407,7 +435,9 @@ fun OrderButtonWidget(
 @Composable
 fun ProductDescriptionWidget(description: String) {
     Text(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         style = PetgrowTheme.typography.regular,
         color = black21,
         fontSize = 14.sp,

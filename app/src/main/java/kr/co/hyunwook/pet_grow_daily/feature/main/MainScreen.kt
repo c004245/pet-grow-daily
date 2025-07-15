@@ -185,6 +185,10 @@ internal fun MainScreen(
                         navigateToAlbumSelect = {
                             navigate(navigator, NavigateEnum.ALBUM_SELECT)
                         },
+                        onBackClick = {
+                            navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
+                        },
                         viewModel = orderViewModel
                     )
 
@@ -409,14 +413,14 @@ fun CustomBottomBar(
                     painter = painterResource(
                         id = R.drawable.ic_order_tab
                     ),
-                    tint = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86, // 상태에 따른 색상 변경
+                    tint = if (navigateEnum == NavigateEnum.ORDER_PRODUCT_LIST) purple6C else gray86, // 상태에 따른 색상 변경
                     contentDescription = "order",
                 )
                 Text(
                     text = stringResource(id = R.string.text_order_title),
                     fontSize = 11.sp,
                     style = PetgrowTheme.typography.medium,
-                    color = if (navigateEnum == NavigateEnum.ORDER) purple6C else gray86
+                    color = if (navigateEnum == NavigateEnum.ORDER_PRODUCT_LIST) purple6C else gray86
                 )
             }
             Column(

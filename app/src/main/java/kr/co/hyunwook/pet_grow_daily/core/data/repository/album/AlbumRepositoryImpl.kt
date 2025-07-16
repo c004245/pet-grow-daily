@@ -11,6 +11,9 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.FirestoreAlbumDataSource
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
@@ -50,6 +53,9 @@ class AlbumRepositoryImpl @Inject constructor(
     }
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
         albumRecordDao.insertAlbumRecord(albumRecord)
+
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        albumDataSource.updateLastPhotoDate(today)
 
         if (albumRecord.isPublic) {
             val userId = getUserId()

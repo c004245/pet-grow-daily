@@ -13,13 +13,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,24 +27,34 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.TitleDeliveryAppBar
-import kr.co.hyunwook.pet_grow_daily.feature.main.navigate
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
-fun AlarmRoute (
+fun AlarmRoute(
     navigateToMyPage: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
-
     val photoReminderEnabled by viewModel.photoReminderEnabled.collectAsState()
+    val deliveryNotificationEnabled by viewModel.deliveryNotificationEnabled.collectAsState()
+    val marketingNotificationEnabled by viewModel.marketingNotificationEnabled.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     AlarmScreen(
         navigateToMyPage = navigateToMyPage,
-        modifier = modifier
+        modifier = modifier,
         photoReminderEnabled = photoReminderEnabled,
+        deliveryNotificationEnabled = deliveryNotificationEnabled,
+        marketingNotificationEnabled = marketingNotificationEnabled,
+        isLoading = isLoading,
         onPhotoReminderToggle = { enabled ->
             viewModel.setPhotoReminderEnabled(enabled)
+        },
+        onDeliveryNotificationToggle = { enabled ->
+            viewModel.setDeliveryNotificationEnabled(enabled)
+        },
+        onMarketingNotificationToggle = { enabled ->
+            viewModel.setMarketingNotificationEnabled(enabled)
         }
     )
 }
@@ -56,20 +63,26 @@ fun AlarmRoute (
 fun AlarmScreen(
     navigateToMyPage: () -> Unit = {},
     modifier: Modifier = Modifier,
+    photoReminderEnabled: Boolean = true,
+    deliveryNotificationEnabled: Boolean = true,
+    marketingNotificationEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    onPhotoReminderToggle: (Boolean) -> Unit = {},
+    onDeliveryNotificationToggle: (Boolean) -> Unit = {},
+    onMarketingNotificationToggle: (Boolean) -> Unit = {}
 ) {
-    var photoReminderEnabled by remember { mutableStateOf(true) }
-    var deliveryNotificationEnabled by remember { mutableStateOf(true) }
-    var marketingNotificationEnabled by remember { mutableStateOf(true) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(grayF8)
             .padding(24.dp)
     ) {
-        TitleDeliveryAppBar(stringResource(R.string.text_mypage_alarm_title), navigateToBack = {
-            navigateToMyPage()
-        })
+        TitleDeliveryAppBar(
+            title = stringResource(R.string.text_mypage_alarm_title),
+            navigateToBack = {
+                navigateToMyPage()
+            }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -77,7 +90,8 @@ fun AlarmScreen(
         AlarmToggleItem(
             title = "사진 등록 리마인드 📸",
             isEnabled = photoReminderEnabled,
-            onToggle = { photoReminderEnabled = it }
+            onToggle = onPhotoReminderToggle,
+            isLoading = isLoading
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -86,7 +100,8 @@ fun AlarmScreen(
         AlarmToggleItem(
             title = "제작/배송 알림 📦",
             isEnabled = deliveryNotificationEnabled,
-            onToggle = { deliveryNotificationEnabled = it }
+            onToggle = onDeliveryNotificationToggle,
+            isLoading = isLoading
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -94,7 +109,8 @@ fun AlarmScreen(
         AlarmToggleItem(
             title = "마케팅 알림 🎉",
             isEnabled = marketingNotificationEnabled,
-            onToggle = { marketingNotificationEnabled = it }
+            onToggle = onMarketingNotificationToggle,
+            isLoading = isLoading
         )
     }
 }
@@ -103,7 +119,8 @@ fun AlarmScreen(
 fun AlarmToggleItem(
     title: String,
     isEnabled: Boolean,
-    onToggle: (Boolean) -> Unit
+    onToggle: (Boolean) -> Unit,
+    isLoading: Boolean = false
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -120,6 +137,7 @@ fun AlarmToggleItem(
         Switch(
             checked = isEnabled,
             onCheckedChange = onToggle,
+            enabled = !isLoading,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = purple6C,
                 checkedTrackColor = purple6C.copy(alpha = 0.3f),

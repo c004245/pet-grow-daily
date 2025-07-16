@@ -18,7 +18,7 @@ class PhotoReminderScheduler @Inject constructor(
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 21)
-            
+
         }
     }
 }

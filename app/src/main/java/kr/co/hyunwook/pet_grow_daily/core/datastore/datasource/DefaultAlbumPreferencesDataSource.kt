@@ -41,6 +41,12 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         val NICKNAME = stringPreferencesKey("NICK_NAME")
         val EMAIL = stringPreferencesKey("EMAIL")
         val hasCompletedOnBoarding = booleanPreferencesKey("HAS_COMPLETED_ONBOARDING")
+
+        // 알림 설정 관련 키
+        val PHOTO_REMINDER_ENABLED = booleanPreferencesKey("PHOTO_REMINDER_ENABLED")
+        val DELIVERY_NOTIFICATION_ENABLED = booleanPreferencesKey("DELIVERY_NOTIFICATION_ENABLED")
+        val MARKETING_NOTIFICATION_ENABLED = booleanPreferencesKey("MARKETING_NOTIFICATION_ENABLED")
+        val LAST_PHOTO_DATE = stringPreferencesKey("LAST_PHOTO_DATE")
     }
 
     override val hasCompletedOnboarding = dataStore.data.map { preferences ->
@@ -54,6 +60,55 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
             preferences[PreferencesKey.NICKNAME] = nickName ?: "견주"
             preferences[PreferencesKey.EMAIL] = email ?: "dailydog@gmail.com"
             preferences[PreferencesKey.hasCompletedOnBoarding] = true
+        }
+    }
+
+    // 알림 설정 관련 메서드들
+    override suspend fun setPhotoReminderEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.PHOTO_REMINDER_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun isPhotoReminderEnabled(): Flow<Boolean> {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.PHOTO_REMINDER_ENABLED] ?: true
+        }
+    }
+
+    override suspend fun setDeliveryNotificationEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.DELIVERY_NOTIFICATION_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun isDeliveryNotificationEnabled(): Flow<Boolean> {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.DELIVERY_NOTIFICATION_ENABLED] ?: true
+        }
+    }
+
+    override suspend fun setMarketingNotificationEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.MARKETING_NOTIFICATION_ENABLED] = enabled
+        }
+    }
+
+    override suspend fun isMarketingNotificationEnabled(): Flow<Boolean> {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.MARKETING_NOTIFICATION_ENABLED] ?: true
+        }
+    }
+
+    override suspend fun updateLastPhotoDate(date: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.LAST_PHOTO_DATE] = date
+        }
+    }
+
+    override suspend fun getLastPhotoDate(): Flow<String?> {
+        return dataStore.data.map { preferences ->
+            preferences[PreferencesKey.LAST_PHOTO_DATE]
         }
     }
 }

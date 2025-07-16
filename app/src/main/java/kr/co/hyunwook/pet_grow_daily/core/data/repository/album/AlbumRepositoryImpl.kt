@@ -112,4 +112,36 @@ class AlbumRepositoryImpl @Inject constructor(
     override suspend fun getTodayZipFileCount(): Int {
         return firestoreDataSource.getTodayZipFileCount()
     }
+
+    override suspend fun setPhotoReminderEnabled(enabled: Boolean) {
+        albumDataSource.setPhotoReminderEnabled(enabled)
+    }
+
+    override suspend fun isPhotoReminderEnabled(): Flow<Boolean> {
+        return albumDataSource.isPhotoReminderEnabled()
+    }
+
+    override suspend fun setDeliveryNotificationEnabled(enabled: Boolean) {
+        albumDataSource.setDeliveryNotificationEnabled(enabled)
+    }
+
+    override suspend fun isDeliveryNotificationEnabled(): Flow<Boolean> {
+        return albumDataSource.isDeliveryNotificationEnabled()
+    }
+
+    override suspend fun setMarketingNotificationEnabled(enabled: Boolean) {
+        albumDataSource.setMarketingNotificationEnabled(enabled)
+    }
+
+    override suspend fun isMarketingNotificationEnabled(): Flow<Boolean> {
+        return albumDataSource.isMarketingNotificationEnabled()
+    }
+
+    override suspend fun updateLastPhotoDate(date: String) {
+        albumDataSource.updateLastPhotoDate(date)
+    }
+
+    override suspend fun getLastPhotoDate(): Flow<String?> {
+        return albumDataSource.getLastPhotoDate()
+    }
 }

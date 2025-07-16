@@ -9,12 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.AlarmSettingsUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class AlarmViewModel @Inject constructor(
-    // TODO: 추후 AlarmPreferencesDataSource와 PhotoReminderScheduler를 의존성 주입
-    // private val alarmPreferencesDataSource: AlarmPreferencesDataSource,
+    private val alarmSettingsUseCase: AlarmSettingsUseCase
+    // TODO: 추후 PhotoReminderScheduler를 의존성 주입
     // private val photoReminderScheduler: PhotoReminderScheduler
 ) : ViewModel() {
 
@@ -40,15 +41,23 @@ class AlarmViewModel @Inject constructor(
             try {
                 _isLoading.value = true
 
-                // TODO: DataSource에서 설정 로드
-                // alarmPreferencesDataSource.isPhotoReminderEnabled()
-                //     .catch { exception ->
-                //         Log.e("AlarmViewModel", "사진 리마인더 설정 로드 실패", exception)
-                //         emit(true) // 기본값
-                //     }
-                //     .collect { enabled ->
-                //         _photoReminderEnabled.value = enabled
-                //     }
+                // 사진 리마인더 설정 로드
+                alarmSettingsUseCase.isPhotoReminderEnabled()
+                    .collect { enabled ->
+                        _photoReminderEnabled.value = enabled
+                    }
+
+                // 배송 알림 설정 로드
+                alarmSettingsUseCase.isDeliveryNotificationEnabled()
+                    .collect { enabled ->
+                        _deliveryNotificationEnabled.value = enabled
+                    }
+
+                // 마케팅 알림 설정 로드
+                alarmSettingsUseCase.isMarketingNotificationEnabled()
+                    .collect { enabled ->
+                        _marketingNotificationEnabled.value = enabled
+                    }
 
                 Log.d("AlarmViewModel", "알림 설정 로드 완료")
             } catch (e: Exception) {
@@ -66,8 +75,8 @@ class AlarmViewModel @Inject constructor(
 
                 _photoReminderEnabled.value = enabled
 
-                // TODO: DataSource에 저장
-                // alarmPreferencesDataSource.setPhotoReminderEnabled(enabled)
+                // UseCase를 통해 저장
+                alarmSettingsUseCase.setPhotoReminderEnabled(enabled)
 
                 // TODO: 스케줄링 설정/해제
                 // if (enabled) {
@@ -92,8 +101,8 @@ class AlarmViewModel @Inject constructor(
 
                 _deliveryNotificationEnabled.value = enabled
 
-                // TODO: DataSource에 저장
-                // alarmPreferencesDataSource.setDeliveryNotificationEnabled(enabled)
+                // UseCase를 통해 저장
+                alarmSettingsUseCase.setDeliveryNotificationEnabled(enabled)
 
                 Log.d("AlarmViewModel", "배송 알림 설정 저장 완료")
             } catch (e: Exception) {
@@ -110,8 +119,8 @@ class AlarmViewModel @Inject constructor(
 
                 _marketingNotificationEnabled.value = enabled
 
-                // TODO: DataSource에 저장
-                // alarmPreferencesDataSource.setMarketingNotificationEnabled(enabled)
+                // UseCase를 통해 저장
+                alarmSettingsUseCase.setMarketingNotificationEnabled(enabled)
 
                 Log.d("AlarmViewModel", "마케팅 알림 설정 저장 완료")
             } catch (e: Exception) {

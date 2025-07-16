@@ -40,4 +40,20 @@ interface AlbumRepository {
     suspend fun saveLoginState(userId: Long, nickName: String?, email: String?)
 
     suspend fun getTodayZipFileCount(): Int
+
+    suspend fun setPhotoReminderEnabled(enabled: Boolean)
+
+    suspend fun isPhotoReminderEnabled(): Flow<Boolean>
+
+    suspend fun setDeliveryNotificationEnabled(enabled: Boolean)
+
+    suspend fun isDeliveryNotificationEnabled(): Flow<Boolean>
+
+    suspend fun setMarketingNotificationEnabled(enabled: Boolean)
+
+    suspend fun isMarketingNotificationEnabled(): Flow<Boolean>
+
+    suspend fun updateLastPhotoDate(date: String)
+
+    suspend fun getLastPhotoDate(): Flow<String?>
 }

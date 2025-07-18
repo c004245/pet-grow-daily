@@ -5,6 +5,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.AlbumRecordDao
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.AlbumPreferencesDataSource
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
@@ -23,9 +24,14 @@ class AlbumRepositoryImpl @Inject constructor(
 ) : AlbumRepository {
 
     override suspend fun hasPetProfile(): Flow<Boolean> {
-        val userId = getUserId()
-        return firestoreDataSource.hasPetProfile(userId)
+        return flow {
+            val userId = getUserId()
+            firestoreDataSource.hasPetProfile(userId).collect {
+                emit(it)
+            }
+        }
     }
+
     override suspend fun savePetProfile(profile: PetProfile) {
         albumRecordDao.savePetProfile(profile)
 
@@ -37,9 +43,7 @@ class AlbumRepositoryImpl @Inject constructor(
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
-
     ): String {
-
         val userId = getUserId()
         return firestoreDataSource.saveOrderRecord(
             selectedAlbumRecords,
@@ -48,9 +52,11 @@ class AlbumRepositoryImpl @Inject constructor(
             userId
         )
     }
+
     override suspend fun getPetProfile(): Flow<PetProfile?> {
         return albumRecordDao.getPetProfile()
     }
+
     override suspend fun insertAlbumRecord(albumRecord: AlbumRecord) {
         albumRecordDao.insertAlbumRecord(albumRecord)
 
@@ -63,12 +69,10 @@ class AlbumRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun getUserAlbumCount(): Int {
         val userId = getUserId()
         return firestoreDataSource.getUserAlbumCount(userId)
     }
-
 
     override suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>> {
         return firestoreDataSource.getAnotherPetAlbums()
@@ -85,11 +89,11 @@ class AlbumRepositoryImpl @Inject constructor(
 //        return growRecordDao.getTodayGrowRecord(todayDate)
 //    }
 
-//    override suspend fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>> {
+//    override fun getMonthlyGrowRecord(month: String): Flow<List<GrowRecord>> {
 //        return albumRecordDao.getMonthlyGrowRecords(month)
 //    }
 //
-//    override suspend fun getMonthlyCategoryGrowRecords(
+//    override fun getMonthlyCategoryGrowRecords(
 //        categoryType: CategoryType,
 //        month: String
 //    ): Flow<List<GrowRecord>> {
@@ -106,10 +110,8 @@ class AlbumRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun saveLoginState(userId: Long, nickName: String?, email: String?) {
         albumDataSource.saveLoginState(userId, nickName, email)
-
     }
 
     override suspend fun getHasCompleteOnBoarding(): Flow<Boolean> =

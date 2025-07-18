@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.functions.ktx)
+    implementation(libs.hilt.work)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
@@ -107,7 +108,7 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
-
+    implementation(libs.hilt.work)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.androidx.core.splashscreen)

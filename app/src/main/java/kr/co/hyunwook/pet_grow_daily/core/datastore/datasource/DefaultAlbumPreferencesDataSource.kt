@@ -12,6 +12,7 @@ import javax.inject.Named
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
+import android.util.Log
 
 class DefaultAlbumPreferencesDataSource @Inject constructor(
     @Named("album") private val dataStore: DataStore<Preferences>
@@ -68,6 +69,7 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         dataStore.edit { preferences ->
             preferences[PreferencesKey.PHOTO_REMINDER_ENABLED] = enabled
         }
+        Log.d("DefaultAlbumPreferencesDataSource", "사진 리마인더 설정 저장: $enabled")
     }
 
     override suspend fun isPhotoReminderEnabled(): Flow<Boolean> {
@@ -80,6 +82,7 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         dataStore.edit { preferences ->
             preferences[PreferencesKey.DELIVERY_NOTIFICATION_ENABLED] = enabled
         }
+        Log.d("DefaultAlbumPreferencesDataSource", "배송 알림 설정 저장: $enabled")
     }
 
     override suspend fun isDeliveryNotificationEnabled(): Flow<Boolean> {
@@ -92,6 +95,7 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         dataStore.edit { preferences ->
             preferences[PreferencesKey.MARKETING_NOTIFICATION_ENABLED] = enabled
         }
+        Log.d("DefaultAlbumPreferencesDataSource", "마케팅 알림 설정 저장: $enabled")
     }
 
     override suspend fun isMarketingNotificationEnabled(): Flow<Boolean> {
@@ -104,6 +108,7 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         dataStore.edit { preferences ->
             preferences[PreferencesKey.LAST_PHOTO_DATE] = date
         }
+        Log.d("DefaultAlbumPreferencesDataSource", "마지막 사진 등록 날짜 저장: $date")
     }
 
     override suspend fun getLastPhotoDate(): Flow<String?> {

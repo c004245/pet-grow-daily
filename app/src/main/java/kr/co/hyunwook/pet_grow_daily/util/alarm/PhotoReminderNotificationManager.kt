@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -61,11 +60,11 @@ class PhotoReminderNotificationManager @Inject constructor(
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_main_app) // 앱 아이콘
-            .setContentTitle("오늘 사진 등록을 놓치신거 같아요 📸")
-            .setContentText("앨범 제작에 필요한 사진을 올려주세요!")
+            .setContentTitle("오늘 사진을 올려 주세요! 📸")
+            .setContentText("앨범이 얼마 남지 않았어요!")
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("소중한 반려동물의 하루를 기록해보세요.\n매일 사진을 등록하면 더 많은 추억을 만들 수 있어요!")
+                    .bigText("소중한 반려 동물의 사진을 저장해보세요!\n곧 앨범을 제작할 수 있어요!")
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
@@ -80,9 +79,6 @@ class PhotoReminderNotificationManager @Inject constructor(
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 notify(NOTIFICATION_ID, notification)
-                Log.d("PhotoReminderNotificationManager", "알림 전송 완료")
-            } else {
-                Log.w("PhotoReminderNotificationManager", "알림 권한이 없습니다")
             }
         }
     }

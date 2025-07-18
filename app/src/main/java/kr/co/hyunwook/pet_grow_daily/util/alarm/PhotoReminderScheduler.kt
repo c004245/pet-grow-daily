@@ -32,15 +32,11 @@ class PhotoReminderScheduler @Inject constructor(
 
     suspend fun schedulePhotoReminder() {
         try {
-            // 알림 설정 확인
             val isEnabled = alarmSettingsUseCase.isPhotoReminderEnabled().first()
             if (!isEnabled) {
-                Log.d("PhotoReminderScheduler", "사진 리마인더가 비활성���되어 있어 스케줄링 취소")
                 cancelPhotoReminder()
                 return
             }
-
-            Log.d("PhotoReminderScheduler", "사진 리마인더 스케줄링 시작")
 
             // 매일 밤 9시에 실행되도록 설정
             val currentTime = System.currentTimeMillis()
@@ -52,15 +48,11 @@ class PhotoReminderScheduler @Inject constructor(
                 set(Calendar.MILLISECOND, 0)
             }
 
-            // 오늘 밤 9시가 이미 지났다면 내일 밤 9시로 설정
             if (calendar.timeInMillis <= currentTime) {
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             }
 
             val initialDelay = calendar.timeInMillis - currentTime
-
-            Log.d("PhotoReminderScheduler", "첫 실행까지 남은 시간: ${initialDelay / 1000}초")
-
             val dailyWorkRequest = PeriodicWorkRequestBuilder<PhotoReminderWorker>(
                 1, TimeUnit.DAYS
             )
@@ -83,7 +75,6 @@ class PhotoReminderScheduler @Inject constructor(
                 dailyWorkRequest
             )
 
-            Log.d("PhotoReminderScheduler", "사진 리마인더 스케줄링 완료")
         } catch (e: Exception) {
             Log.e("PhotoReminderScheduler", "사진 리마인더 스케줄링 실패", e)
         }
@@ -92,7 +83,6 @@ class PhotoReminderScheduler @Inject constructor(
     fun cancelPhotoReminder() {
         try {
             workManager.cancelUniqueWork(WORK_NAME)
-            Log.d("PhotoReminderScheduler", "사진 리마인더 스케줄링 취소 완료")
         } catch (e: Exception) {
             Log.e("PhotoReminderScheduler", "사진 리마인더 스케줄링 취소 실패", e)
         }

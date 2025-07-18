@@ -1,13 +1,11 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.AlarmSettingsUseCase
@@ -38,20 +36,15 @@ class AlarmViewModel @Inject constructor(
     }
 
     private fun loadAlarmSettings() {
-        Log.d("AlarmViewModel", "알림 설정 로드 시작")
-
         _isLoading.value = true
 
-        // 각 설정을 별도 코루틴에서 독립적으로 수집
         viewModelScope.launch {
             try {
                 alarmSettingsUseCase.isPhotoReminderEnabled()
                     .collect { enabled ->
                         _photoReminderEnabled.value = enabled
-                        Log.d("AlarmViewModel", "사진 리마인더 설정: $enabled")
                     }
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "사진 리마인더 설정 로드 실패", e)
                 _photoReminderEnabled.value = true // 기본값
             }
         }
@@ -61,10 +54,8 @@ class AlarmViewModel @Inject constructor(
                 alarmSettingsUseCase.isDeliveryNotificationEnabled()
                     .collect { enabled ->
                         _deliveryNotificationEnabled.value = enabled
-                        Log.d("AlarmViewModel", "배송 알림 설정: $enabled")
                     }
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "배송 알림 설정 로드 실패", e)
                 _deliveryNotificationEnabled.value = true // 기본값
             }
         }
@@ -74,10 +65,8 @@ class AlarmViewModel @Inject constructor(
                 alarmSettingsUseCase.isMarketingNotificationEnabled()
                     .collect { enabled ->
                         _marketingNotificationEnabled.value = enabled
-                        Log.d("AlarmViewModel", "마케팅 알림 설정: $enabled")
                     }
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "마케팅 알림 설정 로드 실패", e)
                 _marketingNotificationEnabled.value = true // 기본값
             }
         }
@@ -91,9 +80,7 @@ class AlarmViewModel @Inject constructor(
                 alarmSettingsUseCase.isMarketingNotificationEnabled().first()
 
                 _isLoading.value = false
-                Log.d("AlarmViewModel", "알림 설정 로드 완료")
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "알림 설정 로드 중 오류 발생", e)
                 _isLoading.value = false
             }
         }
@@ -102,24 +89,16 @@ class AlarmViewModel @Inject constructor(
     fun setPhotoReminderEnabled(enabled: Boolean) {
         viewModelScope.launch {
             try {
-                Log.d("AlarmViewModel", "사진 리마인더 설정 변경: $enabled")
-
                 _photoReminderEnabled.value = enabled
-
-                // UseCase를 통해 저장
                 alarmSettingsUseCase.setPhotoReminderEnabled(enabled)
 
-
                  if (enabled) {
-                     photoReminderScheduler.scheduleImmediateTest()
+                     photoReminderScheduler.schedulePhotoReminder()
                  } else {
                      photoReminderScheduler.cancelPhotoReminder()
                  }
 
-                Log.d("AlarmViewModel", "사진 리마인더 설정 저장 완료")
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "사진 리마인더 설정 저장 실패", e)
-                // 실패 시 이전 상태로 복원
                 _photoReminderEnabled.value = !enabled
             }
         }
@@ -128,16 +107,11 @@ class AlarmViewModel @Inject constructor(
     fun setDeliveryNotificationEnabled(enabled: Boolean) {
         viewModelScope.launch {
             try {
-                Log.d("AlarmViewModel", "배송 알림 설정 변경: $enabled")
-
                 _deliveryNotificationEnabled.value = enabled
 
                 // UseCase를 통해 저장
                 alarmSettingsUseCase.setDeliveryNotificationEnabled(enabled)
-
-                Log.d("AlarmViewModel", "배송 알림 설정 저장 완료")
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "배송 알림 설정 저장 실패", e)
                 _deliveryNotificationEnabled.value = !enabled
             }
         }
@@ -146,16 +120,9 @@ class AlarmViewModel @Inject constructor(
     fun setMarketingNotificationEnabled(enabled: Boolean) {
         viewModelScope.launch {
             try {
-                Log.d("AlarmViewModel", "마케팅 알림 설정 변경: $enabled")
-
                 _marketingNotificationEnabled.value = enabled
-
-                // UseCase를 통해 저장
                 alarmSettingsUseCase.setMarketingNotificationEnabled(enabled)
-
-                Log.d("AlarmViewModel", "마케팅 알림 설정 저장 완료")
             } catch (e: Exception) {
-                Log.e("AlarmViewModel", "마케팅 알림 설정 저장 실패", e)
                 _marketingNotificationEnabled.value = !enabled
             }
         }

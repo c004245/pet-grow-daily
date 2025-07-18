@@ -370,6 +370,13 @@ fun EmptyAlbumWidget(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Background image at the bottom
+        Image(
+            painter = painterResource(R.drawable.ic_empty_background),
+            contentDescription = null,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally

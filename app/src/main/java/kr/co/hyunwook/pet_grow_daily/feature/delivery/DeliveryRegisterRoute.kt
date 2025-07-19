@@ -35,7 +35,8 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun DeliveryRegisterRoute(
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    navigateToOrderDone: () -> Unit
 ) {
 
     val paymentData by viewModel.paymentData.collectAsState()
@@ -45,6 +46,15 @@ fun DeliveryRegisterRoute(
     var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
 
     LaunchedEffect(Unit) {
+        viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                Log.d("HWO", "주문 저장 완료!")
+                navigateToOrderDone()
+
+            } else {
+                Log.e("HWO", "주문 저장 실패")
+            }
+        }
         viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "saveDeliveryDone ")
@@ -66,7 +76,7 @@ fun DeliveryRegisterRoute(
                 deliveryInfo?.let { info ->
                     viewModel.saveOrderRecord(info)
                 }
-                Toast.makeText(context, "결제가 완료되었습니다! 주문을 저장 중입니다.", Toast.LENGTH_SHORT).show()
+
             }
 
             is PaymentResult.Failure -> {

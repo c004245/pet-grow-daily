@@ -28,6 +28,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteT
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.gson.Gson
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderDone
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -139,6 +140,13 @@ class MainNavigator(
         navOptions: NavOptions
     ) {
         navController.navigate(Alarm, navOptions)
+    }
+
+
+    fun navigateToOrderDone(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(OrderDone, navOptions)
     }
     @Composable
     fun isShowBottomBar(): Boolean {

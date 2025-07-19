@@ -58,6 +58,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.alarmNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderDoneNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderProductListGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
@@ -192,6 +193,13 @@ internal fun MainScreen(
                         viewModel = orderViewModel
                     )
 
+                    orderDoneNavGraph(
+                        navigateToAlbum = {
+                            navigatorEnum = NavigateEnum.ALBUM
+                            navigate(navigator, NavigateEnum.ALBUM)
+                        }
+                    )
+
                     albumSelectNavGraph(
                         navigateToDeliveryCheck = {
                             navigate(navigator, NavigateEnum.DELIVERY_CHECK)
@@ -203,10 +211,19 @@ internal fun MainScreen(
                     )
 
                     deliveryCheckNavGraph(
-                        viewModel = orderViewModel
+                        viewModel = orderViewModel,
+                        navigateToOrderDone = {
+                            navigatorEnum = NavigateEnum.ORDER_DONE
+                            navigate(navigator, NavigateEnum.ORDER_DONE)
+                        }
                     )
                     deliveryRegisterNavGraph(
-                        viewModel = orderViewModel
+                        viewModel = orderViewModel,
+                        navigateToOrderDone = {
+                            navigatorEnum = NavigateEnum.ORDER_DONE
+                            navigate(navigator, NavigateEnum.ORDER_DONE)
+
+                        }
                     )
 
                     recordWriteGraph(
@@ -324,6 +341,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
 
         NavigateEnum.ALARM -> {
             navigator.navigateToAlarm(navOptions = navOptions)
+        }
+        NavigateEnum.ORDER_DONE -> {
+            navigator.navigateToOrderDone(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -484,5 +504,5 @@ fun MainScreenPreview() {
 enum class NavigateEnum {
     ALBUM, ORDER, ORDER_PRODUCT_LIST, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
     PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
-    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM
+    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM, ORDER_DONE
 }

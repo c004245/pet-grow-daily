@@ -52,7 +52,8 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun DeliveryCheckRoute(
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    navigateToOrderDone: () -> Unit
 ) {
     val deliveryInfos by viewModel.deliveryInfos.collectAsState()
     val selectedAlbumRecords by viewModel.selectedAlbumRecords.collectAsState()
@@ -73,7 +74,8 @@ fun DeliveryCheckRoute(
         viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
-                // TODO: 성공 화면으로 이동 또는 Firebase Function 호출
+                navigateToOrderDone()
+
             } else {
                 Log.e("HWO", "주문 저장 실패")
             }
@@ -97,7 +99,6 @@ fun DeliveryCheckRoute(
                 deliveryInfo?.let { deliveryInfos ->
                     viewModel.saveOrderRecord(deliveryInfos)
                 }
-                Toast.makeText(context, "결제가 완료되었습니다! 주문을 저장 중입니다.", Toast.LENGTH_SHORT).show()
             }
 
             is PaymentResult.Failure -> {

@@ -53,5 +53,8 @@
     <string name="text_save_profile">프로필을 저장하는 중입니다...</string>
     <string name="text_delivery_check_title">앨범 받을 주소를\n확인해주세요.</string>
     <string name="text_confirm_done">확인했어요</string>
+    <string name="text_home_navigate">홈으로 이동</string>
+    <string name="text_order_done_title">주문해 주셔서 감사합니다!\n예쁘게 제작하여 보내드릴게요.</string>
+    <string name="text_order_done_message">배송 진행사항은 문자로 보내드려요!</string>
 
 </resources>

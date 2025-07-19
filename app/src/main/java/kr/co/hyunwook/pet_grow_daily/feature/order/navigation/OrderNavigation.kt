@@ -13,6 +13,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductListRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.gson.Gson
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderDoneRoute
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -61,6 +62,17 @@ fun NavGraphBuilder.albumSelectNavGraph(
     }
 }
 
+fun NavGraphBuilder.orderDoneNavGraph(
+    navigateToAlbum: () -> Unit
+) {
+    composable<OrderDone> { backStackEntry ->
+        OrderDoneRoute(
+            navigateToAlbum = navigateToAlbum
+        )
+    }
+
+}
+
 @Serializable
 data class Order(val orderProductJson: String) : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order"
@@ -73,5 +85,9 @@ data object OrderProductList: Route {
 @Serializable
 data object AlbumSelect: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect"
+}
 
+@Serializable
+data object OrderDone: Route {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderDone"
 }

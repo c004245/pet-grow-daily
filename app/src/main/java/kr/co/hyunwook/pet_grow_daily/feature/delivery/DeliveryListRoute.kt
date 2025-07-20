@@ -190,6 +190,7 @@ fun EmptyDeliveryState(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
+            modifier = Modifier.height(48.dp),
             onClick = navigateToDeliveryAdd,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White
@@ -198,7 +199,6 @@ fun EmptyDeliveryState(
             border = BorderStroke(1.dp, purple6C)
         ) {
             Row(
-                modifier = Modifier.padding(vertical = 14.dp, horizontal = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(

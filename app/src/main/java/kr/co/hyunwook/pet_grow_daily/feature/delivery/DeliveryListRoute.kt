@@ -83,7 +83,7 @@ fun DeliveryListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(grayF8)
+            .background(color = Color.White)
             .padding(24.dp)
     ) {
         TitleDeliveryAppBar(stringResource(R.string.text_delivery_list), navigateToBack = {
@@ -141,14 +141,12 @@ fun DeliveryListScreen(
 
             Button(
                 onClick = { navigateToDeliveryAdd(null) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(BorderStroke(1.dp, grayDE)),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White
-                )
-
+                ),
+                border = BorderStroke(1.dp, grayDE)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

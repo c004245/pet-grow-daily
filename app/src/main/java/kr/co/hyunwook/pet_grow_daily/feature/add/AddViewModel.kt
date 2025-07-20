@@ -97,6 +97,9 @@ class AddViewModel @Inject constructor(
         }
     }
 
+    fun reloadImages() {
+        loadImages()
+    }
 
     private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
         return try {

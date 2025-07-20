@@ -61,7 +61,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.CompositionLocalProvider
@@ -81,11 +80,20 @@ fun AddRoute(
     val uiState by viewModel.uiState.collectAsState()
     var isVisible by remember { mutableStateOf(true) }
     val context = LocalContext.current
+
+    // Android 13+ (API 33) 이상에서는 READ_MEDIA_IMAGES, 이하에서는 READ_EXTERNAL_STORAGE 사용
+    val permission =
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
     var permissionGranted by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_MEDIA_IMAGES
+                permission
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
@@ -98,11 +106,17 @@ fun AddRoute(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         permissionGranted = isGranted
+        if (isGranted) {
+            // 권한이 승인되면 이미지 로드 시작
+            viewModel.reloadImages()
+        }
     }
 
-    LaunchedEffect(Unit) {
-        if (!permissionGranted) {
-            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+    LaunchedEffect(permissionGranted) {
+        if (permissionGranted) {
+            viewModel.reloadImages()
+        } else {
+            permissionLauncher.launch(permission)
         }
     }
 
@@ -136,7 +150,7 @@ fun AddRoute(
                 uiState = uiState,
                 permissionGranted = permissionGranted,
                 requestPermission = {
-                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                    permissionLauncher.launch(permission)
                 },
                 selectedImages = selectedImages,
                 isSelectionComplete = isSelectionComplete,

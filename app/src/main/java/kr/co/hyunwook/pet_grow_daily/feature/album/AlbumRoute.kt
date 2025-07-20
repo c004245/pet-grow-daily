@@ -367,58 +367,65 @@ fun EmptyAlbumWidget(
     navigateToAdd: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Background image at the bottom
+        // Background image at the bottom - positioned absolutely to avoid padding
         Image(
             painter = painterResource(R.drawable.ic_empty_background),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .align(Alignment.BottomCenter).fillMaxWidth()
         )
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        // Content centered
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = stringResource(R.string.text_no_album),
-                color = gray86,
-                textAlign = TextAlign.Center,
-                fontSize = 14.sp,
-                lineHeight = 21.sp,
-                style = PetgrowTheme.typography.medium,
-                modifier = Modifier.wrapContentWidth()
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .clickable {
-                        navigateToAdd()
-                    }
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(purple6C)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier.wrapContentWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                Text(
+                    text = stringResource(R.string.text_no_album),
+                    color = gray86,
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    lineHeight = 21.sp,
+                    style = PetgrowTheme.typography.medium,
+                    modifier = Modifier.wrapContentWidth()
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .clickable {
+                            navigateToAdd()
+                        }
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(purple6C)
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_plus),
-                        modifier = Modifier.padding(start = 24.dp),
-                        contentDescription = "add album"
-                    )
-                    Spacer(
-                        modifier = Modifier.width(8.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.text_picture_add),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        style = PetgrowTheme.typography.medium,
-                        modifier = Modifier.padding(top = 14.dp, bottom = 14.dp, end = 24.dp)
-                    )
+                    Row(
+                        modifier = Modifier.wrapContentWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_plus),
+                            modifier = Modifier.padding(start = 24.dp),
+                            contentDescription = "add album"
+                        )
+                        Spacer(
+                            modifier = Modifier.width(8.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.text_picture_add),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            style = PetgrowTheme.typography.medium,
+                            modifier = Modifier.padding(top = 14.dp, bottom = 14.dp, end = 24.dp)
+                        )
+                    }
                 }
             }
         }

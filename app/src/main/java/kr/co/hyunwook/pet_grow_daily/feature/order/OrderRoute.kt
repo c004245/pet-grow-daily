@@ -55,6 +55,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -156,7 +157,7 @@ fun OrderScreen(
                         .background(grayF8)
                 )
                 ProductDescriptionWidget(orderProduct.productDescription)
-                Spacer(Modifier.height(120.dp))
+                Spacer(Modifier.height(200.dp)) // 버튼 높이만큼 여유공간 확보
             }
         }
         OrderButtonWidget(
@@ -166,8 +167,6 @@ fun OrderScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(grayF8)
-                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
         )
     }
 
@@ -352,53 +351,65 @@ fun OrderButtonWidget(
     onClickRequestPayment: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .background(purple6C, RoundedCornerShape(4.dp))
-                .clip(RoundedCornerShape(4.dp)),
-        ) {
-            Text(
-                modifier = Modifier.padding(vertical = 6.dp, horizontal = 14.dp),
-                text = "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요.",
-                style = PetgrowTheme.typography.bold,
-                color = Color.White,
-                fontSize = 14.sp
+    Box(
+        modifier = modifier
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, grayF8),
+                    startY = 0f,
+                    endY = 100f
+                )
             )
-        }
-        Image(
-            painter = painterResource(id = R.drawable.ic_arrow_down_order),
-            contentDescription = null
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f),
-                    RoundedCornerShape(14.dp)
-                )
-                .clip(RoundedCornerShape(14.dp))
-                .clickable {
-                    if (isButtonEnabled) {
-                        onClickRequestPayment()
-                    }
-                },
-            contentAlignment = Alignment.Center
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                modifier = Modifier.padding(vertical = 14.dp),
-                text = "앨범 주문",
-                style = PetgrowTheme.typography.bold,
-                color = Color.White,
-                fontSize = 16.sp
+            Box(
+                modifier = Modifier
+                    .background(purple6C, RoundedCornerShape(4.dp))
+                    .clip(RoundedCornerShape(4.dp)),
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 6.dp, horizontal = 14.dp),
+                    text = "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요.",
+                    style = PetgrowTheme.typography.bold,
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_down_order),
+                contentDescription = null
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f),
+                        RoundedCornerShape(14.dp)
+                    )
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable {
+                        if (isButtonEnabled) {
+                            onClickRequestPayment()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 14.dp),
+                    text = "앨범 주문",
+                    style = PetgrowTheme.typography.bold,
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
         }
     }
-
 }
 
 @Composable

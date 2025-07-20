@@ -3,14 +3,20 @@ package kr.co.hyunwook.pet_grow_daily.feature.delivery
 import TitleDeliveryAppBarOnlyButton
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +25,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,10 +36,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
+import kr.co.hyunwook.pet_grow_daily.R
 
 @Composable
 fun DeliveryRegisterRoute(
@@ -41,27 +55,34 @@ fun DeliveryRegisterRoute(
 
     val paymentData by viewModel.paymentData.collectAsState()
     var showPaymentWebView by remember { mutableStateOf(false) }
+    var showProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val paymentResult by viewModel.paymentResult.collectAsState()
     var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect("saveOrderEvent") {
         viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
                 navigateToOrderDone()
-
             } else {
                 Log.e("HWO", "주문 저장 실패")
-            }
-        }
-        viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
-            if (isSuccess) {
-                Log.d("HWO", "saveDeliveryDone ")
-                viewModel.requestKakaoPayPayment()
+                showProcessing = false
             }
         }
     }
+
+    LaunchedEffect("saveDeliveryEvent") {
+        viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                Log.d("HWO", "saveDeliveryDone")
+                viewModel.requestKakaoPayPayment()
+            } else {
+                Log.e("HWO", "배송지 저장 실패")
+            }
+        }
+    }
+
     LaunchedEffect(paymentData) {
         paymentData?.let { data ->
             Log.d("HWO", "결제 요청 데이터: $data")
@@ -73,14 +94,17 @@ fun DeliveryRegisterRoute(
         when (val result = paymentResult) {
             is PaymentResult.Success -> {
                 Log.d("HWO", "결제 성공 - 주문 저장 시작")
+                showPaymentWebView = false
+                showProcessing = true
                 deliveryInfo?.let { info ->
                     viewModel.saveOrderRecord(info)
                 }
-
             }
 
             is PaymentResult.Failure -> {
                 Log.d("HWO", "결제 실패: ${result.message}")
+                showPaymentWebView = false
+                showProcessing = false
                 Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -89,32 +113,76 @@ fun DeliveryRegisterRoute(
         }
     }
 
-    if (showPaymentWebView) {
-        PaymentWebView(
-            onPaymentResult = { success, message, transactionId ->
-                if (success) {
-                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
-                    Log.d("HWO", "결제 완료")
-                } else {
-                    viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
-                    Log.d("HWO", "결제 실패: $message")
+    when {
+        showPaymentWebView -> {
+            PaymentWebView(
+                onPaymentResult = { success, message, transactionId ->
+                    if (success) {
+                        viewModel.setPaymentResult(
+                            PaymentResult.Success(
+                                transactionId ?: "",
+                                "27000"
+                            )
+                        )
+                        Log.d("HWO", "결제 완료")
+                    } else {
+                        viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
+                        Log.d("HWO", "결제 실패: $message")
+                    }
+                },
+                onBackPressed = {
+                    showPaymentWebView = false
                 }
-                showPaymentWebView = false
-            },
-            onBackPressed = {
-                showPaymentWebView = false
-            }
-        )
-    } else {
-        DeliveryRegisterScreen(
-            onSaveClick = { info ->
-                deliveryInfo = info
-                viewModel.saveDeliveryInfo(info)
-            },
-            onBackClick = {
+            )
+        }
 
-            }
-        )
+        showProcessing -> {
+            ProcessingScreen()
+        }
+
+        else -> {
+            DeliveryRegisterScreen(
+                onSaveClick = { info ->
+                    deliveryInfo = info
+                    viewModel.saveDeliveryInfo(info)
+                },
+                onBackClick = {
+
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun ProcessingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.6f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.loading_animation)
+            )
+            LottieAnimation(
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 36.dp)
+                    .height(200.dp)
+            )
+            Text(
+                text = "주문을 처리하고 있어요...",
+                style = PetgrowTheme.typography.bold,
+                color = Color.White,
+                fontSize = 16.sp
+            )
+        }
     }
 }
 
@@ -193,6 +261,7 @@ fun DeliveryRegisterScreen(
             isEnabled = isFormValid,
             message = "완료",
             onSaveClick = {
+                Log.d("HWO", "Save connect")
                 val deliveryInfo = DeliveryInfo(
                     zipCode = zipCode,
                     address = address,

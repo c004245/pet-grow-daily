@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +51,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryInfoItem
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import com.airbnb.lottie.compose.*
 
 @Composable
 fun DeliveryCheckRoute(
@@ -59,6 +62,7 @@ fun DeliveryCheckRoute(
     val selectedAlbumRecords by viewModel.selectedAlbumRecords.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
     var showPaymentWebView by remember { mutableStateOf(false) }
+    var showProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val paymentResult by viewModel.paymentResult.collectAsState()
 
@@ -75,9 +79,9 @@ fun DeliveryCheckRoute(
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
                 navigateToOrderDone()
-
             } else {
                 Log.e("HWO", "주문 저장 실패")
+                showProcessing = false
             }
         }
     }
@@ -88,14 +92,13 @@ fun DeliveryCheckRoute(
             showPaymentWebView = true
         }
     }
+
     LaunchedEffect(paymentResult) {
         when (val result = paymentResult) {
             is PaymentResult.Success -> {
                 Log.d("HWO", "결제 성공 - 주문 저장 시작")
-//                deliveryInfo?.let { info ->
-//                    viewModel.saveOrderRecord(info)
-
-//                }
+                showPaymentWebView = false
+                showProcessing = true
                 deliveryInfo?.let { deliveryInfos ->
                     viewModel.saveOrderRecord(deliveryInfos)
                 }
@@ -103,6 +106,8 @@ fun DeliveryCheckRoute(
 
             is PaymentResult.Failure -> {
                 Log.d("HWO", "결제 실패: ${result.message}")
+                showPaymentWebView = false
+                showProcessing = false
                 Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -111,33 +116,71 @@ fun DeliveryCheckRoute(
         }
     }
 
-    if (showPaymentWebView) {
-        PaymentWebView(
-            onPaymentResult = { success, message, transactionId ->
-                if (success) {
-                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", "27000"))
-                    Log.d("HWO", "결제 완료")
-                } else {
-                    viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
-                    Log.d("HWO", "결제 실패: $message")
+    when {
+        showPaymentWebView -> {
+            PaymentWebView(
+                onPaymentResult = { success, message, transactionId ->
+                    if (success) {
+                        viewModel.setPaymentResult(
+                            PaymentResult.Success(
+                                transactionId ?: "",
+                                "27000"
+                            )
+                        )
+                        Log.d("HWO", "결제 완료")
+                    } else {
+                        viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
+                        Log.d("HWO", "결제 실패: $message")
+                    }
+                },
+                onBackPressed = {
+                    showPaymentWebView = false
                 }
-                showPaymentWebView = false
-            },
-            onBackPressed = {
-                showPaymentWebView = false
+            )
+        }
+
+        showProcessing -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val composition by rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(R.raw.loading_animation)
+                    )
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .height(200.dp)
+                    )
+                    Text(
+                        text = "주문을 처리하고 있어요...",
+                        style = PetgrowTheme.typography.bold,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             }
-        )
-    } else {
-        DeliveryCheckScreen(
-            deliveryInfos = deliveryInfos,
-            selectedAlbumCount = selectedAlbumRecords.size,
-            onOrderConfirm = { selectedDeliveryInfo ->
-                Log.d("HWO", "주문 확인 버튼 클릭")
-                deliveryInfo = selectedDeliveryInfo
-//            viewModel.saveOrderRecord(selectedDeliveryInfo)
-                viewModel.requestKakaoPayPayment()
-            }
-        )
+        }
+
+        else -> {
+            DeliveryCheckScreen(
+                deliveryInfos = deliveryInfos,
+                selectedAlbumCount = selectedAlbumRecords.size,
+                onOrderConfirm = { selectedDeliveryInfo ->
+                    Log.d("HWO", "주문 확인 버튼 클릭")
+                    deliveryInfo = selectedDeliveryInfo
+                    viewModel.requestKakaoPayPayment()
+                }
+            )
+        }
     }
 }
 
@@ -230,7 +273,6 @@ fun DeliveryCheckScreen(
     }
 
 }
-
 
 @Composable
 fun TitleDeliveryAppBarOnlyButton(

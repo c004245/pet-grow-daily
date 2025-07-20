@@ -76,6 +76,13 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "win32-x86/attach_hotspot_windows.dll"
+            excludes += "win32-x86-64/attach_hotspot_windows.dll"
+            excludes += "**/attach_hotspot_windows.dll"
+            excludes += "META-INF/licenses/ASM"
+            excludes += "META-INF/licenses/*"
+            excludes += "META-INF/LICENSE*"
+            excludes += "META-INF/NOTICE*"
         }
     }
 

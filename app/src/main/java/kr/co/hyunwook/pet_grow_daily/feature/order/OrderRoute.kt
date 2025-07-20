@@ -150,25 +150,26 @@ fun OrderScreen(
                 ProductInfoWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
                 OrderCountWidget(todayOrderCount = todayOrderCount)
-                Spacer(Modifier
-                    .height(16.dp)
-                    .background(grayF8))
+                Spacer(
+                    Modifier
+                        .height(16.dp)
+                        .background(grayF8)
+                )
                 ProductDescriptionWidget(orderProduct.productDescription)
                 Spacer(Modifier.height(120.dp))
             }
         }
-            OrderButtonWidget(
-                albumRequireCount =  MAX_ALBUM_COUNT - albumRecord.size * 2,
-                onClickRequestPayment = onClickRequestPayment,
-                isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(grayF8)
-                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
-            )
-        }
-
+        OrderButtonWidget(
+            albumRequireCount = MAX_ALBUM_COUNT - albumRecord.size * 2,
+            onClickRequestPayment = onClickRequestPayment,
+            isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(grayF8)
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
+        )
+    }
 
 
 }
@@ -194,8 +195,8 @@ fun ImageSliderWithIndicator() {
 
     LaunchedEffect(key1 = pagerState) {
         while (true) {
-            delay (5000)
-            val nextPage = if (pagerState.currentPage + 1< images.size) {
+            delay(5000)
+            val nextPage = if (pagerState.currentPage + 1 < images.size) {
                 pagerState.currentPage + 1
             } else {
                 0
@@ -351,7 +352,7 @@ fun OrderButtonWidget(
     onClickRequestPayment: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column (
+    Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -383,7 +384,7 @@ fun OrderButtonWidget(
                 .clip(RoundedCornerShape(14.dp))
                 .clickable {
                     if (isButtonEnabled) {
-                    onClickRequestPayment()
+                        onClickRequestPayment()
                     }
                 },
             contentAlignment = Alignment.Center
@@ -431,7 +432,10 @@ fun PaymentWebView(
                 )
                 webChromeClient = object : android.webkit.WebChromeClient() {
                     override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
-                        Log.d("WebView_Console", "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}")
+                        Log.d(
+                            "WebView_Console",
+                            "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}"
+                        )
                         return true
                     }
                 }
@@ -477,7 +481,8 @@ fun PaymentWebView(
                             if (it.contains("service.iamport.kr") && it.contains("kakaoApprovalRedirect")) {
                                 Log.d("HWO", "iamport 승인 완료, 결과 페이지로 이동")
                                 // 결제 성공으로 간주하고 결과 페이지로 이동
-                                val resultUrl = "file:///android_asset/payment-result.html?imp_success=true&imp_uid=결제완료"
+                                val resultUrl =
+                                    "file:///android_asset/payment-result.html?imp_success=true&imp_uid=결제완료"
                                 view?.loadUrl(resultUrl)
                                 return true
                             }
@@ -490,7 +495,6 @@ fun PaymentWebView(
 
                         return false
                     }
-
 
 
                 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
 
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -48,7 +49,8 @@ import androidx.compose.ui.unit.sp
 fun ProfileImagePage(
     selectedImageUri: String?,
     onImageSelected: (String) -> Unit,
-    onCompleteClick: () -> Unit
+    onCompleteClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
 
     val launcher = rememberLauncherForActivityResult(
@@ -65,10 +67,13 @@ fun ProfileImagePage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
         ) {
+            CommonAppBarOnlyButton {
+                onBackClick()
+            }
+
             Text(
-                modifier = Modifier.padding(top = 100.dp),
+                modifier = Modifier.padding(top = 40.dp, start = 24.dp),
                 text = stringResource(id = R.string.text_profile_image),
                 style = PetgrowTheme.typography.bold,
                 color = black21,
@@ -76,7 +81,7 @@ fun ProfileImagePage(
             )
             Spacer(Modifier.height(40.dp))
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
                     .border(

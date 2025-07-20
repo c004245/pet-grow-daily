@@ -111,6 +111,12 @@ fun ProfileScreen(
                 1 -> ProfileImagePage(
                     selectedImageUri = selectedImageUri,
                     onImageSelected = { selectedImageUri = it },
+                    onBackClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(0)
+                        }
+
+                    },
                     onCompleteClick = {
                         isUploading = true
                         profileViewModel.saveProfile(

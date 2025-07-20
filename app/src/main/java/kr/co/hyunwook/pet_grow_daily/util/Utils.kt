@@ -38,7 +38,7 @@ fun CommonAppBarOnlyButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp).padding(start = 16.dp, top = 8.dp),
+            .height(40.dp).padding(start = 24.dp, top = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(

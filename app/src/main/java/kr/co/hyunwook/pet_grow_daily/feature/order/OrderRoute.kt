@@ -435,7 +435,7 @@ fun OrderButtonWidget(
                     .clip(RoundedCornerShape(14.dp))
                     .clickable {
                         if (isButtonEnabled) {
-                        onClickRequestPayment()
+                            onClickRequestPayment()
                         }
                     },
                 contentAlignment = Alignment.Center

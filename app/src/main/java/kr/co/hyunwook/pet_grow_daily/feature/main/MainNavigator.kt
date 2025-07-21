@@ -21,6 +21,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.OnBoardi
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.Profile
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.BusinessInfo
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
@@ -144,6 +145,12 @@ class MainNavigator(
         navOptions: NavOptions
     ) {
         navController.navigate(OrderDone, navOptions)
+    }
+
+    fun navigateToBusinessInfo(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(BusinessInfo, navOptions)
     }
 
     @Composable

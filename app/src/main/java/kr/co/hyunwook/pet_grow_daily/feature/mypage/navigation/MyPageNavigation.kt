@@ -14,15 +14,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.AlarmRoute
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.BusinessInfoRoute
 
 fun NavGraphBuilder.myPageNavGraph(
     navigateToDeliveryList: () -> Unit,
-    navigateToAlarm: () -> Unit
+    navigateToAlarm: () -> Unit,
+    navigateToBusinessInfo: () -> Unit,
 ) {
     composable<MyPage> {
         MyPageRoute(
             onClickDeliveryList = navigateToDeliveryList,
-            onClickAlarm = navigateToAlarm
+            onClickAlarm = navigateToAlarm,
+            onClickBusinessInfo = navigateToBusinessInfo
         )
     }
 }
@@ -50,8 +53,34 @@ fun NavGraphBuilder.alarmNavGraph(
             modifier = Modifier.zIndex(1f)
         )
     }
-
 }
+
+
+fun NavGraphBuilder.businessInfoNavGraph(
+    navigateToMyPage: () -> Unit
+) {
+
+    composable<BusinessInfo>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) {
+        BusinessInfoRoute(
+            navigateToMyPage = navigateToMyPage,
+            modifier = Modifier.zIndex(1f)
+        )
+    }
+}
+
 @Serializable
 data object MyPage: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage"
@@ -60,4 +89,9 @@ data object MyPage: Route {
 @Serializable
 data object Alarm: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm"
+}
+
+@Serializable
+data object BusinessInfo: Route {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.BusinessInfo"
 }

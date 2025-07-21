@@ -52,12 +52,15 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
     onClickDeliveryList: () -> Unit,
-    onClickAlarm: () -> Unit
+    onClickAlarm: () -> Unit,
+    onClickBusinessInfo: () -> Unit
 ) {
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
@@ -107,7 +110,9 @@ fun MyPageRoute(
         onClickDeliveryList = {
             Log.d("HWO", "onc!")
             onClickDeliveryList()
-
+        },
+        onClickBusinessInfo = {
+            onClickBusinessInfo()
         }
 
     )
@@ -122,7 +127,8 @@ fun MyPageScreen(
     onClickTerm: () -> Unit,
     onClickPrivacy: () -> Unit,
     onClickAlarm: () -> Unit,
-    onClickDeliveryList: () -> Unit
+    onClickDeliveryList: () -> Unit,
+    onClickBusinessInfo: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -130,7 +136,9 @@ fun MyPageScreen(
             .background(grayF8)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             CommonTopBar(
                 title = {
@@ -149,7 +157,7 @@ fun MyPageScreen(
             Spacer(Modifier.height(12.dp))
             AlarmInfo(onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
-            LegalInfo(onClickTerm, onClickPrivacy)
+            LegalInfo(onClickTerm, onClickPrivacy, onClickBusinessInfo)
             Spacer(Modifier.height(12.dp))
             Box(
                 modifier = Modifier
@@ -165,8 +173,6 @@ fun MyPageScreen(
                     fontSize = 12.sp,
                 )
             }
-
-
         }
     }
 }
@@ -294,7 +300,7 @@ fun AlarmInfo(
 }
 
 @Composable
-fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit) {
+fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit, onClickBusiness: () -> Unit){
     CommonRoundedBox {
         Column {
 
@@ -335,6 +341,26 @@ fun LegalInfo(onClickTerm: () -> Unit, onClickPrivacy: () -> Unit) {
             ) {
                 Text(
                     text = stringResource(R.string.text_privacy_title),
+                    style = PetgrowTheme.typography.regular,
+                    color = black21,
+                    fontSize = 16.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_left_arrow),
+                    contentDescription = "privacy"
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onClickBusiness()
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.text_business_info),
                     style = PetgrowTheme.typography.regular,
                     color = black21,
                     fontSize = 16.sp

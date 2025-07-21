@@ -9,12 +9,16 @@ import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.HasPetProfileUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.AlarmSettingsUseCase
+import kr.co.hyunwook.pet_grow_daily.util.alarm.PhotoReminderScheduler
+import android.util.Log
 
 @HiltViewModel
 class OnBoardingViewModel @Inject constructor(
     private val saveLoginStateUseCase: SaveLoginStateUseCase,
-    private val hasPetProfileUseCase: HasPetProfileUseCase
-
+    private val hasPetProfileUseCase: HasPetProfileUseCase,
+    private val alarmSettingsUseCase: AlarmSettingsUseCase,
+    private val photoReminderScheduler: PhotoReminderScheduler
 ): ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Initial)
@@ -24,6 +28,9 @@ class OnBoardingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 saveLoginStateUseCase(userId, nickName, email)
+
+                // 로그인 성공 시 알림 설정 초기화
+                initializeAlarmSettings()
 
                 hasPetProfileUseCase().collect { hasPetProfile ->
                     if (hasPetProfile) {
@@ -36,7 +43,24 @@ class OnBoardingViewModel @Inject constructor(
                 _loginState.value = LoginState.Error(e.message ?: "Unknown error")
             }
         }
+    }
 
+    private suspend fun initializeAlarmSettings() {
+        try {
+
+
+            alarmSettingsUseCase.setPhotoReminderEnabled(true)
+            photoReminderScheduler.schedulePhotoReminder()
+
+
+            alarmSettingsUseCase.setDeliveryNotificationEnabled(true)
+            // 마케팅 알림 활성
+            alarmSettingsUseCase.setMarketingNotificationEnabled(true)
+
+            Log.d("OnBoardingViewModel", "알림 설정 초기화 완료")
+        } catch (e: Exception) {
+            Log.e("OnBoardingViewModel", "알림 설정 초기화 실패", e)
+        }
     }
 
     sealed class LoginState {

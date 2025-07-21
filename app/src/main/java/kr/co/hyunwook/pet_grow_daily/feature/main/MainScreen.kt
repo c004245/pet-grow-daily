@@ -55,6 +55,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.onboarding.navigation.onboardi
 import kr.co.hyunwook.pet_grow_daily.feature.main.profile.navigation.profileNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.splashNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.alarmNavGraph
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.businessInfoNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
@@ -130,7 +131,11 @@ internal fun MainScreen(
                         }
                     )
                     totalNavGraph()
-
+                    businessInfoNavGraph(
+                        navigateToMyPage = {
+                            navigate(navigator, NavigateEnum.MYPAGE)
+                        }
+                    )
                     alarmNavGraph(
                         navigateToMyPage = {
                             navigate(navigator, NavigateEnum.MYPAGE)
@@ -142,6 +147,9 @@ internal fun MainScreen(
                         },
                         navigateToAlarm = {
                             navigate(navigator, NavigateEnum.ALARM)
+                        },
+                        navigateToBusinessInfo = {
+                            navigate(navigator, NavigateEnum.BUSINESS_INFO)
                         }
                     )
 
@@ -345,6 +353,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         NavigateEnum.ORDER_DONE -> {
             navigator.navigateToOrderDone(navOptions = navOptions)
         }
+        NavigateEnum.BUSINESS_INFO -> {
+            navigator.navigateToBusinessInfo(navOptions = navOptions)
+        }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
         }
@@ -504,5 +515,5 @@ fun MainScreenPreview() {
 enum class NavigateEnum {
     ALBUM, ORDER, ORDER_PRODUCT_LIST, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
     PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
-    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM, ORDER_DONE
+    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM, ORDER_DONE, BUSINESS_INFO
 }

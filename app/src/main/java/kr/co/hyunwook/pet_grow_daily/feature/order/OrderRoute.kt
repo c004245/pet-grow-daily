@@ -498,23 +498,100 @@ fun PaymentWebView(
                         super.onPageFinished(view, url)
                         Log.d("HWO", "Page finished loading: $url")
 
-                        // 페이지 로드 완료 후 상품 정보 JavaScript로 전달
-                        val amount = paymentData?.get("amount") ?: "0"
-                        val merchantUid = paymentData?.get("merchant_uid") ?: ""
+                        when {
+                            url?.contains("payment-result.html") == true -> {
+                                Log.d(
+                                    "HWO",
+                                    "Payment result page loaded, checking for result parameters"
+                                )
 
-                        val jsCode = """
-                            if (typeof updateProductInfo === 'function') {
-                                updateProductInfo('${orderProduct.productTitle}', '$amount', '$merchantUid');
+                                // Android Interface 재확인
+                                view?.evaluateJavascript("console.log('Payment result page - Android interface check:', !!window.Android);") { result ->
+                                    Log.d(
+                                        "HWO",
+                                        "Payment result page - Android interface check result: $result"
+                                    )
+                                }
+
+                                // 결제 결과 파라미터 추출 및 처리
+                                view?.evaluateJavascript(
+                                    """
+                                    (function() {
+                                        try {
+                                            var urlParams = new URLSearchParams(window.location.search);
+                                            var merchantUid = urlParams.get('merchant_uid');
+                                            var impUid = urlParams.get('imp_uid');
+                                            var impSuccess = urlParams.get('imp_success');
+                                            var errorMsg = urlParams.get('error_msg');
+                                            var amount = urlParams.get('amount') || '${
+                                        paymentData?.get(
+                                            "amount"
+                                        ) ?: "0"
+                                    }';
+                                            
+                                            console.log('Extracted payment params:', {
+                                                merchantUid: merchantUid,
+                                                impUid: impUid,
+                                                impSuccess: impSuccess,
+                                                errorMsg: errorMsg,
+                                                amount: amount
+                                            });
+                                            
+                                            if (merchantUid) {
+                                                if (impSuccess === 'true' && impUid) {
+                                                    console.log('Payment successful, calling Android interface');
+                                                    if (window.Android && typeof window.Android.onPaymentSuccess === 'function') {
+                                                        window.Android.onPaymentSuccess(impUid, amount);
+                                                    } else {
+                                                        console.error('Android.onPaymentSuccess not available');
+                                                    }
+                                                } else {
+                                                    console.log('Payment failed, calling Android interface');
+                                                    if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
+                                                        window.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
+                                                    } else {
+                                                        console.error('Android.onPaymentFailure not available');
+                                                    }
+                                                }
+                                            } else {
+                                                console.log('No merchant_uid found in URL parameters');
+                                            }
+                                            
+                                            return 'payment_result_processed';
+                                        } catch (error) {
+                                            console.error('Error processing payment result:', error);
+                                            if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
+                                                window.Android.onPaymentFailure('결제 결과 처리 중 오류가 발생했습니다.');
+                                            }
+                                            return 'payment_result_error: ' + error.message;
+                                        }
+                                    })();
+                                """.trimIndent()
+                                ) { result ->
+                                    Log.d("HWO", "Payment result processing result: $result")
+                                }
                             }
-                        """.trimIndent()
 
-                        view?.evaluateJavascript(jsCode) { result ->
-                            Log.d("HWO", "JavaScript execution result: $result")
-                        }
+                            url?.contains("payment.html") == true -> {
+                                // 페이지 로드 완료 후 상품 정보 JavaScript로 전달
+                                val amount = paymentData?.get("amount") ?: "0"
+                                val merchantUid = paymentData?.get("merchant_uid") ?: ""
 
-                        // Android Interface가 제대로 설정되었는지 확인
-                        view?.evaluateJavascript("console.log('Android interface check:', !!window.Android);") { result ->
-                            Log.d("HWO", "Android interface check result: $result")
+                                val jsCode = """
+                                    if (typeof updateProductInfo === 'function') {
+                                        updateProductInfo('${orderProduct.productTitle}', '$amount', '$merchantUid');
+                                    }
+                                """.trimIndent()
+
+                                view?.evaluateJavascript(jsCode) { result ->
+                                    Log.d("HWO", "JavaScript execution result: $result")
+                                }
+
+                                // Android Interface가 제대로 설정되었는지 확인
+                                view?.evaluateJavascript("console.log('Android interface check:', !!window.Android);") { result ->
+                                    Log.d("HWO", "Android interface check result: $result")
+                                }
+                            }
                         }
                     }
 
@@ -554,12 +631,51 @@ fun PaymentWebView(
                                 return true
                             }
 
-                            // payment-result.html 리디렉션 특별 처리
+                            // iamport redirect URL 처리 - 안전하지 않은 리디렉션 방지
+                            if (currentUrl.contains("service.iamport.kr") &&
+                                (currentUrl.contains("kakaoApprovalRedirect") || currentUrl.contains(
+                                    "redirect"
+                                ))
+                            ) {
+                                Log.d(
+                                    "HWO",
+                                    "Detected iamport redirect URL, handling specially: $currentUrl"
+                                )
+
+                                try {
+                                    // URL에서 파라미터 추출
+                                    val uri = android.net.Uri.parse(currentUrl)
+                                    val pgToken = uri.getQueryParameter("pg_token")
+
+                                    if (pgToken != null) {
+                                        Log.d(
+                                            "HWO",
+                                            "Found pg_token, processing payment completion"
+                                        )
+
+                                        // 결제 완료 처리를 위해 결과 페이지로 리디렉션하는 대신
+                                        // 직접 결제 성공 처리
+                                        val amount = paymentData?.get("amount") ?: "0"
+                                        val merchantUid = paymentData?.get("merchant_uid") ?: ""
+                                        val impUid =
+                                            "imp_${System.currentTimeMillis()}" // 임시 imp_uid
+
+                                        // 결제 결과 페이지를 직접 로드
+                                        val resultUrl =
+                                            "file:///android_asset/payment-result.html?merchant_uid=$merchantUid&amount=$amount&imp_uid=$impUid&imp_success=true"
+                                        view?.loadUrl(resultUrl)
+                                        return true
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("HWO", "Error processing iamport redirect: $e")
+                                }
+                                return false
+                            }
+
+                            // payment-result.html 리디렉션 처리
                             if (currentUrl.contains("payment-result.html")) {
                                 Log.d("HWO", "Payment result redirect detected: $currentUrl")
-                                // 리디렉션 URL을 그대로 로드하되, JavaScript Interface가 작동하도록 보장
-                                view?.loadUrl(currentUrl)
-                                return true
+                                return false // WebView에서 로드하도록 허용
                             }
 
                             // 카카오페이 및 결제 관련 URL은 모두 WebView에서 처리

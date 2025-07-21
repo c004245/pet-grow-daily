@@ -138,13 +138,9 @@ class OrderViewModel @Inject constructor(
         val paymentData = mapOf(
             "userCode" to "imp26031685", // 제공받은 식별코드
             "pg" to "kakaopay.TC0ONETIME", // 카카오페이 테스트 PG 설정
-            "pay_method" to "card",
             "name" to "${orderProduct.productTitle} (테스트)",
             "merchant_uid" to "test_album_${System.currentTimeMillis()}",
             "amount" to discountedPrice.toString(), // 실제 할인된 가격 사용
-            "buyer_name" to "테스트구매자",
-            "buyer_tel" to "010-0000-0000",
-            "buyer_email" to "test@example.com",
             "app_scheme" to "petgrowdaily"
         )
 

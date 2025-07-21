@@ -209,7 +209,8 @@ fun DeliveryCheckScreen(
 
     LaunchedEffect(deliveryInfos) {
         if (selectedDeliveryId.value == null && deliveryInfos.isNotEmpty()) {
-            selectedDeliveryId.value = deliveryInfos.find { it.isDefault }?.id
+            selectedDeliveryId.value =
+                deliveryInfos.find { it.isDefault }?.id ?: deliveryInfos.first().id
         }
     }
 

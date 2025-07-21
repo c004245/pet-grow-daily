@@ -6,8 +6,5 @@ data class PaymentData(
     val name: String,
     val merchant_uid: String,
     val amount: String,
-    val buyer_name: String,
-    val buyer_tel: String,
-    val buyer_email: String,
     val app_scheme: String
 )

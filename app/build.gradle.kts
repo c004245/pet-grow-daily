@@ -21,12 +21,12 @@ if (keystorePropertiesFile.exists()) {
 android {
 
     namespace = "kr.co.hyunwook.pet_grow_daily"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "kr.co.hyunwook.pet_grow_daily"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 5
         versionName = "0.0.2"
 

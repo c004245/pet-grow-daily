@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Petgrowdaily" parent="android:Theme.Material.Light.NoActionBar" >
+    <style name="Theme.Petgrowdaily" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+        <!-- SDK 35 Edge-to-Edge 강제 적용 방지 -->
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 </resources>

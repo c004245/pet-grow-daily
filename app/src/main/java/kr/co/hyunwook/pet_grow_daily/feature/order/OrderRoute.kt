@@ -17,6 +17,9 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import android.app.Activity
 import android.util.Log
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -50,6 +53,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -65,18 +69,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.room.util.copy
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.webkit.JavascriptInterface
-import android.os.Bundle
-import androidx.activity.compose.BackHandler
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
@@ -86,7 +83,7 @@ import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 
 @Composable
 fun OrderRoute(
-    navigateToAlbumSelect: () -> Unit,
+    navigateToAlbumSelect: (OrderProduct) -> Unit,
     viewModel: OrderViewModel,
     orderProduct: OrderProduct,
     onBackClick: () -> Unit
@@ -99,22 +96,71 @@ fun OrderRoute(
     val todayOrderCount by viewModel.todayZipFileCount.collectAsState()
 
     val context = LocalContext.current
+    var showPaymentWebView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
         viewModel.getUserAlbumCount()
         viewModel.getTodayOrderCount()
+        viewModel.setCurrentOrderProduct(orderProduct)
     }
 
-    OrderScreen(
-        albumRecord = albumRecord,
-        orderProduct = orderProduct,
-        onClickRequestPayment = {
-            navigateToAlbumSelect()
-        },
-        onBackClick = onBackClick,
-        todayOrderCount = todayOrderCount
-    )
+    LaunchedEffect(paymentData) {
+        if (paymentData != null) {
+            showPaymentWebView = true
+        }
+    }
+
+    LaunchedEffect(paymentResult) {
+        when (val result = paymentResult) {
+            is PaymentResult.Success -> {
+                Toast.makeText(context, "결제가 완료되었습니다", Toast.LENGTH_SHORT).show()
+                showPaymentWebView = false
+            }
+
+            is PaymentResult.Failure -> {
+                Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT).show()
+                showPaymentWebView = false
+                viewModel.clearPaymentRequest()
+            }
+
+            else -> {}
+        }
+    }
+
+    if (showPaymentWebView && paymentData != null) {
+        val currentPaymentData = paymentData
+        PaymentWebView(
+            orderProduct = orderProduct,
+            paymentData = currentPaymentData,
+            onPaymentResult = { isSuccess, errorMessage, transactionId ->
+                if (isSuccess) {
+                    val amount = currentPaymentData?.get("amount") ?: "0"
+                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", amount))
+                } else {
+                    viewModel.setPaymentResult(PaymentResult.Failure(errorMessage ?: "알 수 없는 오류"))
+                }
+            },
+            onBackPressed = {
+                showPaymentWebView = false
+                viewModel.clearPaymentRequest()
+            }
+        )
+    } else {
+        OrderScreen(
+            albumRecord = albumRecord,
+            orderProduct = orderProduct,
+            onClickRequestPayment = {
+                if (MAX_ALBUM_COUNT == albumRecord.size * 2) {
+                    viewModel.requestKakaoPayPayment(orderProduct)
+                } else {
+                    navigateToAlbumSelect(orderProduct)
+                }
+            },
+            onBackClick = onBackClick,
+            todayOrderCount = todayOrderCount
+        )
+    }
 }
 
 @Composable
@@ -169,10 +215,7 @@ fun OrderScreen(
                 .fillMaxWidth()
         )
     }
-
-
 }
-
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -230,7 +273,6 @@ fun ImageSliderWithIndicator() {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Log.d("HWO", "images -> ${images.size}")
             repeat(images.size) { iteration ->
                 val color = if (pagerState.currentPage == iteration)
                     Color.White
@@ -251,8 +293,6 @@ fun ImageSliderWithIndicator() {
     }
 }
 
-
-//추후에 Firebase remote config 로 가격 조정
 @Composable
 fun ProductInfoWidget(
     orderProduct: OrderProduct
@@ -395,7 +435,7 @@ fun OrderButtonWidget(
                     .clip(RoundedCornerShape(14.dp))
                     .clickable {
                         if (isButtonEnabled) {
-                            onClickRequestPayment()
+                        onClickRequestPayment()
                         }
                     },
                 contentAlignment = Alignment.Center
@@ -429,6 +469,8 @@ fun ProductDescriptionWidget(description: String) {
 
 @Composable
 fun PaymentWebView(
+    orderProduct: OrderProduct,
+    paymentData: Map<String, String>?,
     onPaymentResult: (Boolean, String?, String?) -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -451,11 +493,29 @@ fun PaymentWebView(
                     }
                 }
 
-
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
                         Log.d("HWO", "Page finished loading: $url")
+
+                        // 페이지 로드 완료 후 상품 정보 JavaScript로 전달
+                        val amount = paymentData?.get("amount") ?: "0"
+                        val merchantUid = paymentData?.get("merchant_uid") ?: ""
+
+                        val jsCode = """
+                            if (typeof updateProductInfo === 'function') {
+                                updateProductInfo('${orderProduct.productTitle}', '$amount', '$merchantUid');
+                            }
+                        """.trimIndent()
+
+                        view?.evaluateJavascript(jsCode) { result ->
+                            Log.d("HWO", "JavaScript execution result: $result")
+                        }
+
+                        // Android Interface가 제대로 설정되었는지 확인
+                        view?.evaluateJavascript("console.log('Android interface check:', !!window.Android);") { result ->
+                            Log.d("HWO", "Android interface check result: $result")
+                        }
                     }
 
                     override fun onReceivedSslError(
@@ -463,51 +523,72 @@ fun PaymentWebView(
                         handler: android.webkit.SslErrorHandler?,
                         error: android.net.http.SslError?
                     ) {
-                        // 개발/테스트용 - 실제 배포 시에는 적절한 SSL 검증 로직 필요
                         handler?.proceed()
                     }
 
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         Log.d("HWO", "URL loading: $url")
 
-                        url?.let {
+                        url?.let { currentUrl ->
                             // 카카오톡 앱 스킴 처리
-                            if (it.startsWith("kakaotalk://") ||
-                                it.startsWith("kakaokompassauth://") ||
-                                it.startsWith("intent://")
+                            if (currentUrl.startsWith("kakaotalk://") ||
+                                currentUrl.startsWith("kakaokompassauth://") ||
+                                currentUrl.startsWith("intent://")
                             ) {
                                 try {
                                     val intent = android.content.Intent.parseUri(
-                                        it,
+                                        currentUrl,
                                         android.content.Intent.URI_INTENT_SCHEME
                                     )
                                     context.startActivity(intent)
                                     return true
                                 } catch (e: Exception) {
                                     Log.e("WebView", "Failed to handle intent: $e")
+                                    return false
                                 }
                             }
 
-                            // iamport 승인 URL 처리 - 이 부분을 추가하세요!
-                            if (it.contains("service.iamport.kr") && it.contains("kakaoApprovalRedirect")) {
-                                Log.d("HWO", "iamport 승인 완료, 결과 페이지로 이동")
-                                // 결제 성공으로 간주하고 결과 페이지로 이동
-                                val resultUrl =
-                                    "file:///android_asset/payment-result.html?imp_success=true&imp_uid=결제완료"
-                                view?.loadUrl(resultUrl)
+                            // 앱 스킴 처리
+                            if (currentUrl.startsWith("petgrowdaily://")) {
+                                Log.d("HWO", "App scheme detected, handling callback")
                                 return true
                             }
 
-                            // 일반 HTTPS URL 처리
-                            if (it.startsWith("https://") || it.startsWith("http://")) {
+                            // payment-result.html 리디렉션 특별 처리
+                            if (currentUrl.contains("payment-result.html")) {
+                                Log.d("HWO", "Payment result redirect detected: $currentUrl")
+                                // 리디렉션 URL을 그대로 로드하되, JavaScript Interface가 작동하도록 보장
+                                view?.loadUrl(currentUrl)
+                                return true
+                            }
+
+                            // 카카오페이 및 결제 관련 URL은 모두 WebView에서 처리
+                            if (currentUrl.contains("iamport.kr") ||
+                                currentUrl.contains("inicis.com") ||
+                                currentUrl.contains("kcp.co.kr") ||
+                                currentUrl.contains("kakaopay.com") ||
+                                currentUrl.contains("kakao.com") ||
+                                currentUrl.contains("payment")
+                            ) {
+                                Log.d("HWO", "Payment related URL, loading in WebView: $currentUrl")
+                                return false
+                            }
+
+                            // 파일 URL은 WebView에서 처리
+                            if (currentUrl.startsWith("file://")) {
+                                Log.d("HWO", "File URL, loading in WebView: $currentUrl")
+                                return false
+                            }
+
+                            // HTTPS/HTTP URL은 WebView에서 처리
+                            if (currentUrl.startsWith("https://") || currentUrl.startsWith("http://")) {
+                                Log.d("HWO", "HTTP/HTTPS URL, loading in WebView: $currentUrl")
                                 return false
                             }
                         }
 
                         return false
                     }
-
-
                 }
 
                 settings.apply {
@@ -517,33 +598,56 @@ fun PaymentWebView(
                     allowContentAccess = true
                     allowUniversalAccessFromFileURLs = true
                     allowFileAccessFromFileURLs = true
-                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW // 추가
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                     cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
                     setSupportMultipleWindows(true)
                     javaScriptCanOpenWindowsAutomatically = true
                     userAgentString = "${userAgentString} PetGrowDaily"
                 }
 
-                // JavaScript Interface 추가
                 addJavascriptInterface(object {
                     @JavascriptInterface
                     fun onPaymentSuccess(transactionId: String, amount: String) {
-                        Log.d("HWO", "Payment Success: $transactionId, $amount")
-                        onPaymentResult(true, null, transactionId)
+                        Log.d(
+                            "HWO",
+                            "JavaScript Interface - Payment Success called: transactionId=$transactionId, amount=$amount"
+                        )
+                        try {
+                            (context as? Activity)?.runOnUiThread {
+                                Log.d("HWO", "Executing onPaymentResult for success on main thread")
+                                onPaymentResult(true, null, transactionId)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("HWO", "Error in onPaymentSuccess: ${e.message}")
+                        }
                     }
 
                     @JavascriptInterface
                     fun onPaymentFailure(message: String) {
-                        Log.d("HWO", "Payment Failure: $message")
-                        onPaymentResult(false, message, null)
+                        Log.d(
+                            "HWO",
+                            "JavaScript Interface - Payment Failure called: message=$message"
+                        )
+                        try {
+                            (context as? Activity)?.runOnUiThread {
+                                Log.d("HWO", "Executing onPaymentResult for failure on main thread")
+                                onPaymentResult(false, message, null)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("HWO", "Error in onPaymentFailure: ${e.message}")
+                        }
                     }
 
                     @JavascriptInterface
                     fun closeWebView() {
-                        Log.d("HWO", "Close WebView requested")
-                        // 메인 스레드에서 실행
-                        (context as? Activity)?.runOnUiThread {
-                            onBackPressed()
+                        Log.d("HWO", "JavaScript Interface - Close WebView called")
+                        try {
+                            (context as? Activity)?.runOnUiThread {
+                                Log.d("HWO", "Executing onBackPressed on main thread")
+                                onBackPressed()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("HWO", "Error in closeWebView: ${e.message}")
                         }
                     }
                 }, "Android")
@@ -554,5 +658,3 @@ fun PaymentWebView(
         modifier = Modifier.fillMaxSize()
     )
 }
-
-

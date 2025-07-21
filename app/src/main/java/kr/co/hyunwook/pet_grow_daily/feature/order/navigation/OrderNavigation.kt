@@ -40,7 +40,7 @@ fun NavGraphBuilder.orderNavGraph(
             URLDecoder.decode(args.orderProductJson, StandardCharsets.UTF_8.toString())
         val orderProduct = Gson().fromJson(decodedJson, OrderProduct::class.java)
         OrderRoute (
-            navigateToAlbumSelect = navigateToAlbumSelect,
+            navigateToAlbumSelect = { navigateToAlbumSelect() },
             viewModel = viewModel,
             orderProduct = orderProduct,
             onBackClick = onBackClick
@@ -83,7 +83,7 @@ data object OrderProductList: Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderProductList"
 }
 @Serializable
-data object AlbumSelect: Route {
+data object AlbumSelect : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect"
 }
 

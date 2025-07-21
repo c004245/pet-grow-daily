@@ -49,6 +49,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
@@ -64,7 +65,12 @@ fun AlbumSelectRoute(
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
     val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
+    val currentOrderProduct by viewModel.currentOrderProduct.collectAsState()
     var shouldNavigate by remember { mutableStateOf(false) }
+
+    currentOrderProduct?.let { orderProduct ->
+        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productCost}")
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()

@@ -50,6 +50,7 @@ import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryInfoItem
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import com.airbnb.lottie.compose.*
 
@@ -61,6 +62,7 @@ fun DeliveryCheckRoute(
     val deliveryInfos by viewModel.deliveryInfos.collectAsState()
     val selectedAlbumRecords by viewModel.selectedAlbumRecords.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
+    val currentOrderProduct by viewModel.currentOrderProduct.collectAsState()
     var showPaymentWebView by remember { mutableStateOf(false) }
     var showProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -69,6 +71,9 @@ fun DeliveryCheckRoute(
     var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
 
     Log.d("HWO", "선택된 앨범: ${selectedAlbumRecords.size}개")
+    currentOrderProduct?.let { orderProduct ->
+        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productCost}")
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getDeliveryList()
@@ -117,14 +122,20 @@ fun DeliveryCheckRoute(
     }
 
     when {
-        showPaymentWebView -> {
+        showPaymentWebView && paymentData != null && currentOrderProduct != null -> {
+            val currentPaymentData = paymentData
+            val orderProduct = currentOrderProduct!!
+
             PaymentWebView(
+                orderProduct = orderProduct,
+                paymentData = currentPaymentData,
                 onPaymentResult = { success, message, transactionId ->
                     if (success) {
+                        val amount = currentPaymentData?.get("amount") ?: "0"
                         viewModel.setPaymentResult(
                             PaymentResult.Success(
                                 transactionId ?: "",
-                                "27000"
+                                amount
                             )
                         )
                         Log.d("HWO", "결제 완료")
@@ -135,6 +146,7 @@ fun DeliveryCheckRoute(
                 },
                 onBackPressed = {
                     showPaymentWebView = false
+                    viewModel.clearPaymentRequest()
                 }
             )
         }
@@ -177,7 +189,9 @@ fun DeliveryCheckRoute(
                 onOrderConfirm = { selectedDeliveryInfo ->
                     Log.d("HWO", "주문 확인 버튼 클릭")
                     deliveryInfo = selectedDeliveryInfo
-                    viewModel.requestKakaoPayPayment()
+                    currentOrderProduct?.let { orderProduct ->
+                        viewModel.requestKakaoPayPayment(orderProduct)
+                    }
                 }
             )
         }

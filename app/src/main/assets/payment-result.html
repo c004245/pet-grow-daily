@@ -39,60 +39,126 @@
 
 <script>
     function processPaymentResult() {
+        console.log('Processing payment result, current URL:', window.location.href);
+        
         var urlParams = new URLSearchParams(window.location.search);
         var merchantUid = urlParams.get('merchant_uid');
         var impUid = urlParams.get('imp_uid');
         var impSuccess = urlParams.get('imp_success');
         var errorMsg = urlParams.get('error_msg');
+        var amount = urlParams.get('amount') || '27000';
+        
+        console.log('URL params:', {
+            merchantUid: merchantUid,
+            impUid: impUid,
+            impSuccess: impSuccess,
+            errorMsg: errorMsg,
+            amount: amount
+        });
         
         var resultElement = document.getElementById('result');
         
-        if (impSuccess === 'true' && impUid) {
-            // 결제 성공
-            resultElement.className = 'success';
-            resultElement.innerHTML = '✅ 결제가 완료되었습니다!<br>거래번호: ' + impUid;
-            
-            // 안드로이드 앱으로 결과 전달
-            if (window.Android) {
-                window.Android.onPaymentSuccess(impUid, '27000');
+        // URL 파라미터가 있는 경우 (리디렉션된 경우)
+        if (merchantUid) {
+            if (impSuccess === 'true' && impUid) {
+                // 결제 성공
+                console.log('Payment successful via redirect, updating UI');
+                resultElement.className = 'success';
+                resultElement.innerHTML = '✅ 결제가 완료되었습니다! (리디렉션)<br>거래번호: ' + impUid + '<br>결제금액: ' + parseInt(amount).toLocaleString() + '원';
+                
+                // 안드로이드 앱으로 결과 전달
+                setTimeout(function() {
+                    try {
+                        if (window.Android && typeof window.Android.onPaymentSuccess === 'function') {
+                            console.log('Calling Android.onPaymentSuccess with:', impUid, amount);
+                            window.Android.onPaymentSuccess(impUid, amount);
+                        } else {
+                            console.error('Android interface not available in result page');
+                            // Android 인터페이스가 없을 경우를 대비한 fallback
+                            if (window.parent && window.parent.Android) {
+                                window.parent.Android.onPaymentSuccess(impUid, amount);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error calling Android interface in result page:', error);
+                    }
+                }, 500);
+            } else {
+                // 결제 실패 또는 취소
+                console.log('Payment failed or cancelled via redirect');
+                resultElement.className = 'error';
+                resultElement.innerHTML = '❌ 결제가 실패했습니다. (리디렉션)<br>' + (errorMsg || '사용자가 결제를 취소했습니다.');
+                
+                // 안드로이드 앱으로 결과 전달
+                setTimeout(function() {
+                    try {
+                        if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
+                            console.log('Calling Android.onPaymentFailure with:', errorMsg);
+                            window.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
+                        } else {
+                            console.error('Android interface not available for failure in result page');
+                            // Android 인터페이스가 없을 경우를 대비한 fallback
+                            if (window.parent && window.parent.Android) {
+                                window.parent.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error calling Android failure interface in result page:', error);
+                    }
+                }, 500);
             }
             
-            // 3초 후 원래 페이지로 이동
+            // 3초 후 WebView 닫기
             setTimeout(function() {
-                if (window.Android) {
-                    // 안드로이드 앱에서는 WebView를 닫음
-                    window.Android.closeWebView && window.Android.closeWebView();
+                if (window.Android && typeof window.Android.closeWebView === 'function') {
+                    console.log('Closing WebView after redirect result');
+                    window.Android.closeWebView();
                 } else {
-                    // 웹에서는 이전 페이지로 이동
-                    window.history.back();
+                    console.log('closeWebView not available, trying parent or history back');
+                    try {
+                        if (window.parent && window.parent.Android && window.parent.Android.closeWebView) {
+                            window.parent.Android.closeWebView();
+                        } else {
+                            window.history.back();
+                        }
+                    } catch (e) {
+                        window.history.back();
+                    }
                 }
             }, 3000);
-            
         } else {
-            // 결제 실패 또는 취소
-            resultElement.className = 'error';
-            resultElement.innerHTML = '❌ 결제가 실패했습니다.<br>' + (errorMsg || '사용자가 결제를 취소했습니다.');
+            // URL 파라미터가 없는 경우 (직접 로드된 경우)
+            console.log('No merchant_uid found, this might be a direct page load');
+            resultElement.className = 'loading';
+            resultElement.innerHTML = '결제 정보를 기다리는 중...';
             
-            // 안드로이드 앱으로 결과 전달
-            if (window.Android) {
-                window.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
-            }
-            
-            // 3초 후 원래 페이지로 이동
+            // 5초 후에도 파라미터가 없으면 오류 처리
             setTimeout(function() {
-                if (window.Android) {
-                    window.Android.closeWebView && window.Android.closeWebView();
-                } else {
-                    window.history.back();
+                if (!new URLSearchParams(window.location.search).get('merchant_uid')) {
+                    resultElement.className = 'error';
+                    resultElement.innerHTML = '❌ 결제 정보를 찾을 수 없습니다.';
+                    
+                    if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
+                        window.Android.onPaymentFailure('결제 정보를 찾을 수 없습니다.');
+                    }
                 }
-            }, 3000);
+            }, 5000);
         }
     }
 
     // 페이지 로드 시 결과 처리
     window.onload = function() {
-        processPaymentResult();
+        console.log('Result page loaded, processing...');
+        setTimeout(function() {
+            processPaymentResult();
+        }, 500);
     };
+    
+    // Android 인터페이스 확인
+    setTimeout(function() {
+        console.log('Android interface available:', !!window.Android);
+        console.log('Android methods:', window.Android ? Object.keys(window.Android) : 'N/A');
+    }, 1000);
 </script>
 </body>
 </html>

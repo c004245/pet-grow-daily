@@ -70,9 +70,9 @@
 <body>
 <div class="payment-container">
     <div class="product-info">
-        <div class="product-title">🐾 코팅형 고급 앨범</div>
+        <div id="product-title" class="product-title">🐾 코팅형 고급 앨범</div>
         <div>사진 최대 40장 수록</div>
-        <div class="product-price">27,000원</div>
+        <div id="product-price" class="product-price">27,000원</div>
     </div>
 
     <button class="pay-button" onclick="requestPay()">
@@ -83,28 +83,42 @@
 </div>
 
 <script>
-
     var IMP = window.IMP;
     IMP.init('imp28817041'); // 제공받은 가맹점 식별코드
+    
+    // 전역 변수로 상품 정보 저장
+    var productInfo = {
+        name: '코팅형 고급 앨범',
+        amount: 27000,
+        merchantUid: 'album_' + new Date().getTime()
+    };
+
+    // Android에서 호출할 함수
+    function updateProductInfo(productName, productAmount, merchantUid) {
+        console.log('Updating product info:', productName, productAmount, merchantUid);
+        
+        productInfo.name = productName;
+        productInfo.amount = parseInt(productAmount);
+        productInfo.merchantUid = merchantUid || ('album_' + new Date().getTime());
+        
+        // UI 업데이트
+        document.getElementById('product-title').innerText = '🐾 ' + productName;
+        document.getElementById('product-price').innerText = parseInt(productAmount).toLocaleString() + '원';
+    }
 
     function requestPay() {
-        var merchantUid = 'album_' + new Date().getTime();
-        
         IMP.request_pay({
-            pg: 'kakaopay.TC0ONETIME', // 카카오페이 테스트
+            pg: 'kakaopay',
             pay_method: 'card',
-            merchant_uid: merchantUid,
-            name: '코팅형 고급 앨범',
-            amount: 27000,
-            buyer_email: 'buyer@example.com',
-            buyer_name: '구매자',
-            buyer_tel: '010-1234-5678',
-            buyer_addr: '서울특별시',
-            buyer_postcode: '12345',
-            // 리디렉션 방식을 위한 필수 파라미터 추가
-            m_redirect_url: 'file:///android_asset/payment-result.html?merchant_uid=' + merchantUid,
-
-            // 모바일 환경에서의 앱 스킴
+            merchant_uid: productInfo.merchantUid,
+            name: productInfo.name,
+            amount: productInfo.amount,
+            buyer_email: 'test@example.com',
+            buyer_name: '테스트구매자',
+            buyer_tel: '010-0000-0000',
+            buyer_addr: '테스트주소',
+            buyer_postcode: '00000',
+            m_redirect_url: 'file:///android_asset/payment-result.html?merchant_uid=' + productInfo.merchantUid + '&amount=' + productInfo.amount,
             app_scheme: 'petgrowdaily'
         }, function(rsp) {
             var resultElement = document.getElementById('result');
@@ -114,7 +128,6 @@
                 resultElement.className = 'result-message success';
                 resultElement.innerHTML = '✅ 결제 성공!<br>결제 금액: ' + rsp.paid_amount + '원<br>거래번호: ' + rsp.imp_uid;
                 
-                // 안드로이드 앱으로 결과 전달
                 if (window.Android) {
                     window.Android.onPaymentSuccess(rsp.imp_uid, rsp.paid_amount);
                 }
@@ -122,7 +135,6 @@
                 resultElement.className = 'result-message error';
                 resultElement.innerHTML = '❌ 결제 실패<br>' + rsp.error_msg;
                 
-                // 안드로이드 앱으로 결과 전달
                 if (window.Android) {
                     window.Android.onPaymentFailure(rsp.error_msg);
                 }
@@ -130,8 +142,8 @@
         });
     }
 
-    // URL 파라미터에서 결제 결과 확인 (리디렉션 후)
-    function checkPaymentResult() {
+    // 페이지 로드 시 결제 결과 확인
+    window.onload = function() {
         var urlParams = new URLSearchParams(window.location.search);
         var merchantUid = urlParams.get('merchant_uid');
         var impUid = urlParams.get('imp_uid');
@@ -146,7 +158,7 @@
                 resultElement.innerHTML = '✅ 결제 성공!<br>거래번호: ' + impUid;
                 
                 if (window.Android) {
-                    window.Android.onPaymentSuccess(impUid, '27000');
+                    window.Android.onPaymentSuccess(impUid, productInfo.amount.toString());
                 }
             } else {
                 resultElement.className = 'result-message error';
@@ -157,11 +169,6 @@
                 }
             }
         }
-    }
-
-    // 페이지 로드 시 결제 결과 확인
-    window.onload = function() {
-        checkPaymentResult();
     };
 </script>
 </body>

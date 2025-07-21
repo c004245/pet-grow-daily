@@ -9,12 +9,11 @@ import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryListRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryAddRoute
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryRegisterRoute
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.toRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 
 fun NavGraphBuilder.deliveryListNavGraph(
@@ -88,14 +87,12 @@ data class DeliveryAdd(val deliveryId: Int? = null) : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd"
 }
 
-
 @Serializable
-data object DeliveryRegister: Route {
+data object DeliveryRegister : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister"
 }
 
-
 @Serializable
-data object DeliveryCheck: Route {
+data object DeliveryCheck : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck"
 }

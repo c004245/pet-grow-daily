@@ -77,6 +77,17 @@ class OrderViewModel @Inject constructor(
     private val _todayZipFileCount = MutableStateFlow<Int>(0)
     val todayZipFileCount: StateFlow<Int> get() = _todayZipFileCount
 
+    private val _currentOrderProduct = MutableStateFlow<OrderProduct?>(null)
+    val currentOrderProduct: StateFlow<OrderProduct?> get() = _currentOrderProduct
+
+    fun setCurrentOrderProduct(orderProduct: OrderProduct) {
+        _currentOrderProduct.value = orderProduct
+    }
+
+    fun getCurrentOrderProduct(): OrderProduct? {
+        return _currentOrderProduct.value
+    }
+
     fun fetchOrderProducts() {
         remoteConfigWrapper.fetchOrderProductList { orderProductListModel ->
             if (orderProductListModel != null) {
@@ -121,17 +132,19 @@ class OrderViewModel @Inject constructor(
         }
     }
 
-    fun requestKakaoPayPayment() {
+    fun requestKakaoPayPayment(orderProduct: OrderProduct) {
+        val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
+
         val paymentData = mapOf(
             "userCode" to "imp26031685", // 제공받은 식별코드
             "pg" to "kakaopay.TC0ONETIME", // 카카오페이 테스트 PG 설정
             "pay_method" to "card",
-            "name" to "코팅형 고급 앨범",
-            "merchant_uid" to "album_${System.currentTimeMillis()}",
-            "amount" to "27000",
-            "buyer_name" to "구매자",
-            "buyer_tel" to "010-1234-5678",
-            "buyer_email" to "buyer@example.com",
+            "name" to "${orderProduct.productTitle} (테스트)",
+            "merchant_uid" to "test_album_${System.currentTimeMillis()}",
+            "amount" to discountedPrice.toString(), // 실제 할인된 가격 사용
+            "buyer_name" to "테스트구매자",
+            "buyer_tel" to "010-0000-0000",
+            "buyer_email" to "test@example.com",
             "app_scheme" to "petgrowdaily"
         )
 
@@ -169,11 +182,8 @@ class OrderViewModel @Inject constructor(
                 val userId = getUserIdUseCase.invoke()
 
                 // 결제 정보 가져오기
-                val paymentInfo = _paymentData.value ?: mapOf(
-                    "merchant_uid" to "album_${System.currentTimeMillis()}",
-                    "amount" to "27000",
-                    "name" to "코팅형 고급 앨범"
-                )
+                Log.d("HWO", "saveOrderRecord - paymentData: ${_paymentData.value}")
+                val paymentInfo = _paymentData.value ?: throw IllegalStateException("결제 정보가 없습니다")
 
                 Log.d("HWO", "주문 저장 시작:")
                 Log.d("HWO", "- 사용자 ID: $userId")

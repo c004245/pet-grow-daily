@@ -38,6 +38,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
@@ -54,11 +55,16 @@ fun DeliveryRegisterRoute(
 ) {
 
     val paymentData by viewModel.paymentData.collectAsState()
+    val currentOrderProduct by viewModel.currentOrderProduct.collectAsState()
     var showPaymentWebView by remember { mutableStateOf(false) }
     var showProcessing by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val paymentResult by viewModel.paymentResult.collectAsState()
     var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
+
+    currentOrderProduct?.let { orderProduct ->
+        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productCost}")
+    }
 
     LaunchedEffect("saveOrderEvent") {
         viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
@@ -76,7 +82,9 @@ fun DeliveryRegisterRoute(
         viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "saveDeliveryDone")
-                viewModel.requestKakaoPayPayment()
+                currentOrderProduct?.let { orderProduct ->
+                    viewModel.requestKakaoPayPayment(orderProduct)
+                }
             } else {
                 Log.e("HWO", "배송지 저장 실패")
             }
@@ -114,14 +122,20 @@ fun DeliveryRegisterRoute(
     }
 
     when {
-        showPaymentWebView -> {
+        showPaymentWebView && paymentData != null && currentOrderProduct != null -> {
+            val currentPaymentData = paymentData
+            val orderProduct = currentOrderProduct!!
+
             PaymentWebView(
+                orderProduct = orderProduct,
+                paymentData = currentPaymentData,
                 onPaymentResult = { success, message, transactionId ->
                     if (success) {
+                        val amount = currentPaymentData?.get("amount") ?: "0"
                         viewModel.setPaymentResult(
                             PaymentResult.Success(
                                 transactionId ?: "",
-                                "27000"
+                                amount
                             )
                         )
                         Log.d("HWO", "결제 완료")
@@ -132,6 +146,7 @@ fun DeliveryRegisterRoute(
                 },
                 onBackPressed = {
                     showPaymentWebView = false
+                    viewModel.clearPaymentRequest()
                 }
             )
         }

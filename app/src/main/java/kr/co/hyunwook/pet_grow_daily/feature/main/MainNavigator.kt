@@ -7,6 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
+import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.Add
 import kr.co.hyunwook.pet_grow_daily.feature.album.navigation.Album
@@ -23,12 +25,10 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderProductList
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderDone
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
 import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
-import com.google.gson.Gson
-import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderDone
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -120,8 +120,6 @@ class MainNavigator(
         navController.navigate(DeliveryCheck, navOptions = navOptions)
     }
 
-
-
     fun navigateToRecordWrite(
         selectedImageUris: List<String>,
         navOptions: NavOptions? = null
@@ -142,12 +140,12 @@ class MainNavigator(
         navController.navigate(Alarm, navOptions)
     }
 
-
     fun navigateToOrderDone(
         navOptions: NavOptions
     ) {
         navController.navigate(OrderDone, navOptions)
     }
+
     @Composable
     fun isShowBottomBar(): Boolean {
         val currentRoute = findRouteFromDestination(currentDestination?.route)
@@ -172,7 +170,6 @@ fun findRouteFromDestination(route: String?): Route? {
         else -> null
     }
 }
-
 
 @Composable
 internal fun rememberMainNavigator(

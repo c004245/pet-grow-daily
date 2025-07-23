@@ -22,3 +22,7 @@ app/key.properties
 
 # Firebase config
 app/google-services.json
+
+# Build generated files
+app/build/
+**/build/generated/

@@ -73,12 +73,19 @@ fun AlbumRoute(
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
+    val todayUserCount by viewModel.todayUserPhotoCount.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumRecord()
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.getTodayUserPhotoCount()
+    }
+
     AlbumScreen(
         albumRecord = albumRecord,
+        todayUserCount = todayUserCount,
         navigateToAdd = navigateToAdd,
         navigateToOrderProductList  = navigateToOrderProductList
     )
@@ -87,6 +94,7 @@ fun AlbumRoute(
 @Composable
 fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
+    todayUserCount: Int,
     navigateToAdd: () -> Unit = {},
     navigateToOrderProductList: () -> Unit
 ) {
@@ -133,12 +141,14 @@ fun AlbumScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            if (pagerState.currentPage == 0) {
+            AlbumTodayUploadWidget(todayUserCount)
+            Spacer(Modifier.height(16.dp))
+//            if (pagerState.currentPage == 0) {
                 AlbumProgressWidget(
                     progress = albumRecord.size,
                     navigateToOrderProductList = { navigateToOrderProductList() }
                 )
-            }
+//            }
 
             HorizontalPager(
                 state = pagerState,
@@ -168,6 +178,34 @@ fun AlbumScreen(
             }
         }
     }
+}
+
+@Composable
+fun AlbumTodayUploadWidget(todayCount: Int) {
+    Box(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(black21)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "오늘 ${todayCount}명이 사진을 올렸어요.",
+                style = PetgrowTheme.typography.medium,
+                color = Color.White,
+                fontSize = 13.sp,
+                modifier = Modifier.padding(start = 20.dp, top = 8.dp, bottom = 8.dp)
+            )
+
+            Image(
+                painter = painterResource(R.drawable.ic_today_upload_arrow),
+                contentDescription = "arrow",
+                modifier = Modifier.padding(end = 20.dp)
+            )
+        }
+    }
+    
 }
 
 @Composable

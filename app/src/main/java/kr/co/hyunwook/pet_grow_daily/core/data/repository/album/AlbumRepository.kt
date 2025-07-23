@@ -56,4 +56,6 @@ interface AlbumRepository {
     suspend fun updateLastPhotoDate(date: String)
 
     suspend fun getLastPhotoDate(): Flow<String?>
+
+    suspend fun getTodayUserPhotoCount(): Int
 }

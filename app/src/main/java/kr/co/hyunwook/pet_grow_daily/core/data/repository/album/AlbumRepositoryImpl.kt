@@ -152,4 +152,8 @@ class AlbumRepositoryImpl @Inject constructor(
     override suspend fun getLastPhotoDate(): Flow<String?> {
         return albumDataSource.getLastPhotoDate()
     }
+
+    override suspend fun getTodayUserPhotoCount(): Int {
+        return firestoreDataSource.getTodayUserPhotoCount()
+    }
 }

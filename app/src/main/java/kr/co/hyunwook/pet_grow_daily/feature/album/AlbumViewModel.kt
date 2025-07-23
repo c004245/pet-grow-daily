@@ -1,5 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.album
 
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
@@ -11,12 +13,14 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAllImageUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetTodayUserPhotoCountUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
     private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
-    private val getAllImageUseCase: GetAllImageUseCase
+    private val getAllImageUseCase: GetAllImageUseCase,
+    private val getTodayUserPhotoCountUseCase: GetTodayUserPhotoCountUseCase
 ): ViewModel() {
 
     private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
@@ -26,6 +30,10 @@ class AlbumViewModel @Inject constructor(
     private val _albumImageList = MutableStateFlow<List<AlbumImageModel>>(emptyList())
     val albumImageList: StateFlow<List<AlbumImageModel>> get() = _albumImageList
 
+    private val _todayUserPhotoCount = MutableStateFlow<Int>(0)
+    val todayUserPhotoCount: StateFlow<Int> get() = _todayUserPhotoCount
+
+
     fun getAlbumRecord() {
         viewModelScope.launch {
             getAlbumRecordUseCase().collect { records ->
@@ -34,11 +42,26 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+
     fun getAlbumImageList() {
         viewModelScope.launch {
             getAllImageUseCase().collect { images ->
                 _albumImageList.value = images
             }
         }
+    }
+
+    fun getTodayUserPhotoCount() {
+       viewModelScope.launch {
+            try {
+                val count = getTodayUserPhotoCountUseCase()
+                Log.d("HWO", "오늘 오늘 유저수 : $count")
+                _todayUserPhotoCount.value = count
+            } catch (e: Exception) {
+                Log.e("HWO", "오늘 유저", e)
+                _todayUserPhotoCount.value = 0
+            }
+        }
+
     }
 }

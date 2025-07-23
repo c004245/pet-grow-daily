@@ -25,6 +25,8 @@ interface FirestoreAlbumDataSource {
     suspend fun hasPetProfile(userId: Long): Flow<Boolean>
 
     suspend fun getTodayZipFileCount(): Int
+
+    suspend fun  getTodayUserPhotoCount(): Int
 }
 
 const val ALBUM_CREATE_COMPLETE = 40

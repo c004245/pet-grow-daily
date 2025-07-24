@@ -75,6 +75,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun RecordWriteRoute(
@@ -372,15 +374,16 @@ fun RecordWriteField(
     memoText: String,
     onMemoTextChange: (String) -> Unit
 ) {
-
-
+    val todayText = remember {
+        SimpleDateFormat("yyyy년 M월 d일", Locale.KOREA).format(Date())
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 20.dp, end = 20.dp)
     ) {
         Text(
-            text = "2025년 3월 18일",
+            text = todayText,
             style = PetgrowTheme.typography.medium,
             color = black21,
             fontSize = 14.sp,

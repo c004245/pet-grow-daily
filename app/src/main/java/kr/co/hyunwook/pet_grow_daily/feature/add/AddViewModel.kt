@@ -27,13 +27,14 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.database.getLongOrNull
+import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.min
-import androidx.core.database.getLongOrNull
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
@@ -191,11 +192,17 @@ class AddViewModel @Inject constructor(
                 }
 
                 val inputStream = context.contentResolver.openInputStream(uri)
-                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                var originalBitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
 
-                val width = originalBitmap.width
-                val height = originalBitmap.height
+                // 1. Exif Orientation 읽어서 실제 회전 각도 계산
+                val rotation = getExifRotation(context, uri)
+                val rotatedBitmap = rotateBitmap(originalBitmap, rotation)
+                if (rotatedBitmap != originalBitmap) {
+                    originalBitmap.recycle()
+                }
+                val width = rotatedBitmap.width
+                val height = rotatedBitmap.height
 
                 val maxWidth = 2400
                 val maxHeight = 3000
@@ -204,9 +211,9 @@ class AddViewModel @Inject constructor(
                     val ratio = min(maxWidth.toFloat() / width, maxHeight.toFloat() / height)
                     val newWidth = (width * ratio).toInt()
                     val newHeight = (height * ratio).toInt()
-                    Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
+                    Bitmap.createScaledBitmap(rotatedBitmap, newWidth, newHeight, true)
                 } else {
-                    originalBitmap
+                    rotatedBitmap
                 }
                 
                 val fileName = "optimized_${System.currentTimeMillis()}.jpg"
@@ -236,11 +243,12 @@ class AddViewModel @Inject constructor(
                     } else 0
                 } catch (e: Exception) {
                 }
-                
-                if (resizeBitmap != originalBitmap) {
+
+                if (resizeBitmap != rotatedBitmap) {
                     resizeBitmap.recycle()
                 }
-                originalBitmap.recycle()
+                rotatedBitmap.recycle()
+                // originalBitmap은 위에서 이미 recycle됨 또는 rotatedBitmap와 동일
                 
                 imageUri
             } catch (e: Exception) {
@@ -249,6 +257,33 @@ class AddViewModel @Inject constructor(
         }
     }
 
+    // Exif에서 회전 각도 추출
+    private fun getExifRotation(context: Context, uri: Uri): Int {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val exif = ExifInterface(inputStream)
+                when (exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED
+                )) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                    else -> 0
+                }
+            } ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    // Bitmap 회전 함수
+    private fun rotateBitmap(original: Bitmap, rotationDegrees: Int): Bitmap {
+        if (rotationDegrees == 0) return original
+        val matrix = android.graphics.Matrix()
+        matrix.postRotate(rotationDegrees.toFloat())
+        return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
+    }
 
     private fun formatDate(timestamp: Long): String {
         val calendar = Calendar.getInstance()

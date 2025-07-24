@@ -122,8 +122,7 @@ fun AlbumScreen(
             .background(grayF8)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             CommonTopBar(
                 title = {
@@ -143,36 +142,81 @@ fun AlbumScreen(
                     )
                 }
             )
-            Spacer(Modifier.height(16.dp))
-            AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet = navigateToAnotherPet)
-            Spacer(Modifier.height(16.dp))
-//            if (pagerState.currentPage == 0) {
-                AlbumProgressWidget(
-                    progress = albumRecord.size,
-                    navigateToOrderProductList = { navigateToOrderProductList() }
-                )
-//            }
 
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
+                // === 각 Pager 페이지를 LazyColumn(상단 위젯+앨범)으로 구성 ===
                 when (page) {
                     0 -> {
-                        if (albumRecord.isNotEmpty()) {
-                            CustomAlbumListWidget(
-                                modifier = Modifier.padding(top = 16.dp),
-                                albumRecordItem = albumRecord,
-                                navigateToAdd = navigateToAdd
-                            )
-                        } else {
-                            EmptyAlbumWidget(
-                                navigateToAdd = navigateToAdd
-                            )
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 80.dp)
+                        ) {
+                            item {
+                                Spacer(Modifier.height(16.dp))
+                                AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
+                                Spacer(Modifier.height(16.dp))
+                                AlbumProgressWidget(
+                                    progress = albumRecord.size,
+                                    navigateToOrderProductList = navigateToOrderProductList
+                                )
+                                Spacer(Modifier.height(16.dp))
+                            }
+                            if (albumRecord.isNotEmpty()) {
+                                itemsIndexed(albumRecord) { index, item ->
+                                    AlbumCard(
+                                        albumRecord = item,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp)
+                                            .padding(bottom = 16.dp)
+                                    )
+                                }
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                                            .clickable { navigateToAdd() }
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(purple6C)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Image(
+                                                painter = painterResource(R.drawable.ic_plus),
+                                                contentDescription = "add album"
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = stringResource(R.string.text_picture_add),
+                                                color = Color.White,
+                                                fontSize = 14.sp,
+                                                style = PetgrowTheme.typography.medium,
+                                                modifier = Modifier.padding(
+                                                    top = 14.dp,
+                                                    bottom = 14.dp
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                item {
+                                    EmptyAlbumWidget(
+                                        navigateToAdd = navigateToAdd
+                                    )
+                                }
+                            }
                         }
                     }
-
                     1 -> {
+                        // 기존 이미지 그리드형 페이지 or 원하는 그리드 UI로 교체 사용
                         AlbumImageRoute(
                             navigateToAdd = navigateToAdd
                         )
@@ -186,9 +230,13 @@ fun AlbumScreen(
 @Composable
 fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(black21).clickable {
-            navigateToAnotherPet()
-        }
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(black21)
+            .clickable {
+                navigateToAnotherPet()
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -213,64 +261,6 @@ fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
     
 }
 
-@Composable
-fun CustomAlbumListWidget(
-    modifier: Modifier,
-    albumRecordItem: List<AlbumRecord>,
-    navigateToAdd: () -> Unit
-) {
-
-    Box(modifier = modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(
-                top = 16.dp,
-                bottom = 80.dp
-            ),
-        ) {
-            itemsIndexed(albumRecordItem) { index, item ->
-                AlbumCard(
-                    albumRecord = item,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                .clickable { navigateToAdd() }
-                .clip(RoundedCornerShape(14.dp))
-                .background(purple6C)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_plus),
-                    contentDescription = "add album"
-                )
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
-                Text(
-                    text = stringResource(R.string.text_picture_add),
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    style = PetgrowTheme.typography.medium,
-                    modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun AlbumCard(
@@ -418,7 +408,8 @@ fun EmptyAlbumWidget(
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier
-                .align(Alignment.BottomCenter).fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
         )
 
         // Content centered

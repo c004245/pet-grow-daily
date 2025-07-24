@@ -76,53 +76,40 @@ fun OrderProductListScreen(
     orderProducts: List<OrderProduct>,
     navigateToOrder: (OrderProduct) -> Unit,
 ) {
+    val topBarHeight = 56.dp
     Box(
-        modifier = Modifier.fillMaxSize().background(grayF8)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(grayF8)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CommonTopBar(
-                title = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.text_order_title),
-                        style = PetgrowTheme.typography.bold,
-                        color = black21
-                    )
-
-                }
-            )
-            Spacer(Modifier.height(16.dp))
-            AlbumProgressWidget(
-                albumRecord.size
-            )
-            Spacer(Modifier.height(20.dp))
-            OrderProductListWidget(
-                orderProducts = orderProducts,
-                onProductClick = { selectedProduct ->
-                    navigateToOrder(selectedProduct)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun OrderProductListWidget(
-    orderProducts: List<OrderProduct> = emptyList(),
-    onProductClick: (OrderProduct) -> Unit = {}
-) {
-    Box(modifier = Modifier.fillMaxSize()) {
+        // 고정 TopBar
+        CommonTopBar(
+            title = {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.text_order_title),
+                    style = PetgrowTheme.typography.bold,
+                    color = black21
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+        )
+        // LazyColumn: TopBar 높이만큼 paddingTop 추가 후 모든 내용 스크롤
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = topBarHeight),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            item {
+                AlbumProgressWidget(albumRecord.size)
+            }
             itemsIndexed(orderProducts) { index, product ->
                 OrderProductItem(
                     product = product,
                     index = index,
-                    onItemClick = onProductClick
+                    onItemClick = navigateToOrder
                 )
             }
         }
@@ -159,6 +146,7 @@ fun OrderProductItem(
             Image(
                 painter = painterResource(id = getProductDrawableResource(product.productTitle)),
                 contentDescription = product.productTitle,
+                modifier = Modifier.clip(RoundedCornerShape(12.dp))
             )
         }
 

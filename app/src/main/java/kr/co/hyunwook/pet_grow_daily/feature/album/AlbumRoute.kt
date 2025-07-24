@@ -69,6 +69,7 @@ import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 fun AlbumRoute(
     paddingValues: PaddingValues,
     navigateToAdd: () -> Unit = {},
+    navigateToAnotherPet: () -> Unit,
     navigateToOrderProductList: () -> Unit = {},
     viewModel: AlbumViewModel = hiltViewModel()
 ) {
@@ -87,6 +88,7 @@ fun AlbumRoute(
         albumRecord = albumRecord,
         todayUserCount = todayUserCount,
         navigateToAdd = navigateToAdd,
+        navigateToAnotherPet = navigateToAnotherPet,
         navigateToOrderProductList  = navigateToOrderProductList
     )
 }
@@ -96,6 +98,7 @@ fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
     todayUserCount: Int,
     navigateToAdd: () -> Unit = {},
+    navigateToAnotherPet: () -> Unit = {},
     navigateToOrderProductList: () -> Unit
 ) {
 
@@ -141,7 +144,7 @@ fun AlbumScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            AlbumTodayUploadWidget(todayUserCount)
+            AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet = navigateToAnotherPet)
             Spacer(Modifier.height(16.dp))
 //            if (pagerState.currentPage == 0) {
                 AlbumProgressWidget(
@@ -181,9 +184,11 @@ fun AlbumScreen(
 }
 
 @Composable
-fun AlbumTodayUploadWidget(todayCount: Int) {
+fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(black21)
+        modifier = Modifier.fillMaxWidth().wrapContentHeight().background(black21).clickable {
+            navigateToAnotherPet()
+        }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

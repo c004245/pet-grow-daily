@@ -227,7 +227,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
     override suspend fun getTodayUserPhotoCount(): Int {
         return try {
             val calendar = Calendar.getInstance().apply {
-                // 한국 표준시(Asia/Seoul)로 0시 세팅
                 timeZone = TimeZone.getTimeZone("Asia/Seoul")
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -237,14 +236,13 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
             val todayStart = calendar.timeInMillis
             calendar.add(Calendar.DAY_OF_MONTH, 1)
             val tomorrowStart = calendar.timeInMillis
-            // 전 유저의 albums에서 오늘 등록한 문서 모두 조회
+
             val albumsQuery = firestore.collectionGroup("albums")
                 .whereGreaterThanOrEqualTo("date", todayStart)
                 .whereLessThan("date", tomorrowStart)
 
             val snapshot = albumsQuery.get().await()
 
-            // 경로에서 userId 추출: /users/{userId}/albums/{albumId}
             val userIdSet = HashSet<String>()
             snapshot.documents.forEach { doc ->
                 val pathParts = doc.reference.path.split("/")
@@ -253,7 +251,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                     userIdSet.add(userId)
                 }
             }
-            Log.d("HWO", "오늘 사진 업로드한 유저 수: ${userIdSet.size}명 (중복제거)")
             userIdSet.size
         } catch (e: Exception) {
             Log.e("HWO", "getTodayRegisteredUserCount 실패: ${e.message}", e)

@@ -125,6 +125,9 @@ internal fun MainScreen(
                         navigateToAdd = {
                             navigate(navigator, NavigateEnum.ADD)
                         },
+                        navigateToAnotherPet = {
+                            navigate(navigator, NavigateEnum.ANOTHERPET)
+                        },
                         navigateToOrderProductList = {
                             navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
                             navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)

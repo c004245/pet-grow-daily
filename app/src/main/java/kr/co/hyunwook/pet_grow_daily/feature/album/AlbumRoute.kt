@@ -152,7 +152,7 @@ fun AlbumScreen(
                     0 -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 80.dp)
+                            contentPadding = PaddingValues(bottom = 100.dp)
                         ) {
                             item {
                                 Spacer(Modifier.height(16.dp))
@@ -174,38 +174,6 @@ fun AlbumScreen(
                                             .padding(bottom = 16.dp)
                                     )
                                 }
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                                            .clickable { navigateToAdd() }
-                                            .clip(RoundedCornerShape(14.dp))
-                                            .background(purple6C)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Image(
-                                                painter = painterResource(R.drawable.ic_plus),
-                                                contentDescription = "add album"
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = stringResource(R.string.text_picture_add),
-                                                color = Color.White,
-                                                fontSize = 14.sp,
-                                                style = PetgrowTheme.typography.medium,
-                                                modifier = Modifier.padding(
-                                                    top = 14.dp,
-                                                    bottom = 14.dp
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
                             } else {
                                 item {
                                     EmptyAlbumWidget(
@@ -222,6 +190,37 @@ fun AlbumScreen(
                         )
                     }
                 }
+            }
+        }
+        // === 하단 고정 "앨범 추가" 버튼 ===
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .clickable { navigateToAdd() }
+                .clip(RoundedCornerShape(14.dp))
+                .background(purple6C)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_plus),
+                    contentDescription = "add album"
+                )
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+                Text(
+                    text = stringResource(R.string.text_picture_add),
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    style = PetgrowTheme.typography.medium,
+                    modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
+                )
             }
         }
     }

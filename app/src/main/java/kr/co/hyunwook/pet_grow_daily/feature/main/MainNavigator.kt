@@ -29,7 +29,6 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderProductList
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderDone
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWrite
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.RecordWriteTab
-import kr.co.hyunwook.pet_grow_daily.feature.total.navigation.Total
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -164,7 +163,6 @@ fun findRouteFromDestination(route: String?): Route? {
     return when (route) {
         Splash.route -> Splash
         Album.route -> Album
-        Total.route -> Total
         OnBoarding.route -> OnBoarding
         MyPage.route -> MyPage
         Profile.route -> Profile

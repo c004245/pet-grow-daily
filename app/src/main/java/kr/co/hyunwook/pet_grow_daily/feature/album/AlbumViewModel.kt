@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

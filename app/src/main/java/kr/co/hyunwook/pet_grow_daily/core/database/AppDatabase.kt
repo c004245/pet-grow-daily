@@ -4,7 +4,6 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.GrowRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 
 @Database(

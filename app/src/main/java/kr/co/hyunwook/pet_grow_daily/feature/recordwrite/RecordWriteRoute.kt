@@ -12,7 +12,6 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.add.AddViewModel
-import kr.co.hyunwook.pet_grow_daily.feature.add.MemoTextField
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.util.Log
 import android.widget.Space

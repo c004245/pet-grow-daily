@@ -151,11 +151,8 @@ fun OrderRoute(
             albumRecord = albumRecord,
             orderProduct = orderProduct,
             onClickRequestPayment = {
-                if (MAX_ALBUM_COUNT == albumRecord.size * 2) {
-                    viewModel.requestKakaoPayPayment(orderProduct)
-                } else {
-                    navigateToAlbumSelect(orderProduct)
-                }
+                navigateToAlbumSelect(orderProduct)
+
             },
             onBackClick = onBackClick,
             todayOrderCount = todayOrderCount

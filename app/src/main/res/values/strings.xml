@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">데일리 도그</string>
+    <string name="app_name">데일리 독</string>
     <string name="text_today_grow_title">오늘의 성장</string>
     <string name="text_album_title">앨범</string>
     <string name="text_order_title">주문</string>

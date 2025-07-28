@@ -597,7 +597,10 @@ fun PaymentWebView(
                         handler: android.webkit.SslErrorHandler?,
                         error: android.net.http.SslError?
                     ) {
-                        handler?.proceed()
+                        // 보안을 위해 SSL 인증서 오류 발생 시 연결을 중단합니다.
+                        // Never ignore SSL errors. For Korean users' safety and global policy compliance, do NOT use handler?.proceed().
+                        handler?.cancel()
+                        // TODO: 필요하다면 사용자에게 SSL 오류 알림 다이얼로그를 추가할 수 있습니다.
                     }
 
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {

@@ -32,7 +32,6 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
-    private val getUserAlbumCountUseCase: GetUserAlbumCountUseCase,
     private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
     private val hasDeliveryInfoUseCase: HasDeliveryInfoUseCase,
     private val getDeliveryListUseCase: GetDeliveryListUseCase,
@@ -43,9 +42,6 @@ class OrderViewModel @Inject constructor(
     private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase,
     private val postSlackUseCase: PostSlackUseCase
 ) : ViewModel() {
-
-    private val _userAlbumCount = MutableStateFlow<Int>(0)
-    val userAlbumCount: StateFlow<Int> get() = _userAlbumCount
 
     private val _paymentData = MutableStateFlow<Map<String, String>?>(null)
     val paymentData: StateFlow<Map<String, String>?> = _paymentData
@@ -124,13 +120,7 @@ class OrderViewModel @Inject constructor(
             }
         }
     }
-    fun getUserAlbumCount() {
-        viewModelScope.launch {
-            val userAlbumCount = getUserAlbumCountUseCase()
-            Log.d("HWO", "userAlbumCount -> $userAlbumCount")
-            _userAlbumCount.value = userAlbumCount
-        }
-    }
+
 
     fun requestKakaoPayPayment(orderProduct: OrderProduct) {
         val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100

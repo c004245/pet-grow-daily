@@ -1,32 +1,11 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
-import TitleDeliveryAppBarOnlyButton
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.delay
-import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
-import kr.co.hyunwook.pet_grow_daily.feature.add.TitleAppBar
-import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
-import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import android.app.Activity
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -50,12 +28,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,19 +40,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.room.util.copy
+import com.google.accompanist.pager.ExperimentalPagerApi
+import kotlinx.coroutines.delay
+import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
+import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.TODAY_LIMIT_CREATE
@@ -90,7 +72,6 @@ fun OrderRoute(
 ) {
 
     val albumRecord by viewModel.albumRecord.collectAsState()
-    val userAlbumCount by viewModel.userAlbumCount.collectAsState()
     val paymentData by viewModel.paymentData.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
     val todayOrderCount by viewModel.todayZipFileCount.collectAsState()
@@ -100,7 +81,6 @@ fun OrderRoute(
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
-        viewModel.getUserAlbumCount()
         viewModel.getTodayOrderCount()
         viewModel.setCurrentOrderProduct(orderProduct)
     }

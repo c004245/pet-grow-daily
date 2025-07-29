@@ -28,16 +28,16 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
 
     override suspend fun savePetProfile(profile: PetProfile, userId: Long) {
         try {
-            val profileMap = hashMapOf(
-                "name" to profile.name,
+            val profileMap = mapOf(
+                "profileName" to profile.name,
                 "profileImage" to profile.profileImageUrl
             )
 
             firestore.collection("users")
                 .document(userId.toString())
                 .collection("profile")
-                .document("main") // 고정 문서 ID 사용
-                .set(profileMap)
+                .document("main")
+                .set(profileMap, com.google.firebase.firestore.SetOptions.merge())
                 .await()
         } catch (e: Exception) {
             Log.e("DefaultFirestoreAlbumDataSource", "프로필 저장 실패: ${e.message}", e)
@@ -123,18 +123,18 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
     }
 
     override suspend fun hasPetProfile(userId: Long): Flow<Boolean> = flow {
-         try {
+        try {
             val snapshot = firestore.collection("users")
                 .document(userId.toString())
                 .collection("profile")
-                .limit(1)
+                .document("main")
                 .get()
                 .await()
 
-            emit(!snapshot.isEmpty)
+            emit(snapshot.exists())
         } catch (e: Exception) {
             Log.e("HWO", "Error checking pet profile: ${e.message}", e)
-             emit(false)
+            emit(false)
         }
     }
 

@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,15 +14,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kr.co.hyunwook.pet_grow_daily.R
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 @Composable
- fun formatDate(timestamp: Long): String {
+fun formatDate(timestamp: Long): String {
     val date = remember(timestamp) {
         val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
         formatter.format(Date(timestamp))
     }
     return date
 }
+
 fun formatPrice(price: Int): String {
     val formatter = NumberFormat.getNumberInstance(Locale.KOREA)
     return "${formatter.format(price)}원"
@@ -38,7 +40,8 @@ fun CommonAppBarOnlyButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp).padding(start = 24.dp, top = 8.dp),
+            .height(40.dp)
+            .padding(start = 24.dp, top = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -50,7 +53,6 @@ fun CommonAppBarOnlyButton(
         )
     }
 }
-
 
 const val MAX_ALBUM_COUNT = 40 //앨범 제작에 필요한 카운트
 const val TODAY_LIMIT_CREATE = 5 //하루 앨범 제작 리밋

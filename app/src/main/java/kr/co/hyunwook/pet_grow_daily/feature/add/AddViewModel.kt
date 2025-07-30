@@ -60,24 +60,14 @@ class AddViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val uris = selectedImageUris.map { Uri.parse(it) }
-
-                val uploadTasks = uris.mapIndexed { index, uri ->
-                    async {
-                        uploadImageToStorage(uri, index)
-                    }
-                }
-
-                val imageUrls = uploadTasks.awaitAll()
                 val albumRecord = AlbumRecord(
                     date = System.currentTimeMillis(),
                     content = content,
-                    firstImage = imageUrls.getOrNull(0) ?: "",
-                    secondImage = imageUrls.getOrNull(1) ?: "",
+                    firstImage = selectedImageUris.getOrNull(0) ?: "",
+                    secondImage = selectedImageUris.getOrNull(1) ?: "",
                     isPublic = isPublic
                 )
 
-                // 기존 저장 함수 호출
                 saveAlbumRecord(albumRecord)
                 _saveDoneEvent.emit(true)
             } catch (e: Exception) {
@@ -85,7 +75,6 @@ class AddViewModel @Inject constructor(
             }
         }
     }
-
 
     fun saveAlbumRecord(albumRecord: AlbumRecord) {
         Log.d("HWO", "saveAlbumRecord -> $albumRecord")
@@ -102,27 +91,27 @@ class AddViewModel @Inject constructor(
         loadImages()
     }
 
-    private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
-        return try {
-
-            val optimizedImageUri = optimizeImage(uri)
-
-            val fileName = "image_${System.currentTimeMillis()}_$index.jpg"
-            val storageRef = FirebaseStorage.getInstance().reference
-                .child("users")
-                .child("albums")
-                .child(fileName)
-
-            storageRef.putFile(optimizedImageUri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
-            context.contentResolver.delete(optimizedImageUri, null, null)
-
-            downloadUrl
-        } catch (e: Exception) {
-            Log.e("Firebase", "이미지 업로드 실패: ${e.message}", e)
-            throw e
-        }
-    }
+//    private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
+//        return try {
+//
+//            val optimizedImageUri = optimizeImage(uri)
+//
+//            val fileName = "image_${System.currentTimeMillis()}_$index.jpg"
+//            val storageRef = FirebaseStorage.getInstance().reference
+//                .child("users")
+//                .child("albums")
+//                .child(fileName)
+//
+//            storageRef.putFile(optimizedImageUri).await()
+//            val downloadUrl = storageRef.downloadUrl.await().toString()
+//            context.contentResolver.delete(optimizedImageUri, null, null)
+//
+//            downloadUrl
+//        } catch (e: Exception) {
+//            Log.e("Firebase", "이미지 업로드 실패: ${e.message}", e)
+//            throw e
+//        }
+//    }
 
 
     private fun loadImages() {

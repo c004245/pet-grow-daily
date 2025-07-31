@@ -63,7 +63,7 @@ fun DeliveryRegisterRoute(
     var deliveryInfo by remember { mutableStateOf<DeliveryInfo?>(null) }
 
     currentOrderProduct?.let { orderProduct ->
-        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productCost}")
+        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productDiscount}")
     }
 
     LaunchedEffect("saveOrderEvent") {

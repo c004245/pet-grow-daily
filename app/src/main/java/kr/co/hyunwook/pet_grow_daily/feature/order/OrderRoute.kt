@@ -72,12 +72,7 @@ fun OrderRoute(
 ) {
 
     val albumRecord by viewModel.albumRecord.collectAsState()
-    val paymentData by viewModel.paymentData.collectAsState()
-    val paymentResult by viewModel.paymentResult.collectAsState()
     val todayOrderCount by viewModel.todayZipFileCount.collectAsState()
-
-    val context = LocalContext.current
-    var showPaymentWebView by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
@@ -85,48 +80,7 @@ fun OrderRoute(
         viewModel.setCurrentOrderProduct(orderProduct)
     }
 
-    LaunchedEffect(paymentData) {
-        if (paymentData != null) {
-            showPaymentWebView = true
-        }
-    }
 
-    LaunchedEffect(paymentResult) {
-        when (val result = paymentResult) {
-            is PaymentResult.Success -> {
-                Toast.makeText(context, "결제가 완료되었습니다", Toast.LENGTH_SHORT).show()
-                showPaymentWebView = false
-            }
-
-            is PaymentResult.Failure -> {
-                Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT).show()
-                showPaymentWebView = false
-                viewModel.clearPaymentRequest()
-            }
-
-            else -> {}
-        }
-    }
-
-    if (showPaymentWebView && paymentData != null) {
-        val currentPaymentData = paymentData
-        PaymentWebView(
-            orderProduct = orderProduct,
-            paymentData = currentPaymentData,
-            onPaymentResult = { isSuccess, errorMessage, transactionId ->
-                if (isSuccess) {
-                    val amount = currentPaymentData?.get("amount") ?: "0"
-                    viewModel.setPaymentResult(PaymentResult.Success(transactionId ?: "", amount))
-                } else {
-                    viewModel.setPaymentResult(PaymentResult.Failure(errorMessage ?: "알 수 없는 오류"))
-                }
-            },
-            onBackPressed = {
-                showPaymentWebView = false
-                viewModel.clearPaymentRequest()
-            }
-        )
-    } else {
         OrderScreen(
             albumRecord = albumRecord,
             orderProduct = orderProduct,
@@ -138,7 +92,7 @@ fun OrderRoute(
             todayOrderCount = todayOrderCount
         )
     }
-}
+
 
 @Composable
 fun OrderScreen(

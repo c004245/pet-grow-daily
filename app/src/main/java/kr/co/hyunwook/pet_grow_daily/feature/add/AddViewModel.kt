@@ -91,27 +91,6 @@ class AddViewModel @Inject constructor(
         loadImages()
     }
 
-//    private suspend fun uploadImageToStorage(uri: Uri, index: Int): String {
-//        return try {
-//
-//            val optimizedImageUri = optimizeImage(uri)
-//
-//            val fileName = "image_${System.currentTimeMillis()}_$index.jpg"
-//            val storageRef = FirebaseStorage.getInstance().reference
-//                .child("users")
-//                .child("albums")
-//                .child(fileName)
-//
-//            storageRef.putFile(optimizedImageUri).await()
-//            val downloadUrl = storageRef.downloadUrl.await().toString()
-//            context.contentResolver.delete(optimizedImageUri, null, null)
-//
-//            downloadUrl
-//        } catch (e: Exception) {
-//            Log.e("Firebase", "이미지 업로드 실패: ${e.message}", e)
-//            throw e
-//        }
-//    }
 
 
     private fun loadImages() {

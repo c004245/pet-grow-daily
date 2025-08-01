@@ -231,6 +231,10 @@ fun LookAnotherItem(item: AnotherPetModel) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .padding(horizontal = 12.dp)
+                .shadow(elevation = 16.dp,
+                    spotColor = Color(0xD0000000),
+                    shape = RoundedCornerShape(12.dp)
+                )
                 .clip(RoundedCornerShape(12.dp))
         ) {
             HorizontalPager(

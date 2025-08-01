@@ -1,5 +1,9 @@
 package kr.co.hyunwook.pet_grow_daily.feature.anotherpet
 
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -10,6 +14,7 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.Commo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -32,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,24 +60,50 @@ fun AnotherPetRoute(
 ) {
 
     val anotherImageList by viewModel.anotherPetList.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasMoreData by viewModel.hasMoreData.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getAnotherPetList()
     }
+
     AnotherPetScreen(
-        anotherImageList
+        anotherImageList = anotherImageList,
+        isLoading = isLoading,
+        hasMoreData = hasMoreData,
+        onLoadMore = { viewModel.loadMoreData() }
     )
 }
 
 @Composable
 fun AnotherPetScreen(
-    anotherImageList: List<AnotherPetModel>
+    anotherImageList: List<AnotherPetModel>,
+    isLoading: Boolean,
+    hasMoreData: Boolean,
+    onLoadMore: () -> Unit
 ) {
+    val listState = rememberLazyListState()
+
+    // 스크롤이 끝에 도달했는지 감지
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem != null && lastVisibleItem.index >= anotherImageList.size - 3
+        }
+    }
+
+    // 끝에 도달하면 더 많은 데이터 로드
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore && hasMoreData && !isLoading) {
+            onLoadMore()
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxSize(),
         ) {
             item {
@@ -93,10 +126,60 @@ fun AnotherPetScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+
+            // 로딩 인디케이터
+            if (isLoading && anotherImageList.isNotEmpty()) {
+                item {
+                    LoadingIndicator()
+                }
+            }
+
+            // 더 이상 데이터가 없을 때 표시
+            if (!hasMoreData && anotherImageList.isNotEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.text_another_pet_done),
+                        style = PetgrowTheme.typography.medium,
+                        color = gray5E,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp, horizontal = 16.dp)
+                    )
+                }
+            }
         }
     }
 }
 
+@Composable
+fun LoadingIndicator() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(R.raw.loading_animation)
+        )
+
+        LottieAnimation(
+            composition = composition,
+            iterations = LottieConstants.IterateForever,
+            modifier = Modifier.size(120.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.text_another_more_image),
+            style = PetgrowTheme.typography.medium,
+            color = gray5E,
+            fontSize = 14.sp
+        )
+    }
+}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable

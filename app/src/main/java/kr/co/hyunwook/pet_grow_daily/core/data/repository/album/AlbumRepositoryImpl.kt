@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import com.google.firebase.firestore.DocumentSnapshot
 
 class AlbumRepositoryImpl @Inject constructor(
     private val albumRecordDao: AlbumRecordDao,
@@ -74,8 +75,13 @@ class AlbumRepositoryImpl @Inject constructor(
         return firestoreDataSource.getUserAlbumCount(userId)
     }
 
-    override suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>> {
-        return firestoreDataSource.getAnotherPetAlbums()
+
+
+    override suspend fun getAnotherPetAlbumsWithPaging(
+        pageSize: Int,
+        lastDocument: DocumentSnapshot?
+    ): Pair<List<AnotherPetModel>, DocumentSnapshot?> {
+        return firestoreDataSource.getAnotherPetAlbumsWithPaging(pageSize, lastDocument)
     }
 
     override suspend fun getAlbumRecord(): Flow<List<AlbumRecord>> {

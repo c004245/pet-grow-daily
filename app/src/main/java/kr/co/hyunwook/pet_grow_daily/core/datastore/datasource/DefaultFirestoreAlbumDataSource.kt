@@ -21,6 +21,8 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import java.text.SimpleDateFormat
+import kotlinx.coroutines.delay
+import com.google.firebase.firestore.DocumentSnapshot
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -283,36 +285,44 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         }
     }
 
-    override suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>> = flow {
-        try {
-            val publicAlbumsQuery = firestore.collectionGroup("albums")
+    override suspend fun getAnotherPetAlbumsWithPaging(
+        pageSize: Int,
+        lastDocument: DocumentSnapshot?
+    ): Pair<List<AnotherPetModel>, DocumentSnapshot?> {
+        return try {
+            var query = firestore.collectionGroup("albums")
                 .whereEqualTo("isPublic", true)
                 .orderBy("date", Query.Direction.DESCENDING)
-                .limit(30)
+                .limit(pageSize.toLong())
 
-            val snapshot = publicAlbumsQuery.get().await()
-            val result = snapshot.documents.flatMap { document ->
-                val data = document.data ?: return@flatMap emptyList()
+            // 다음 페이지를 위한 시작점 설정
+            if (lastDocument != null) {
+                query = query.startAfter(lastDocument)
+            }
+
+            val snapshot = query.get().await()
+            val result = snapshot.documents.mapNotNull { document ->
+                val data = document.data ?: return@mapNotNull null
 
                 val firstImage = data["firstImage"] as? String ?: ""
                 val secondImage = data["secondImage"] as? String ?: ""
                 val content = data["content"] as? String ?: ""
 
-                val models = mutableListOf<AnotherPetModel>()
-
-                models.add(
-                    AnotherPetModel(
-                        firstImage = firstImage,
-                        secondImage = secondImage,
-                        content = content
-                    )
+                AnotherPetModel(
+                    firstImage = firstImage,
+                    secondImage = secondImage,
+                    content = content
                 )
-                models
             }
 
-            emit(result)
+            val nextLastDocument = if (snapshot.documents.isNotEmpty()) {
+                snapshot.documents.last()
+            } else null
+
+            Pair(result, nextLastDocument)
         } catch (e: Exception) {
-            emit(emptyList())
+            Log.e("HWO", "페이징 데이터 조회 실패: ${e.message}", e)
+            Pair(emptyList(), null)
         }
     }
 }

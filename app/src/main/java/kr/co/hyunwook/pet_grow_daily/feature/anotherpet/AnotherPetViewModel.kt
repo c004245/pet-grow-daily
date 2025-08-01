@@ -10,22 +10,82 @@ import android.util.Log
 import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.DocumentSnapshot
 
 @HiltViewModel
 class AnotherPetViewModel @Inject constructor(
     private val getAnotherPetImageUseCase: GetAnotherPetImageUseCase
-
 ): ViewModel() {
 
     private val _anotherPetList = MutableStateFlow<List<AnotherPetModel>>(emptyList())
     val anotherPetList: StateFlow<List<AnotherPetModel>> get() = _anotherPetList
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
+    private val _hasMoreData = MutableStateFlow(true)
+    val hasMoreData: StateFlow<Boolean> get() = _hasMoreData
+
+    private var lastDocument: DocumentSnapshot? = null
+    private val pageSize = 30
+
     fun getAnotherPetList() {
+        if (_isLoading.value) return
+
         viewModelScope.launch {
-            getAnotherPetImageUseCase().collect { images ->
-                Log.d("HWO", "getAnotherPet -> ${images.size}")
-                _anotherPetList.value = images
+            _isLoading.value = true
+
+            try {
+                val (newItems, newLastDocument) = getAnotherPetImageUseCase(
+                    pageSize = pageSize,
+                    lastDocument = null // 첫 페이지
+                )
+
+                _anotherPetList.value = newItems
+                lastDocument = newLastDocument
+                _hasMoreData.value = newItems.size >= pageSize
+
+                Log.d("HWO", "첫 페이지 로드 완료: ${newItems.size}개")
+            } catch (e: Exception) {
+                Log.e("HWO", "첫 페이지 로드 실패: ${e.message}", e)
+            } finally {
+                _isLoading.value = false
             }
         }
+    }
+
+    fun loadMoreData() {
+        if (_isLoading.value || !_hasMoreData.value) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            try {
+                val (newItems, newLastDocument) = getAnotherPetImageUseCase(
+                    pageSize = pageSize,
+                    lastDocument = lastDocument
+                )
+
+                val currentList = _anotherPetList.value.toMutableList()
+                currentList.addAll(newItems)
+                _anotherPetList.value = currentList
+
+                lastDocument = newLastDocument
+                _hasMoreData.value = newItems.size >= pageSize
+
+                Log.d("HWO", "추가 페이지 로드 완료: ${newItems.size}개, 총 ${currentList.size}개")
+            } catch (e: Exception) {
+                Log.e("HWO", "추가 페이지 로드 실패: ${e.message}", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun refreshData() {
+        lastDocument = null
+        _hasMoreData.value = true
+        _anotherPetList.value = emptyList()
+        getAnotherPetList()
     }
 }

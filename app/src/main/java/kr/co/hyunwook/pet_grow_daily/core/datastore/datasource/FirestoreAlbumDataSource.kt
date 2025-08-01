@@ -5,6 +5,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
+import com.google.firebase.firestore.DocumentSnapshot
 
 interface FirestoreAlbumDataSource {
     suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long)
@@ -18,7 +19,10 @@ interface FirestoreAlbumDataSource {
 
     suspend fun getUserAlbumCount(userId: Long): Int
 
-    suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
+    suspend fun getAnotherPetAlbumsWithPaging(
+        pageSize: Int = 30,
+        lastDocument: DocumentSnapshot? = null
+    ): Pair<List<AnotherPetModel>, DocumentSnapshot?>
 
     suspend fun savePetProfile(profile: PetProfile, userId: Long)
 
@@ -26,7 +30,7 @@ interface FirestoreAlbumDataSource {
 
     suspend fun getTodayZipFileCount(): Int
 
-    suspend fun  getTodayUserPhotoCount(): Int
+    suspend fun getTodayUserPhotoCount(): Int
 }
 
 const val ALBUM_CREATE_COMPLETE = 40

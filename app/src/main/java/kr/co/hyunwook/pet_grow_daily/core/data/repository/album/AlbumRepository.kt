@@ -7,6 +7,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
+import com.google.firebase.firestore.DocumentSnapshot
 
 interface AlbumRepository {
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
@@ -25,7 +26,6 @@ interface AlbumRepository {
 
     suspend fun getPetProfile(): Flow<PetProfile?>
 
-    suspend fun getAnotherPetAlbums(): Flow<List<AnotherPetModel>>
 
     suspend fun getAlbumRecord(): Flow<List<AlbumRecord>>
 
@@ -58,4 +58,9 @@ interface AlbumRepository {
     suspend fun getLastPhotoDate(): Flow<String?>
 
     suspend fun getTodayUserPhotoCount(): Int
+
+    suspend fun getAnotherPetAlbumsWithPaging(
+        pageSize: Int = 30,
+        lastDocument: DocumentSnapshot? = null
+    ): Pair<List<AnotherPetModel>, DocumentSnapshot?>
 }

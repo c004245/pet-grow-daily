@@ -11,6 +11,7 @@ class GetAnotherPetImageUseCase @Inject constructor(
     suspend operator fun invoke(
         pageSize: Int = 30,
         lastDocument: DocumentSnapshot? = null
-    ): Pair<List<AnotherPetModel>, DocumentSnapshot?> =
-        albumRepository.getAnotherPetAlbumsWithPaging(pageSize, lastDocument)
+    ): Pair<List<AnotherPetModel>, DocumentSnapshot?> {
+        return  albumRepository.getAnotherPetAlbumsWithPaging(pageSize, lastDocument)
+    }
 }

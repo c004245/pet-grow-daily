@@ -38,16 +38,15 @@ class AnotherPetViewModel @Inject constructor(
             try {
                 val (newItems, newLastDocument) = getAnotherPetImageUseCase(
                     pageSize = pageSize,
-                    lastDocument = null // 첫 페이지
+                    lastDocument = null
                 )
-
                 _anotherPetList.value = newItems
                 lastDocument = newLastDocument
                 _hasMoreData.value = newItems.size >= pageSize
 
-                Log.d("HWO", "첫 페이지 로드 완료: ${newItems.size}개")
+
             } catch (e: Exception) {
-                Log.e("HWO", "첫 페이지 로드 실패: ${e.message}", e)
+                e.printStackTrace()
             } finally {
                 _isLoading.value = false
             }
@@ -55,10 +54,13 @@ class AnotherPetViewModel @Inject constructor(
     }
 
     fun loadMoreData() {
-        if (_isLoading.value || !_hasMoreData.value) return
+        if (_isLoading.value || !_hasMoreData.value) {
+            return
+        }
 
         viewModelScope.launch {
             _isLoading.value = true
+
 
             try {
                 val (newItems, newLastDocument) = getAnotherPetImageUseCase(
@@ -73,7 +75,7 @@ class AnotherPetViewModel @Inject constructor(
                 lastDocument = newLastDocument
                 _hasMoreData.value = newItems.size >= pageSize
 
-                Log.d("HWO", "추가 페이지 로드 완료: ${newItems.size}개, 총 ${currentList.size}개")
+
             } catch (e: Exception) {
                 Log.e("HWO", "추가 페이지 로드 실패: ${e.message}", e)
             } finally {

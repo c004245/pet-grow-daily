@@ -290,12 +290,12 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         lastDocument: DocumentSnapshot?
     ): Pair<List<AnotherPetModel>, DocumentSnapshot?> {
         return try {
+            
             var query = firestore.collectionGroup("albums")
                 .whereEqualTo("isPublic", true)
                 .orderBy("date", Query.Direction.DESCENDING)
                 .limit(pageSize.toLong())
 
-            // 다음 페이지를 위한 시작점 설정
             if (lastDocument != null) {
                 query = query.startAfter(lastDocument)
             }
@@ -307,13 +307,14 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 val firstImage = data["firstImage"] as? String ?: ""
                 val secondImage = data["secondImage"] as? String ?: ""
                 val content = data["content"] as? String ?: ""
-
+                
                 AnotherPetModel(
                     firstImage = firstImage,
                     secondImage = secondImage,
                     content = content
                 )
             }
+
 
             val nextLastDocument = if (snapshot.documents.isNotEmpty()) {
                 snapshot.documents.last()

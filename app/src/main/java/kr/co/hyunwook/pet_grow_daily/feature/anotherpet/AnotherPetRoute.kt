@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.anotherpet
 
+import android.util.Log
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -71,7 +72,9 @@ fun AnotherPetRoute(
         anotherImageList = anotherImageList,
         isLoading = isLoading,
         hasMoreData = hasMoreData,
-        onLoadMore = { viewModel.loadMoreData() }
+        onLoadMore = {
+            viewModel.loadMoreData()
+        }
     )
 }
 
@@ -84,11 +87,21 @@ fun AnotherPetScreen(
 ) {
     val listState = rememberLazyListState()
 
-    // 스크롤이 끝에 도달했는지 감지
-    val shouldLoadMore by remember {
+
+    val shouldLoadMore by remember(anotherImageList.size) {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-            lastVisibleItem != null && lastVisibleItem.index >= anotherImageList.size - 3
+
+            // 리스트가 비어있으면 스크롤 로드 안 함 (첫 로드가 완료되지 않았음)
+            if (anotherImageList.isEmpty()) {
+                return@derivedStateOf false
+            }
+
+            val shouldLoad =
+                lastVisibleItem != null && lastVisibleItem.index >= anotherImageList.size - 3
+
+
+            shouldLoad
         }
     }
 
@@ -127,7 +140,7 @@ fun AnotherPetScreen(
                 }
             }
 
-            // 로딩 인디케이터
+
             if (isLoading && anotherImageList.isNotEmpty()) {
                 item {
                     LoadingIndicator()

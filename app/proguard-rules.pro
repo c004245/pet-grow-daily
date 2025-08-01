@@ -20,6 +20,14 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Remote Config models
+-keep class kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct { *; }
+-keep class kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProductListModel { *; }
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
 # Kakao SDK ProGuard rules
 -keep class com.kakao.** { *; }
 -keep class com.kakao.sdk.** { *; }

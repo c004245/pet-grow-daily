@@ -9,6 +9,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.google.accompanist.pager.rememberPagerState
+
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.CommonTopBar
@@ -34,8 +35,12 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -74,25 +79,29 @@ fun AnotherPetRoute(
         hasMoreData = hasMoreData,
         onLoadMore = {
             viewModel.loadMoreData()
+        },
+        onRefresh = {
+            viewModel.getAnotherPetList()
         }
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AnotherPetScreen(
     anotherImageList: List<AnotherPetModel>,
     isLoading: Boolean,
     hasMoreData: Boolean,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     val listState = rememberLazyListState()
-
+    val pullRefreshState = rememberPullRefreshState(refreshing = isLoading, onRefresh = onRefresh)
 
     val shouldLoadMore by remember(anotherImageList.size) {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
 
-            // 리스트가 비어있으면 스크롤 로드 안 함 (첫 로드가 완료되지 않았음)
             if (anotherImageList.isEmpty()) {
                 return@derivedStateOf false
             }
@@ -104,8 +113,7 @@ fun AnotherPetScreen(
             shouldLoad
         }
     }
-
-    // 끝에 도달하면 더 많은 데이터 로드
+    
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && hasMoreData && !isLoading) {
             onLoadMore()
@@ -113,8 +121,17 @@ fun AnotherPetScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .pullRefresh(pullRefreshState)
     ) {
+        if (isLoading) {
+            PullRefreshIndicator(
+                refreshing = true,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),

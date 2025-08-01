@@ -60,8 +60,6 @@ class AnotherPetViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isLoading.value = true
-
-
             try {
                 val (newItems, newLastDocument) = getAnotherPetImageUseCase(
                     pageSize = pageSize,
@@ -82,12 +80,5 @@ class AnotherPetViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
-    }
-
-    fun refreshData() {
-        lastDocument = null
-        _hasMoreData.value = true
-        _anotherPetList.value = emptyList()
-        getAnotherPetList()
     }
 }

@@ -56,4 +56,4 @@ fun CommonAppBarOnlyButton(
 
 const val MAX_ALBUM_COUNT = 40 //앨범 제작에 필요한 카운트
 const val TODAY_LIMIT_CREATE = 5 //하루 앨범 제작 리밋
-const val SLACK_WEBHOOK = "https://hooks.slack.com/services/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"
+const val SLACK_WEBHOOK = "https://hooks.slack.com/services/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"

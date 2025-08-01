@@ -177,15 +177,12 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 )
             }
 
-            val uploadedImageUrls = selectedImageUris.mapIndexed { index, uriString ->
-                uploadImageToStorage(uriString, userId, orderId, index)
-            }
 
             Log.d("HWO", "주문 저장 시작 - OrderId: $orderId")
-            Log.d("HWO", "선택된 이미지: ${uploadedImageUrls.size}개")
+            Log.d("HWO", "선택된 이미지: ${selectedImageUris.size}개")
 
             val orderMap = hashMapOf(
-                "selectedImages" to uploadedImageUrls,
+                "selectedImages" to selectedImageUris,
                 "deliveryInfo" to mapOf(
                     "zipCode" to deliveryInfo.zipCode,
                     "address" to deliveryInfo.address,

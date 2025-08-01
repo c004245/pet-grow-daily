@@ -35,11 +35,16 @@ import java.io.IOException
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.min
+import androidx.core.net.toUri
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase
+    private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase,
+    private val getUserIdUseCase: GetUserIdUseCase
+
+
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddUiState())
@@ -58,13 +63,25 @@ class AddViewModel @Inject constructor(
         content: String,
         isPublic: Boolean
     ) {
+
         viewModelScope.launch {
+            val userId = getUserIdUseCase.invoke()
+
             try {
+                val uris = selectedImageUris.map { it.toUri() }
+                val uploadTasks = uris.mapIndexed { index, uri ->
+                    async {
+                        uploadImageToStorage(uri, userId.toString())
+                    }
+                }
+
+                val imageUrls = uploadTasks.awaitAll()
+
                 val albumRecord = AlbumRecord(
                     date = System.currentTimeMillis(),
                     content = content,
-                    firstImage = selectedImageUris.getOrNull(0) ?: "",
-                    secondImage = selectedImageUris.getOrNull(1) ?: "",
+                    firstImage = imageUrls.getOrNull(0) ?: "",
+                    secondImage = imageUrls.getOrNull(1) ?: "",
                     isPublic = isPublic
                 )
 
@@ -93,6 +110,26 @@ class AddViewModel @Inject constructor(
 
 
 
+
+    private suspend fun uploadImageToStorage(uri: Uri, userId: String): String {
+        return try {
+            val optimizedImageUri = optimizeImage(uri)
+            val fileName = "album_${userId}_${System.currentTimeMillis()}.jpg"
+
+            val storageRef = FirebaseStorage.getInstance().reference
+                .child("users")
+                .child("albums")
+                .child(fileName)
+
+            storageRef.putFile(optimizedImageUri).await()
+            val downloadUrl = storageRef.downloadUrl.await().toString()
+            context.contentResolver.delete(optimizedImageUri, null, null)
+
+            downloadUrl
+        } catch (e: Exception) {
+            throw e
+        }
+    }
     private fun loadImages() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }

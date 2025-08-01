@@ -91,8 +91,6 @@ fun RecordWriteRoute(
 
     LaunchedEffect(Unit) {
         viewModel.saveDoneEvent.collectLatest { isSuccess ->
-            // 최소 2초간 애니메이션 표시
-            delay(2000)
             isUploading = false
             if (isSuccess) {
                 navigateToAlbum()

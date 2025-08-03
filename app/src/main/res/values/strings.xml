@@ -32,6 +32,7 @@
     <string name="text_add_picture_completed">이제 앨범을 주문할 수 있어요!</string>
 
     <string name="text_mypage_alarm_title">알림 설정</string>
+    <string name="text_service_setting_title">문의하기</string>
     <string name="text_delivery_setting_title">배송지 관리</string>
     <string name="text_delivery_add_title">배송지 추가</string>
     <string name="text_delivery_address_number">우편번호</string>

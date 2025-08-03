@@ -85,8 +85,11 @@ fun MyPageRoute(
         onCameraClick = {
             galleryLauncher.launch("image/*")
         },
-        onClickLogout = {
-
+        onClickService = {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://www.instagram.com/dailydog_around/")
+            }
+            context.startActivity(intent)
         },
         onClickPrivacy = {
             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -123,7 +126,7 @@ fun MyPageScreen(
     petProfile: PetProfile?,
     userInfo: Pair<String?, String?>,
     onCameraClick: () -> Unit,
-    onClickLogout: () -> Unit,
+    onClickService: () -> Unit,
     onClickTerm: () -> Unit,
     onClickPrivacy: () -> Unit,
     onClickAlarm: () -> Unit,
@@ -155,7 +158,7 @@ fun MyPageScreen(
             Spacer(Modifier.height(16.dp))
             MyProfileInfo(petProfile, userInfo, onCameraClick)
             Spacer(Modifier.height(12.dp))
-            AlarmInfo(onClickAlarm, onClickDeliveryList)
+            AlarmInfo(onClickService, onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
             LegalInfo(onClickTerm, onClickPrivacy, onClickBusinessInfo)
             Spacer(Modifier.height(12.dp))
@@ -248,11 +251,31 @@ fun MyProfileInfo(petProfile: PetProfile?,
 
 @Composable
 fun AlarmInfo(
-    onClickAlarm: () -> Unit, onClickDelivery: () -> Unit
+    onClickService: () -> Unit, onClickAlarm: () -> Unit, onClickDelivery: () -> Unit
 ) {
     CommonRoundedBox(
     ) {
         Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onClickService()
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.text_service_setting_title),
+                    style = PetgrowTheme.typography.regular,
+                    color = black21,
+                    fontSize = 16.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_left_arrow),
+                    contentDescription = "delivery"
+                )
+            }
+            Spacer(Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier

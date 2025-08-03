@@ -10,12 +10,18 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import com.google.firebase.firestore.DocumentSnapshot
 
 interface AlbumRepository {
+    suspend fun saveFcmToken(fcmToken: String)
+
+    suspend fun getFcmToken(): Flow<String?>
+
+
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
 
     suspend fun saveOrderRecord(
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
-        paymentInfo: Map<String, String>
+        paymentInfo: Map<String, String>,
+        fcmToken: String
     ): String
 
     suspend fun savePetProfile(profile: PetProfile)

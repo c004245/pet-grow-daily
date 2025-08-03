@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.feature.order
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserAlbumCountUseCase
 import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
@@ -11,8 +12,11 @@ import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.functions.ktx.functions
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
@@ -28,7 +32,9 @@ import kr.co.hyunwook.pet_grow_daily.core.config.RemoteConfigWrapper
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.firebase.ktx.Firebase
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationRequest
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveFcmTokenUseCase
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -40,7 +46,8 @@ class OrderViewModel @Inject constructor(
     private val getUserIdUseCase: GetUserIdUseCase,
     private val remoteConfigWrapper: RemoteConfigWrapper,
     private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase,
-    private val postSlackUseCase: PostSlackUseCase
+    private val postSlackUseCase: PostSlackUseCase,
+    private val getFcmTokenUseCase: GetFcmTokenUseCase
 ) : ViewModel() {
 
     private val _paymentData = MutableStateFlow<Map<String, String>?>(null)
@@ -177,10 +184,12 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address} -- ${selectedDeliveryInfo.detailAddress}")
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
 
+                val fcmToken = getFcmTokenUseCase.invoke().first()
                 val orderId = saveOrderRecordUseCase(
                     selectedAlbumRecords = _selectedAlbumRecords.value,
                     deliveryInfo = selectedDeliveryInfo,
-                    paymentInfo = paymentInfo
+                    paymentInfo = paymentInfo,
+                    fcmToken = fcmToken ?: ""
                 )
 
                 Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")

@@ -21,8 +21,13 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.MainActivity
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.AlarmSettingsUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveFcmTokenUseCase
+import javax.inject.Inject
 
 class FCMService : FirebaseMessagingService() {
+
+    @Inject
+    lateinit var saveFcmTokenUseCase: SaveFcmTokenUseCase
 
     companion object {
         private const val TAG = "FCMService"
@@ -35,6 +40,7 @@ class FCMService : FirebaseMessagingService() {
         private const val NOTIFICATION_TYPE_DELIVERY = "delivery"
         private const val NOTIFICATION_TYPE_SYSTEM = "system"
     }
+
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -56,6 +62,10 @@ class FCMService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "FCM Token: $token")
+        CoroutineScope(Dispatchers.IO).launch {
+            saveFcmTokenUseCase(token)
+        }
+
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

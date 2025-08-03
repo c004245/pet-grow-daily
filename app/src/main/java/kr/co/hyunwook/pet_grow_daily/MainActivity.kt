@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -20,12 +21,16 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.messaging.FirebaseMessaging
 import kr.co.hyunwook.pet_grow_daily.feature.main.MainNavigator
 import kr.co.hyunwook.pet_grow_daily.feature.main.MainScreen
+import kr.co.hyunwook.pet_grow_daily.feature.main.MainViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.main.rememberMainNavigator
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     private val permissions = arrayOf(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -74,7 +79,8 @@ class MainActivity : ComponentActivity() {
             // FCM 등록 토큰 가져오기
             val token = task.result
             Log.d("FCM", "FCM Registration Token: $token")
-            // TODO: 서버로 토큰 전송
+
+            mainViewModel.saveFcmToken(token)
         }
     }
 

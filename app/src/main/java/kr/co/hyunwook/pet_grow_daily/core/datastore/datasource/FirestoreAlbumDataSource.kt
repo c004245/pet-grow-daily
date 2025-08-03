@@ -14,7 +14,8 @@ interface FirestoreAlbumDataSource {
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
-        userId: Long
+        userId: Long,
+        fcmToken: String
     ): String
 
     suspend fun getUserAlbumCount(userId: Long): Int

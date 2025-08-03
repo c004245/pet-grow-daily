@@ -12,6 +12,7 @@ class SaveOrderRecordUseCase @Inject constructor(
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
+        fcmToken: String,
     ): String =
-        albumRepository.saveOrderRecord(selectedAlbumRecords, deliveryInfo, paymentInfo)
+        albumRepository.saveOrderRecord(selectedAlbumRecords, deliveryInfo, paymentInfo, fcmToken)
 }

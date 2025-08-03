@@ -8,6 +8,8 @@ interface AlbumPreferencesDataSource {
     suspend fun getUserId(): Long?
     suspend fun getEmail(): String?
     suspend fun getNickName(): String?
+    val fcmToken: Flow<String?>
+
 
     // 알림 설정 관련 메서드들
     suspend fun setPhotoReminderEnabled(enabled: Boolean)
@@ -17,5 +19,6 @@ interface AlbumPreferencesDataSource {
     suspend fun setMarketingNotificationEnabled(enabled: Boolean)
     suspend fun isMarketingNotificationEnabled(): Flow<Boolean>
     suspend fun updateLastPhotoDate(date: String)
+    suspend fun saveFcmToken(fcmToken: String)
     suspend fun getLastPhotoDate(): Flow<String?>
 }

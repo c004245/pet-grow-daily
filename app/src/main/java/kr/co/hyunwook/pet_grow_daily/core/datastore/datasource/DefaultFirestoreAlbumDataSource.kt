@@ -167,7 +167,8 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
-        userId: Long
+        userId: Long,
+        fcmToken: String
     ): String {
         val orderId = "order_${System.currentTimeMillis()}"
 
@@ -193,7 +194,8 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                     "phoneNumber" to deliveryInfo.phoneNumber
                 ),
                 "paymentInfo" to paymentInfo,
-                "orderDate" to System.currentTimeMillis()
+                "orderDate" to System.currentTimeMillis(),
+                "fcmToken" to fcmToken
             )
 
             firestore.collection("users")

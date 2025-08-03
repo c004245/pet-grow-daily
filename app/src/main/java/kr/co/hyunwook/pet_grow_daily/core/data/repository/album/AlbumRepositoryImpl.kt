@@ -24,6 +24,9 @@ class AlbumRepositoryImpl @Inject constructor(
     private val firestoreDataSource: FirestoreAlbumDataSource
 ) : AlbumRepository {
 
+    override suspend fun saveFcmToken(fcmToken: String) {
+        albumDataSource.saveFcmToken(fcmToken)
+    }
     override suspend fun hasPetProfile(): Flow<Boolean> {
         return flow {
             val userId = getUserId()
@@ -44,13 +47,15 @@ class AlbumRepositoryImpl @Inject constructor(
         selectedAlbumRecords: List<AlbumRecord>,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
+        fcmToken: String
     ): String {
         val userId = getUserId()
         return firestoreDataSource.saveOrderRecord(
             selectedAlbumRecords,
             deliveryInfo,
             paymentInfo,
-            userId
+            userId,
+            fcmToken
         )
     }
 
@@ -115,6 +120,12 @@ class AlbumRepositoryImpl @Inject constructor(
             0L
         }
     }
+
+
+    override suspend fun getFcmToken(): Flow<String?> {
+        return albumDataSource.fcmToken
+    }
+
 
     override suspend fun saveLoginState(userId: Long, nickName: String?, email: String?) {
         albumDataSource.saveLoginState(userId, nickName, email)

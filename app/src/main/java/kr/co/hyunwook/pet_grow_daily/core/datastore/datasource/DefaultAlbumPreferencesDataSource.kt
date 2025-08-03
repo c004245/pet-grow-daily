@@ -18,6 +18,17 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
     @Named("album") private val dataStore: DataStore<Preferences>
 ): AlbumPreferencesDataSource {
 
+    override suspend fun saveFcmToken(fcmToken: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKey.FCM_TOKEN] = fcmToken
+        }
+    }
+
+    override val fcmToken = dataStore.data.map { preferences ->
+        preferences[PreferencesKey.FCM_TOKEN] ?: ""
+    }
+
+
     override suspend fun getUserId(): Long? {
 
         return dataStore.data.map { preferences ->
@@ -42,7 +53,7 @@ class DefaultAlbumPreferencesDataSource @Inject constructor(
         val NICKNAME = stringPreferencesKey("NICK_NAME")
         val EMAIL = stringPreferencesKey("EMAIL")
         val hasCompletedOnBoarding = booleanPreferencesKey("HAS_COMPLETED_ONBOARDING")
-
+        val FCM_TOKEN = stringPreferencesKey("FCM_TOKEN")
         // 알림 설정 관련 키
         val PHOTO_REMINDER_ENABLED = booleanPreferencesKey("PHOTO_REMINDER_ENABLED")
         val DELIVERY_NOTIFICATION_ENABLED = booleanPreferencesKey("DELIVERY_NOTIFICATION_ENABLED")

@@ -118,10 +118,10 @@ class PhotoReminderNotificationManager @Inject constructor(
         val notification = NotificationCompat.Builder(context, ORDER_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_main_app)
             .setContentTitle("앨범 주문이 정상적으로 확인됐어요! 🎉")
-            .setContentText("제가 이제 제작을 시작하면 다시한번 알림을 보내드릴게요! 정성들여서 만들어볼게요!")
+            .setContentText("제작을 시작하면 다시 한번 알림을 보내드려요! 정성껏 예쁘게 만들어볼게요 😀")
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("제가 이제 제작을 시작하면 다시한번 알림을 보내드릴게요! 정성들여서 만들어볼게요!")
+                    .bigText("제작을 시작하면 다시 한번 알림을 보내드려요! 정성껏 예쁘게 만들어볼게요 😀")
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)

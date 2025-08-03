@@ -14,15 +14,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.EntryPointAccessors
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
@@ -31,11 +35,16 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun OrderDoneRoute(
-    navigateToAlbum: () -> Unit = {}
+    navigateToAlbum: () -> Unit = {},
+    viewModel: OrderDoneViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        // 화면이 표시될 때 주문 완료 알림 발송
+        viewModel.sendOrderCompletionNotification()
+    }
+
     OrderDoneScreen(
         navigateToAlbum = navigateToAlbum
-
     )
 }
 
@@ -73,7 +82,8 @@ fun OrderDoneScreen(
             Spacer(Modifier.height(32.dp))
             Box(
                 modifier = Modifier
-                    .fillMaxWidth().padding(horizontal = 24.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
                     .clickable {
                         navigateToAlbum()
                     }

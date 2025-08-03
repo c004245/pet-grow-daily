@@ -23,10 +23,13 @@ class PhotoReminderNotificationManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val CHANNEL_ID = "photo_reminder_channel"
+    private val ORDER_CHANNEL_ID = "order_completion_channel"
     private val NOTIFICATION_ID = 1001
+    private val ORDER_NOTIFICATION_ID = 1002
 
     init {
         createNotificationChannel()
+        createOrderNotificationChannel()
     }
 
     private fun createNotificationChannel() {
@@ -41,6 +44,25 @@ class PhotoReminderNotificationManager @Inject constructor(
                 lightColor = Color.BLUE
                 enableVibration(true)
                 vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+            }
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createOrderNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                ORDER_CHANNEL_ID,
+                "주문 완료 알림",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "주문이 완료되었음을 알려주는 알림"
+                enableLights(true)
+                lightColor = Color.GREEN
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 100, 200)
             }
 
             val notificationManager = context.getSystemService(NotificationManager::class.java)
@@ -82,5 +104,39 @@ class PhotoReminderNotificationManager @Inject constructor(
             }
         }
     }
-}
 
+    fun showOrderCompletionNotification() {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, ORDER_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_main_app)
+            .setContentTitle("앨범 주문이 정상적으로 확인됐어요! 🎉")
+            .setContentText("제가 이제 제작을 시작하면 다시한번 알림을 보내드릴게요! 정성들여서 만들어볼게요!")
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("제가 이제 제작을 시작하면 다시한번 알림을 보내드릴게요! 정성들여서 만들어볼게요!")
+            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                notify(ORDER_NOTIFICATION_ID, notification)
+            }
+        }
+    }
+}

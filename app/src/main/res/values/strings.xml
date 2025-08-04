@@ -27,7 +27,7 @@
     <string name="text_save_done">오늘의 성장을 기록했어요!</string>
     <string name="text_name_string">반려견의 이름을\n알려주세요.</string>
     <string name="text_profile_image">반려견의 대표 사진을\n골라주세요.</string>
-    <string name="text_no_album">매일 사진을 2장씩 업로드하고\n40장을 채우면 앨범을 제작할 수 있어요.</string>
+    <string name="text_no_album">매일 사진을 최대 4장씩 업로드하고\n40장을 채우면 앨범을 제작할 수 있어요.</string>
     <string name="text_add_picture_progress">추가한 사진</string>
     <string name="text_add_picture_completed">이제 앨범을 주문할 수 있어요!</string>
 
@@ -60,5 +60,6 @@
     <string name="text_order_done_message">배송 진행사항은 문자로 보내드려요!</string>
     <string name="text_another_more_image">반려견들의 사진을 가져오고 있어요!</string>
     <string name="text_another_pet_done">모든 사진을 확인했어요 🐾</string>
+    <string name="text_today_album_done">오늘 앨범 목표치 완료! 👍</string>
 
 </resources>

@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAllImageUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetShouldDisableUploadUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetTodayUserPhotoCountUseCase
 import javax.inject.Inject
 
@@ -19,8 +20,9 @@ import javax.inject.Inject
 class AlbumViewModel @Inject constructor(
     private val getAlbumRecordUseCase: GetAlbumRecordUseCase,
     private val getAllImageUseCase: GetAllImageUseCase,
-    private val getTodayUserPhotoCountUseCase: GetTodayUserPhotoCountUseCase
-): ViewModel() {
+    private val getTodayUserPhotoCountUseCase: GetTodayUserPhotoCountUseCase,
+    private val getShouldDisableUploadUseCase: GetShouldDisableUploadUseCase,
+) : ViewModel() {
 
     private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
     val albumRecord: StateFlow<List<AlbumRecord>> get() = _albumRecord
@@ -32,6 +34,18 @@ class AlbumViewModel @Inject constructor(
     private val _todayUserPhotoCount = MutableStateFlow<Int>(0)
     val todayUserPhotoCount: StateFlow<Int> get() = _todayUserPhotoCount
 
+
+    private val _isDisableUpload = MutableStateFlow<Boolean>(false)
+    val isDisableUpload: StateFlow<Boolean> get() = _isDisableUpload
+
+    fun getShouldDisableUpload() {
+        viewModelScope.launch {
+            val isDisable = getShouldDisableUploadUseCase()
+            Log.d("HWO", "isDisable -> $isDisable -- ")
+            _isDisableUpload.value = isDisable
+        }
+
+    }
 
     fun getAlbumRecord() {
         viewModelScope.launch {
@@ -51,7 +65,7 @@ class AlbumViewModel @Inject constructor(
     }
 
     fun getTodayUserPhotoCount() {
-       viewModelScope.launch {
+        viewModelScope.launch {
             try {
                 val count = getTodayUserPhotoCountUseCase()
                 Log.d("HWO", "오늘 오늘 유저수 : $count")

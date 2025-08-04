@@ -26,9 +26,6 @@ import javax.inject.Inject
 
 class FCMService : FirebaseMessagingService() {
 
-    @Inject
-    lateinit var saveFcmTokenUseCase: SaveFcmTokenUseCase
-
     companion object {
         private const val TAG = "FCMService"
         private const val CHANNEL_ID = "pet_grow_daily_notifications"
@@ -46,6 +43,7 @@ class FCMService : FirebaseMessagingService() {
     @InstallIn(SingletonComponent::class)
     interface FCMServiceEntryPoint {
         fun alarmSettingsUseCase(): AlarmSettingsUseCase
+        fun saveFcmTokenUseCase(): SaveFcmTokenUseCase
     }
 
     private val entryPoint by lazy {
@@ -57,6 +55,10 @@ class FCMService : FirebaseMessagingService() {
 
     private val alarmSettingsUseCase by lazy {
         entryPoint.alarmSettingsUseCase()
+    }
+
+    private val saveFcmTokenUseCase by lazy {
+        entryPoint.saveFcmTokenUseCase()
     }
 
     override fun onNewToken(token: String) {

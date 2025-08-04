@@ -75,7 +75,11 @@ fun AlbumRoute(
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
     val todayUserCount by viewModel.todayUserPhotoCount.collectAsState()
+    val isDisableUpload by viewModel.isDisableUpload.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.getShouldDisableUpload()
+    }
     LaunchedEffect(Unit) {
         viewModel.getAlbumRecord()
     }
@@ -86,6 +90,7 @@ fun AlbumRoute(
 
     AlbumScreen(
         albumRecord = albumRecord,
+        isDisableUpload = isDisableUpload,
         todayUserCount = todayUserCount,
         navigateToAdd = navigateToAdd,
         navigateToAnotherPet = navigateToAnotherPet,
@@ -96,6 +101,7 @@ fun AlbumRoute(
 @Composable
 fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
+    isDisableUpload: Boolean,
     todayUserCount: Int,
     navigateToAdd: () -> Unit = {},
     navigateToAnotherPet: () -> Unit = {},
@@ -193,29 +199,45 @@ fun AlbumScreen(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    .clickable { navigateToAdd() }
+                    .clickable {
+                        //결제 테스트를 위한 주석 필요
+                        if (!isDisableUpload) {
+                            navigateToAdd()
+                        }
+                    }
                     .clip(RoundedCornerShape(14.dp))
-                    .background(purple6C)
+                    .background(if (isDisableUpload) purple6C.copy(alpha = 0.4f) else purple6C)
+
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_plus),
-                        contentDescription = "add album"
-                    )
-                    Spacer(
-                        modifier = Modifier.width(8.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.text_picture_add),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        style = PetgrowTheme.typography.medium,
-                        modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
-                    )
+                    if (isDisableUpload) {
+                        Text(
+                            text = stringResource(R.string.text_today_album_done),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            style = PetgrowTheme.typography.medium,
+                            modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.ic_plus),
+                            contentDescription = "add album"
+                        )
+                        Spacer(
+                            modifier = Modifier.width(8.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.text_picture_add),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            style = PetgrowTheme.typography.medium,
+                            modifier = Modifier.padding(top = 14.dp, bottom = 14.dp)
+                        )
+                    }
                 }
             }
         }
@@ -239,7 +261,7 @@ fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "오늘 ${todayCount}명이 사진을 올렸어요.",
+                text = "오늘 ${todayCount}명이 사진을 공유했어요.",
                 style = PetgrowTheme.typography.medium,
                 color = Color.White,
                 fontSize = 13.sp,

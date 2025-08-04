@@ -189,6 +189,7 @@ fun AlbumListSelectWidget(
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .clickable {
+                    //결제 테스트를 위한 주석 필요
                     if (isButtonEnabled) {
                         navigateToDeliveryInfo(selectedItems)
                     }

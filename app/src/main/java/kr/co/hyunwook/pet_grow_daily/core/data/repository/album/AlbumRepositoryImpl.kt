@@ -81,6 +81,9 @@ class AlbumRepositoryImpl @Inject constructor(
     }
 
 
+    override suspend fun shouldDisableUploadButton(): Boolean {
+        return albumRecordDao.shouldDisableUploadButton()
+    }
 
     override suspend fun getAnotherPetAlbumsWithPaging(
         pageSize: Int,

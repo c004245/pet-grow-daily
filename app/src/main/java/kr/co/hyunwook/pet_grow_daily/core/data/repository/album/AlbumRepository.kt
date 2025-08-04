@@ -26,6 +26,7 @@ interface AlbumRepository {
 
     suspend fun savePetProfile(profile: PetProfile)
 
+    suspend fun shouldDisableUploadButton(): Boolean
     suspend fun getUserAlbumCount(): Int
 
     suspend fun hasPetProfile(): Flow<Boolean>

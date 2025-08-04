@@ -36,4 +36,19 @@ interface AlbumRecordDao {
     fun getPetProfile(): Flow<PetProfile?>
 
 
+    @Query(
+        """
+        SELECT CASE 
+            WHEN (
+                SELECT COUNT(*) FROM AlbumRecord 
+                WHERE date(date/1000, 'unixepoch', 'localtime') = date('now', 'localtime') 
+                AND firstImage != '' 
+                AND secondImage != ''
+            ) >= 2 THEN 1 
+            ELSE 0 
+         END
+    """
+    )
+    suspend fun shouldDisableUploadButton(): Boolean
+
 }

@@ -18,6 +18,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Load local.properties for secrets (e.g., SLACK_WEBHOOK)
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
 
     namespace = "kr.co.hyunwook.pet_grow_daily"
@@ -45,9 +52,14 @@ android {
         }
     }
 
+    val slackWebhook = localProperties.getProperty("SLACK_WEBHOOK") as String
+
+
     buildTypes {
         debug {
             buildConfigField("boolean", "DEBUG", "true")
+            buildConfigField("String", "SLACK_WEBHOOK", "\"$slackWebhook\"")
+
         }
         release {
             isMinifyEnabled = true
@@ -56,6 +68,8 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("boolean", "DEBUG", "false")
+            buildConfigField("String", "SLACK_WEBHOOK", "\"$slackWebhook\"")
+
             signingConfig = signingConfigs.getByName("release")
         }
     }

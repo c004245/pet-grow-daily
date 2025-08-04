@@ -4,7 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationRequest
-import kr.co.hyunwook.pet_grow_daily.util.SLACK_WEBHOOK
+import kr.co.hyunwook.pet_grow_daily.BuildConfig
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -15,7 +15,13 @@ class PostSlackUseCase @Inject constructor() {
 
     suspend operator fun invoke(request: SlackNotificationRequest) {
         try {
-            val slackWebhookUrl = SLACK_WEBHOOK
+            val slackWebhookUrl = runCatching {
+                BuildConfig::class.java.getField("SLACK_WEBHOOK").get(null) as String
+            }.getOrElse {
+                ""
+            }
+
+            Log.d("HWO", "slackWebHook -> $slackWebhookUrl")
 
             val message = if (request.isSuccess) {
                 """

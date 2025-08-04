@@ -12,11 +12,14 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kr.co.hyunwook.pet_grow_daily.MainActivity
 import kr.co.hyunwook.pet_grow_daily.R
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.util.concurrent.TimeUnit
 
 @Singleton
 class PhotoReminderNotificationManager @Inject constructor(
@@ -24,12 +27,15 @@ class PhotoReminderNotificationManager @Inject constructor(
 ) {
     private val CHANNEL_ID = "photo_reminder_channel"
     private val ORDER_CHANNEL_ID = "order_completion_channel"
+    private val ORDER_AVAILABLE_CHANNEL_ID = "order_available_channel"
     private val NOTIFICATION_ID = 1001
     private val ORDER_NOTIFICATION_ID = 1002
+    private val ORDER_AVAILABLE_NOTIFICATION_ID = 1003
 
     init {
         createNotificationChannel()
         createOrderNotificationChannel()
+        createOrderAvailableNotificationChannel()
     }
 
     private fun createNotificationChannel() {
@@ -61,6 +67,25 @@ class PhotoReminderNotificationManager @Inject constructor(
                 description = "주문이 완료되었음을 알려주는 알림"
                 enableLights(true)
                 lightColor = Color.GREEN
+                enableVibration(true)
+                vibrationPattern = longArrayOf(100, 200, 100, 200)
+            }
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createOrderAvailableNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                ORDER_AVAILABLE_CHANNEL_ID,
+                "주문 가능 알림",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "주문이 가능해졌음을 알려주는 알림"
+                enableLights(true)
+                lightColor = Color.BLUE
                 enableVibration(true)
                 vibrationPattern = longArrayOf(100, 200, 100, 200)
             }
@@ -138,5 +163,67 @@ class PhotoReminderNotificationManager @Inject constructor(
                 notify(ORDER_NOTIFICATION_ID, notification)
             }
         }
+    }
+
+    fun showOrderAvailableNotification() {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, ORDER_AVAILABLE_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_main_app)
+            .setContentTitle("이제 앨범 주문이 가능해요! 🎉 ")
+            .setContentText("오늘의 제작 수량이 충전되었습니다. 지금 주문해보세요!")
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("오늘의 제작 수량이 충전되었습니다. 지금 주문해보세요!")
+            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                notify(ORDER_AVAILABLE_NOTIFICATION_ID, notification)
+            }
+        }
+    }
+
+
+
+    fun scheduleOrderAvailableNotification() {
+        // 현재 시간과 목표 시간(9시) 계산
+        val currentTime = java.util.Calendar.getInstance()
+        val targetTime = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 9)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+
+            // 현재 시간이 9시를 넘었다면 다음날 9시로 설정
+            if (currentTime.timeInMillis >= this.timeInMillis) {
+                add(java.util.Calendar.DAY_OF_MONTH, 1)
+            }
+        }
+
+        val delayInMillis = targetTime.timeInMillis - currentTime.timeInMillis
+
+        val workRequest = OneTimeWorkRequestBuilder<OrderAvailableWorker>()
+            .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
+            .addTag("order_available_notification")
+            .build()
+
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 }

@@ -30,21 +30,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
@@ -52,8 +57,8 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
 import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
@@ -73,6 +78,7 @@ fun OrderRoute(
 
     val albumRecord by viewModel.albumRecord.collectAsState()
     val todayOrderCount by viewModel.todayZipFileCount.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
@@ -89,7 +95,12 @@ fun OrderRoute(
 
             },
             onBackClick = onBackClick,
-            todayOrderCount = todayOrderCount
+            todayOrderCount = todayOrderCount,
+            onClickOrderNotification = {
+                Toast.makeText(context, "내일 9시에 알림을 보내드릴게요!", Toast.LENGTH_SHORT)
+                    .show()
+                viewModel.scheduleOrderAvailableNotification()
+            }
         )
     }
 
@@ -100,7 +111,8 @@ fun OrderScreen(
     orderProduct: OrderProduct,
     onClickRequestPayment: () -> Unit,
     onBackClick: () -> Unit,
-    todayOrderCount: Int
+    todayOrderCount: Int,
+    onClickOrderNotification: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -137,14 +149,23 @@ fun OrderScreen(
                 Spacer(Modifier.height(200.dp)) // 버튼 높이만큼 여유공간 확보
             }
         }
-        OrderButtonWidget(
-            albumRequireCount = MAX_ALBUM_COUNT - albumRecord.size * 2,
-            onClickRequestPayment = onClickRequestPayment,
-            isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        )
+        if (todayOrderCount == TODAY_LIMIT_CREATE) {
+            NotificationButtonWidget(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
+                onClickOrderNotification = onClickOrderNotification
+            )
+        } else {
+            OrderButtonWidget(
+                albumRequireCount = MAX_ALBUM_COUNT - albumRecord.size * 2,
+                onClickRequestPayment = onClickRequestPayment,
+                isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -707,4 +728,122 @@ fun PaymentWebView(
         },
         modifier = Modifier.fillMaxSize()
     )
+}
+
+@Composable
+fun NotificationButtonWidget(
+    modifier: Modifier = Modifier,
+    onClickOrderNotification: () -> Unit
+) {
+    var timeRemaining by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val currentTime = java.util.Calendar.getInstance()
+            val targetTime = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 9)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+
+                // 현재 시간이 9시를 넘었다면 다음날 9시로 설정
+                if (currentTime.timeInMillis >= this.timeInMillis) {
+                    add(java.util.Calendar.DAY_OF_MONTH, 1)
+                }
+            }
+
+            val diffInMillis = targetTime.timeInMillis - currentTime.timeInMillis
+
+            if (diffInMillis > 0) {
+                val hours = (diffInMillis / (1000 * 60 * 60)) % 24
+                val minutes = (diffInMillis / (1000 * 60)) % 60
+                val seconds = (diffInMillis / 1000) % 60
+
+                timeRemaining = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            } else {
+                timeRemaining = "00:00:00"
+            }
+
+            delay(1000)
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, grayF8),
+                    startY = 0f,
+                    endY = 100f
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 16.dp,
+                        shape = RoundedCornerShape(100.dp),
+                        ambientColor = Color.Black.copy(alpha = 0.1f),
+                        spotColor = Color.Black.copy(alpha = 0.1f)
+                    )
+                    .background(Color.White, RoundedCornerShape(100.dp))
+                    .clip(RoundedCornerShape(100.dp)),
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 14.dp),
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = purple6C)) {
+                            append(timeRemaining)
+                        }
+                        withStyle(style = SpanStyle(color = black21)) {
+                            append("이후 주문 가능해요.")
+                        }
+                    },
+                    style = PetgrowTheme.typography.bold,
+                    fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        purple6C,
+                        RoundedCornerShape(14.dp)
+                    )
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable {
+                        onClickOrderNotification()
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_bell),
+                        contentDescription = "bell"
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        modifier = Modifier.padding(vertical = 14.dp),
+                        text = "주문 가능 알림 받기",
+                        style = PetgrowTheme.typography.bold,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+    }
 }

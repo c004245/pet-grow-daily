@@ -35,6 +35,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationReque
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveFcmTokenUseCase
+import kr.co.hyunwook.pet_grow_daily.util.alarm.PhotoReminderNotificationManager
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -47,7 +48,8 @@ class OrderViewModel @Inject constructor(
     private val remoteConfigWrapper: RemoteConfigWrapper,
     private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase,
     private val postSlackUseCase: PostSlackUseCase,
-    private val getFcmTokenUseCase: GetFcmTokenUseCase
+    private val getFcmTokenUseCase: GetFcmTokenUseCase,
+    private val photoReminderNotificationManager: PhotoReminderNotificationManager
 ) : ViewModel() {
 
     private val _paymentData = MutableStateFlow<Map<String, String>?>(null)
@@ -283,5 +285,9 @@ class OrderViewModel @Inject constructor(
                 _todayZipFileCount.value = 0
             }
         }
+    }
+
+    fun scheduleOrderAvailableNotification() {
+        photoReminderNotificationManager.scheduleOrderAvailableNotification()
     }
 }

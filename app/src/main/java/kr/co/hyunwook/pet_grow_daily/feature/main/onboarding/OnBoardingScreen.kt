@@ -115,6 +115,10 @@ fun OnBoardingScreen(
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     }
+                },
+                onGuestLogin = {
+                    viewModel.handleKakaoLoginSuccess(1515, "카카오페이 테스트", "testdailydog123@kakao.com")
+
                 }
             )
         }
@@ -174,7 +178,8 @@ fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifie
 fun OnBoardingBottomButton(
     currentPage: Int,
     onKakaoLogin: () -> Unit,
-    onNextClick: () -> Unit
+    onNextClick: () -> Unit,
+    onGuestLogin: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -183,11 +188,40 @@ fun OnBoardingBottomButton(
         contentAlignment = Alignment.Center
     ) {
         if (currentPage == 3) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_kakao_button),
-                contentDescription = "카카오 로그인",
-                modifier = Modifier.clickable { onKakaoLogin() }
-            )
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.spacedBy(16.dp)
+//            ) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_kakao_button),
+//                    contentDescription = "카카오 로그인",
+//                    modifier = Modifier.clickable { onKakaoLogin() }
+//                )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp)
+                    .clickable { onGuestLogin() }
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(purple6C)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "비회원으로 로그인",
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = PetgrowTheme.typography.medium,
+                    )
+                }
+            }
+//            }
         } else {
             Box(
                 modifier = Modifier

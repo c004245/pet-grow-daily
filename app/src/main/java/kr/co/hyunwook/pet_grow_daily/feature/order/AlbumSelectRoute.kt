@@ -190,9 +190,9 @@ fun AlbumListSelectWidget(
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .clickable {
                     //결제 테스트를 위한 주석 필요
-                    if (isButtonEnabled) {
+//                    if (isButtonEnabled) {
                         navigateToDeliveryInfo(selectedItems)
-                    }
+//                    }
                 }
                 .clip(RoundedCornerShape(14.dp))
                 .background(if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f))

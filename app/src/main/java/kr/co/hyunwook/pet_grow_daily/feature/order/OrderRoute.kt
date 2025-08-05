@@ -387,9 +387,9 @@ fun OrderButtonWidget(
                     .clip(RoundedCornerShape(14.dp))
                     .clickable {
                         //결제 테스트를 위한 주석 필요
-                        if (isButtonEnabled) {
+//                        if (isButtonEnabled) {
                             onClickRequestPayment()
-                        }
+//                        }
                     },
                 contentAlignment = Alignment.Center
             ) {

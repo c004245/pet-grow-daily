@@ -156,7 +156,7 @@ fun AlbumListSelectWidget(
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
 
     val selectedCount = selectedItems.size * 2
-    val isButtonEnabled = selectedCount == 8
+    val isButtonEnabled = selectedCount == 40
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -198,7 +198,7 @@ fun AlbumListSelectWidget(
                 .background(if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f))
         ) {
             Text(
-                text = "사진 선택 ($selectedCount/8)",
+                text = "사진 선택 ($selectedCount/40)",
                 color = Color.White,
                 fontSize = 14.sp,
                 style = PetgrowTheme.typography.medium,

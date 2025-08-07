@@ -180,12 +180,14 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 )
             }
 
+            val contents = selectedAlbumRecords.map { it.content }
 
             Log.d("HWO", "주문 저장 시작 - OrderId: $orderId")
             Log.d("HWO", "선택된 이미지: ${selectedImageUris.size}개")
 
             val orderMap = hashMapOf(
                 "selectedImages" to selectedImageUris,
+                "contents" to contents,
                 "deliveryInfo" to mapOf(
                     "zipCode" to deliveryInfo.zipCode,
                     "address" to deliveryInfo.address,
@@ -214,30 +216,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         }
     }
 
-    private suspend fun uploadImageToStorage(
-        uriString: String,
-        userId: Long,
-        orderId: String,
-        index: Int
-    ): String {
-        return try {
-            val uri = Uri.parse(uriString)
-            val fileName = "image_${userId}_${orderId}_${index}.jpg"
-            val storageRef = FirebaseStorage.getInstance().reference
-                .child("users")
-                .child(userId.toString())
-                .child("orders")
-                .child(orderId)
-                .child(fileName)
-
-            storageRef.putFile(uri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
-            downloadUrl
-        } catch (e: Exception) {
-            Log.e("HWO", "이미지 업로드 실패: ${e.message}", e)
-            throw e
-        }
-    }
 
     override suspend fun getUserAlbumCount(userId: Long): Int {
         return try {

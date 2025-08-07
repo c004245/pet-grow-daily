@@ -35,6 +35,8 @@ setGlobalOptions({ maxInstances: 10 });
 // ZIP 파일 생성 Function
 export const generateAlbumZipfile = onCall({
   enforceAppCheck: false, // AppCheck 비활성화
+  timeoutSeconds: 540, // 9분으로 타임아웃 증가
+  memory: "1GiB", // 메모리를 1GB로 증가
 }, async (request) => {
   try {
     const { orderId, userId } = request.data;
@@ -135,7 +137,7 @@ async function createImageZip(
   return new Promise(async (resolve, reject) => {
     try {
       const archive = archiver('zip', {
-        zlib: { level: 9 } // 최대 압축
+        zlib: { level: 6 } // 압축 레벨을 낮춰서 속도 향상
       });
 
       const chunks: Buffer[] = [];
@@ -144,37 +146,82 @@ async function createImageZip(
       archive.on('end', () => resolve(Buffer.concat(chunks)));
       archive.on('error', (error) => reject(error));
 
-      // 각 이미지 다운로드하여 ZIP에 추가
-      for (let i = 0; i < imageUrls.length; i++) {
-        const imageUrl = imageUrls[i];
+      logger.info(`총 ${imageUrls.length}개 이미지 처리 시작`);
+
+      // 배치 크기 (한 번에 처리할 이미지 수)
+      const BATCH_SIZE = 5;
+      let processedCount = 0;
+      let successCount = 0;
+      let failCount = 0;
+
+      // 배치별로 처리
+      for (let batchStart = 0; batchStart < imageUrls.length; batchStart += BATCH_SIZE) {
+        const batchEnd = Math.min(batchStart + BATCH_SIZE, imageUrls.length);
+        const batch = imageUrls.slice(batchStart, batchEnd);
         
-        try {
-          logger.info(`이미지 다운로드 시작: ${i + 1}/${imageUrls.length}`);
+        logger.info(`배치 처리 중: ${batchStart + 1}-${batchEnd}/${imageUrls.length}`);
+
+        // 배치 내 이미지들을 병렬 처리
+        const batchPromises = batch.map(async (imageUrl, batchIndex) => {
+          const globalIndex = batchStart + batchIndex;
           
-          const response = await axios.get(imageUrl, { 
-            responseType: 'arraybuffer',
-            timeout: 30000,
-            headers: {
-              'User-Agent': 'Pet-Grow-Daily-ZIP-Generator'
-            }
-          });
-          
-          const imageBuffer = Buffer.from(response.data);
-          
-          // 파일 확장자 추출
-          const urlParts = imageUrl.split('.');
-          const extension = urlParts[urlParts.length - 1].split('?')[0]; // ? 이후 제거
-          
-          // ZIP에 파일 추가 (순서대로 번호 매기기)
-          const filename = `${orderId}_image_${String(i + 1).padStart(3, '0')}.${extension}`;
-          archive.append(imageBuffer, { name: filename });
-          
-          logger.info(`이미지 ${i + 1} ZIP에 추가 완료: ${filename}`);
-          
-        } catch (imageError) {
-          logger.error(`이미지 다운로드 실패: ${imageUrl}`, imageError);
-          // 실패한 이미지는 건너뛰고 계속 진행
+          try {
+            const response = await axios.get(imageUrl, { 
+              responseType: 'arraybuffer',
+              timeout: 45000, // 45초 타임아웃
+              headers: {
+                'User-Agent': 'Pet-Grow-Daily-ZIP-Generator'
+              },
+              maxContentLength: 50 * 1024 * 1024, // 50MB 제한
+              maxBodyLength: 50 * 1024 * 1024
+            });
+            
+            const imageBuffer = Buffer.from(response.data);
+            
+            // 파일 확장자 추출
+            const urlParts = imageUrl.split('.');
+            const extension = urlParts[urlParts.length - 1].split('?')[0];
+            
+            // ZIP에 파일 추가
+            const filename = `${orderId}_image_${String(globalIndex + 1).padStart(3, '0')}.${extension}`;
+            archive.append(imageBuffer, { name: filename });
+            
+            logger.info(`이미지 ${globalIndex + 1} 처리 완료: ${filename}`);
+            return { success: true, index: globalIndex + 1 };
+            
+          } catch (imageError) {
+            logger.error(`이미지 ${globalIndex + 1} 처리 실패: ${imageUrl}`, imageError);
+            return { success: false, index: globalIndex + 1, error: imageError };
+          }
+        });
+
+        // 배치 결과 대기
+        const batchResults = await Promise.allSettled(batchPromises);
+        
+        // 결과 집계
+        batchResults.forEach((result, index) => {
+          processedCount++;
+          if (result.status === 'fulfilled' && result.value.success) {
+            successCount++;
+          } else {
+            failCount++;
+            logger.warn(`배치 ${batchStart + index + 1} 처리 실패`);
+          }
+        });
+
+        logger.info(`배치 처리 완료. 성공: ${successCount}, 실패: ${failCount}, 전체: ${processedCount}/${imageUrls.length}`);
+
+        // 메모리 정리를 위한 짧은 대기
+        if (batchStart + BATCH_SIZE < imageUrls.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
+      }
+
+      logger.info(`모든 이미지 처리 완료. 성공: ${successCount}, 실패: ${failCount}`);
+
+      // 모든 이미지가 성공적으로 처리되지 않으면 실패로 간주
+      if (successCount !== imageUrls.length) {
+        throw new Error(`모든 이미지가 처리되어야 합니다 (성공: ${successCount}/${imageUrls.length})`);
       }
 
       // ZIP 파일 완료

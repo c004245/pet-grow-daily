@@ -36,6 +36,7 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.util.alarm.PhotoReminderNotificationManager
+import kotlin.coroutines.resumeWithException
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -183,7 +184,10 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "주문 저장 시작:")
                 Log.d("HWO", "- 사용자 ID: $userId")
                 Log.d("HWO", "- 선택된 앨범: ${_selectedAlbumRecords.value.size}개")
-                Log.d("HWO", "- 배송지: ${selectedDeliveryInfo.address} -- ${selectedDeliveryInfo.detailAddress}")
+                Log.d(
+                    "HWO",
+                    "- 배송지: ${selectedDeliveryInfo.address} -- ${selectedDeliveryInfo.detailAddress}"
+                )
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
 
                 val fcmToken = getFcmTokenUseCase.invoke().first()
@@ -196,9 +200,10 @@ class OrderViewModel @Inject constructor(
 
                 Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
 
-                // Firebase Function 호출하여 PDF 생성 요청
+                // Firebase Function 호출하여 ZIP 생성 요청 (결과를 기다림)
                 callPdfGenerationFunction(orderId, userId)
 
+                // ZIP 생성이 완료된 후에만 완료 이벤트 발생
                 _saveOrderDoneEvent.emit(true)
             } catch (e: Exception) {
                 _saveOrderDoneEvent.emit(false)
@@ -207,46 +212,58 @@ class OrderViewModel @Inject constructor(
         }
     }
 
-    private fun callPdfGenerationFunction(orderId: String, userId: Long) {
-        val functionData = hashMapOf(
-            "orderId" to orderId,
-            "userId" to userId.toString()
-        )
+    private suspend fun callPdfGenerationFunction(orderId: String, userId: Long) {
+        return suspendCancellableCoroutine { continuation ->
+            val functionData = hashMapOf(
+                "orderId" to orderId,
+                "userId" to userId.toString()
+            )
 
-        Log.d("HWO", "Firebase Functions 호출 - orderId: $orderId, userId: $userId")
+            Log.d("HWO", "Firebase Functions 호출 - orderId: $orderId, userId: $userId")
 
-        Firebase.functions
-            .getHttpsCallable("generateAlbumZipfile")
-            .call(functionData)
-            .addOnSuccessListener { result ->
-                val data = result.data as Map<*, *>
-                val zipUrl = data["zipUrl"] as? String
-                val imageCount = data["imageCount"] as? Int
-                val message = data["message"] as? String
+            Firebase.functions
+                .getHttpsCallable("generateAlbumZipfile")
+                .call(functionData)
+                .addOnSuccessListener { result ->
+                    val data = result.data as Map<*, *>
+                    val zipUrl = data["zipUrl"] as? String
+                    val imageCount = data["imageCount"] as? Int
+                    val message = data["message"] as? String
 
-                Log.d("HWO", "ZIP 파일 생성 성공: $zipUrl")
-                Log.d("HWO", "이미지 개수: $imageCount")
-                Log.d("HWO", "메시지: $message")
+                    Log.d("HWO", "ZIP 파일 생성 성공: $zipUrl")
+                    Log.d("HWO", "이미지 개수: $imageCount")
+                    Log.d("HWO", "메시지: $message")
 
-                // 슬랙 알림 전송
-                sendSlackNotification(
-                    orderId = orderId,
-                    userId = userId,
-                    zipUrl = zipUrl ?: "",
-                    isSuccess = true
-                )
-            }
-            .addOnFailureListener { e ->
-                Log.e("HWO", "ZIP 파일 생성 실패", e)
+                    // 슬랙 알림 전송
+                    viewModelScope.launch {
+                        sendSlackNotification(
+                            orderId = orderId,
+                            userId = userId,
+                            zipUrl = zipUrl ?: "",
+                            isSuccess = true
+                        )
+                    }
 
-                // 실패 시에도 슬랙 알림
-                sendSlackNotification(
-                    orderId = orderId,
-                    userId = userId,
-                    isSuccess = false,
-                    errorMessage = e.message
-                )
-            }
+                    // 성공적으로 완료
+                    continuation.resume(Unit)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("HWO", "ZIP 파일 생성 실패", e)
+
+                    // 실패 시에도 슬랙 알림
+                    viewModelScope.launch {
+                        sendSlackNotification(
+                            orderId = orderId,
+                            userId = userId,
+                            isSuccess = false,
+                            errorMessage = e.message
+                        )
+                    }
+
+                    // 실패로 완료
+                    continuation.resumeWithException(e)
+                }
+        }
     }
 
     private fun sendSlackNotification(

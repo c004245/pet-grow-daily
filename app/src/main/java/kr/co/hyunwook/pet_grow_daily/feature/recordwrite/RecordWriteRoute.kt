@@ -180,7 +180,7 @@ fun RecordWriteScreen(
             )
             Spacer(Modifier.height(12.dp))
             AddDoneWriteButton(
-                isEnabled = memoText.isNotEmpty(),
+                isEnabled = true,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
                 onDoneClick = {
                     onDoneClick()

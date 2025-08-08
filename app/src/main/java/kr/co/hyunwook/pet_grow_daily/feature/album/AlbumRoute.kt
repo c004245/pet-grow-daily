@@ -551,7 +551,7 @@ fun AlbumProgressWidget(
     val maxCount = ALBUM_CREATE_COMPLETE
     val progressRatio = currentCount.toFloat() / maxCount
 
-    val isCompleted = currentCount == maxCount
+    val isCompleted = currentCount >= maxCount
 
     Box(
         modifier = Modifier

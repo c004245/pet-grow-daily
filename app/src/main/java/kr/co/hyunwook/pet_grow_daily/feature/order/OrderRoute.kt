@@ -160,7 +160,7 @@ fun OrderScreen(
             OrderButtonWidget(
                 albumRequireCount = MAX_ALBUM_COUNT - albumRecord.size * 2,
                 onClickRequestPayment = onClickRequestPayment,
-                isButtonEnabled = MAX_ALBUM_COUNT == albumRecord.size * 2,
+                isButtonEnabled = MAX_ALBUM_COUNT <= albumRecord.size * 2,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -364,9 +364,17 @@ fun OrderButtonWidget(
                     .background(purple6C, RoundedCornerShape(4.dp))
                     .clip(RoundedCornerShape(4.dp)),
             ) {
+
+                var message = if (isButtonEnabled) {
+                    "앨범 주문이 가능해요 😀"
+                }
+                else {
+                    "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요."
+                }
+
                 Text(
                     modifier = Modifier.padding(vertical = 6.dp, horizontal = 14.dp),
-                    text = "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요.",
+                    text = message,
                     style = PetgrowTheme.typography.bold,
                     color = Color.White,
                     fontSize = 14.sp

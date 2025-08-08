@@ -14,6 +14,7 @@ import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.auth.auth
 import dagger.hilt.android.HiltAndroidApp
+import kr.co.hyunwook.pet_grow_daily.analytics.Analytics
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -27,6 +28,9 @@ class App: Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject lateinit var analytics: Analytics
+
+
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -38,6 +42,7 @@ class App: Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        analytics.init(this)
 
         // Firebase Auth 익명 로그인
         Firebase.auth.signInAnonymously()

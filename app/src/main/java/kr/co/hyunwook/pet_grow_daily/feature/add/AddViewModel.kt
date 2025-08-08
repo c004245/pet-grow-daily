@@ -36,13 +36,16 @@ import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.min
 import androidx.core.net.toUri
+import kr.co.hyunwook.pet_grow_daily.analytics.Analytics
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val saveAlbumRecordUseCase: SaveAlbumRecordUseCase,
-    private val getUserIdUseCase: GetUserIdUseCase
+    private val getUserIdUseCase: GetUserIdUseCase,
+    private val analytics: Analytics
 
 
 ) : ViewModel() {
@@ -58,12 +61,21 @@ class AddViewModel @Inject constructor(
         loadImages()
     }
 
+    fun uploadImageEvent(isWriteMemo: Boolean, isPublic: Boolean) {
+        analytics.track(
+            EventConstants.UPLOAD_IMAGE_EVENT,
+            mapOf(
+                EventConstants.IS_WRITE_MEMO_PROPERTY to isWriteMemo,
+                EventConstants.IS_PUBLIC_PROPERTY to isPublic
+            )
+        )
+    }
+
     fun uploadAndSaveAlbumRecord(
         selectedImageUris: List<String>,
         content: String,
         isPublic: Boolean
     ) {
-
         viewModelScope.launch {
             val userId = getUserIdUseCase.invoke()
 
@@ -86,29 +98,29 @@ class AddViewModel @Inject constructor(
                 )
 
                 saveAlbumRecord(albumRecord)
+
+                // 저장 완료 후 Analytics 이벤트 호출
+                uploadImageEvent(isWriteMemo = content.isNotEmpty(), isPublic = isPublic)
                 _saveDoneEvent.emit(true)
             } catch (e: Exception) {
+                Log.e("AddViewModel", "Error uploading/saving album record", e)
                 _saveDoneEvent.emit(false)
             }
         }
     }
 
-    fun saveAlbumRecord(albumRecord: AlbumRecord) {
+    private suspend fun saveAlbumRecord(albumRecord: AlbumRecord) {
         Log.d("HWO", "saveAlbumRecord -> $albumRecord")
-        viewModelScope.launch {
-            try {
-                saveAlbumRecordUseCase(albumRecord)
-            } catch (e: Exception) {
-                _saveDoneEvent.emit(false)
-            }
+        try {
+            saveAlbumRecordUseCase(albumRecord)
+        } catch (e: Exception) {
+            throw e // 예외를 다시 던져서 상위에서 처리하도록 함
         }
     }
 
     fun reloadImages() {
         loadImages()
     }
-
-
 
 
     private suspend fun uploadImageToStorage(uri: Uri, userId: String): String {
@@ -130,6 +142,7 @@ class AddViewModel @Inject constructor(
             throw e
         }
     }
+
     private fun loadImages() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -183,7 +196,6 @@ class AddViewModel @Inject constructor(
     }
 
 
-
     private suspend fun optimizeImage(uri: Uri): Uri {
         return withContext(Dispatchers.IO) {
             try {
@@ -220,23 +232,24 @@ class AddViewModel @Inject constructor(
                 } else {
                     rotatedBitmap
                 }
-                
+
                 val fileName = "optimized_${System.currentTimeMillis()}.jpg"
                 val contentValues = ContentValues().apply {
                     put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                     put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                     put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
                 }
-                
+
                 val imageUri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues
+                )
                     ?: throw IOException("Failed to create media store record")
-                    
+
                 // 압축 품질 85%로 저장
                 context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
                     resizeBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
                 } ?: throw IOException("Failed to open output stream")
-                
+
                 // 최종 파일 크기 확인
                 var optimizedSize = 0L
                 try {
@@ -254,7 +267,7 @@ class AddViewModel @Inject constructor(
                 }
                 rotatedBitmap.recycle()
                 // originalBitmap은 위에서 이미 recycle됨 또는 rotatedBitmap와 동일
-                
+
                 imageUri
             } catch (e: Exception) {
                 uri // 실패 시 원본 반환

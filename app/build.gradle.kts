@@ -53,12 +53,13 @@ android {
     }
 
     val slackWebhook = localProperties.getProperty("SLACK_WEBHOOK") as String
-
+    val mixpanelToken = localProperties.getProperty("MIXPANEL_TOKEN") ?: ""
 
     buildTypes {
         debug {
             buildConfigField("boolean", "DEBUG", "true")
             buildConfigField("String", "SLACK_WEBHOOK", "\"$slackWebhook\"")
+            buildConfigField("String", "MIXPANEL_TOKEN", "\"$mixpanelToken\"")
 
         }
         release {
@@ -69,6 +70,7 @@ android {
             )
             buildConfigField("boolean", "DEBUG", "false")
             buildConfigField("String", "SLACK_WEBHOOK", "\"$slackWebhook\"")
+            buildConfigField("String", "MIXPANEL_TOKEN", "\"$mixpanelToken\"")
 
             signingConfig = signingConfigs.getByName("release")
         }
@@ -174,6 +176,8 @@ dependencies {
     implementation(libs.okhttp)
 
     implementation(libs.work.runtime.ktx)
+
+    implementation(libs.mixpanel)
 }
 
 tasks.withType<Test> {

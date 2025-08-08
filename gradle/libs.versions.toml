@@ -18,7 +18,7 @@ kotest = "5.7.2"
 kotest-mockk = "1.2.0"
 mockk = "1.13.14"
 lottie-compose  = "6.1.0"
-
+mixpanel = "7.+"
 ## Hilt
 hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
@@ -106,7 +106,7 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx", version.ref = "firebaseFunctionsKtx" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
-
+mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

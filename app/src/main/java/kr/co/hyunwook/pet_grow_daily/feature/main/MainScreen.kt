@@ -234,6 +234,10 @@ internal fun MainScreen(
                         navigateToOrderDone = {
                             navigatorEnum = NavigateEnum.ORDER_DONE
                             navigate(navigator, NavigateEnum.ORDER_DONE)
+                        },
+                        onBackClick = {
+                            navigatorEnum = NavigateEnum.ALBUM_SELECT
+                            navigate(navigator, NavigateEnum.ALBUM_SELECT)
                         }
                     )
                     deliveryRegisterNavGraph(

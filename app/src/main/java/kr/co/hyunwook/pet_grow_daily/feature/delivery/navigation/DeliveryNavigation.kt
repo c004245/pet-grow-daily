@@ -55,12 +55,14 @@ fun NavGraphBuilder.deliveryAddNavGraph(
 
 fun NavGraphBuilder.deliveryCheckNavGraph(
     viewModel: OrderViewModel,
-    navigateToOrderDone: () -> Unit
+    navigateToOrderDone: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     composable<DeliveryCheck> { backStackEntry ->
         DeliveryCheckRoute(
             viewModel = viewModel,
-            navigateToOrderDone = navigateToOrderDone
+            navigateToOrderDone = navigateToOrderDone,
+            onBackClick = onBackClick
         )
     }
 }

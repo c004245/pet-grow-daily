@@ -57,7 +57,8 @@ import com.airbnb.lottie.compose.*
 @Composable
 fun DeliveryCheckRoute(
     viewModel: OrderViewModel,
-    navigateToOrderDone: () -> Unit
+    navigateToOrderDone: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     val deliveryInfos by viewModel.deliveryInfos.collectAsState()
     val selectedAlbumRecords by viewModel.selectedAlbumRecords.collectAsState()
@@ -185,14 +186,14 @@ fun DeliveryCheckRoute(
         else -> {
             DeliveryCheckScreen(
                 deliveryInfos = deliveryInfos,
-                selectedAlbumCount = selectedAlbumRecords.size,
                 onOrderConfirm = { selectedDeliveryInfo ->
                     Log.d("HWO", "주문 확인 버튼 클릭")
                     deliveryInfo = selectedDeliveryInfo
                     currentOrderProduct?.let { orderProduct ->
                         viewModel.requestKakaoPayPayment(orderProduct)
                     }
-                }
+                },
+                onBackClick = onBackClick
             )
         }
     }
@@ -201,8 +202,8 @@ fun DeliveryCheckRoute(
 @Composable
 fun DeliveryCheckScreen(
     deliveryInfos: List<DeliveryInfo>,
-    selectedAlbumCount: Int,
-    onOrderConfirm: (DeliveryInfo) -> Unit
+    onOrderConfirm: (DeliveryInfo) -> Unit,
+    onBackClick: () -> Unit
 ) {
 
     val selectedDeliveryId = remember { mutableStateOf<Int?>(null) }
@@ -220,7 +221,7 @@ fun DeliveryCheckScreen(
             .padding(24.dp)
     ) {
         TitleDeliveryAppBarOnlyButton({
-
+            onBackClick()
         })
         Spacer(Modifier.height(40.dp))
         Text(

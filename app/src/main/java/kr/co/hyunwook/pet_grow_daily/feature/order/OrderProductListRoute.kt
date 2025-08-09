@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -46,6 +47,10 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 import java.text.NumberFormat
 import java.util.Locale
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.LottieConstants
 
 
 //주문 상품 고를 수 있는 화면
@@ -57,6 +62,7 @@ fun OrderProductListRoute(
 
     val albumRecord by viewModel.albumRecord.collectAsState()
     val orderProducts by viewModel.orderProducts.collectAsState()
+    val isLoadingOrderProducts by viewModel.isLoadingOrderProducts.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
@@ -66,7 +72,8 @@ fun OrderProductListRoute(
     OrderProductListScreen(
         albumRecord = albumRecord,
         orderProducts = orderProducts,
-        navigateToOrder = navigateToOrder
+        navigateToOrder = navigateToOrder,
+        isLoadingOrderProducts = isLoadingOrderProducts
     )
 }
 
@@ -75,6 +82,7 @@ fun OrderProductListScreen(
     albumRecord: List<AlbumRecord>,
     orderProducts: List<OrderProduct>,
     navigateToOrder: (OrderProduct) -> Unit,
+    isLoadingOrderProducts: Boolean
 ) {
     val topBarHeight = 56.dp
     Box(
@@ -111,6 +119,35 @@ fun OrderProductListScreen(
                     index = index,
                     onItemClick = navigateToOrder
                 )
+            }
+        }
+
+        if (isLoadingOrderProducts) {
+            val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White.copy(alpha = 0.9f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LottieAnimation(
+                        composition = lottieComposition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .height(200.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                    )
+                    Text(
+                        text = "상품 정보를 가져오고 있어요...",
+                        style = PetgrowTheme.typography.medium,
+                        color = black21,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

@@ -80,6 +80,9 @@ class OrderViewModel @Inject constructor(
     private val _orderProducts = MutableStateFlow<List<OrderProduct>>(emptyList())
     val orderProducts: StateFlow<List<OrderProduct>> get() = _orderProducts
 
+    private val _isLoadingOrderProducts = MutableStateFlow<Boolean>(false)
+    val isLoadingOrderProducts: StateFlow<Boolean> get() = _isLoadingOrderProducts
+
     private val _todayZipFileCount = MutableStateFlow<Int>(0)
     val todayZipFileCount: StateFlow<Int> get() = _todayZipFileCount
 
@@ -95,6 +98,7 @@ class OrderViewModel @Inject constructor(
     }
 
     fun fetchOrderProducts() {
+        _isLoadingOrderProducts.value = true
         remoteConfigWrapper.fetchOrderProductList { orderProductListModel ->
             if (orderProductListModel != null) {
                 _orderProducts.value = orderProductListModel.orderProducts
@@ -102,6 +106,7 @@ class OrderViewModel @Inject constructor(
                 // 기본값 사용
 
             }
+            _isLoadingOrderProducts.value = false
         }
     }
 

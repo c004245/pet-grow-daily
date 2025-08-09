@@ -61,10 +61,10 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayf1
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayF8
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.redF3
-import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.CommonAppBarOnlyButton
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_INSTA_BOOK_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.TODAY_LIMIT_CREATE
 import kr.co.hyunwook.pet_grow_daily.util.formatPrice
 
@@ -157,10 +157,12 @@ fun OrderScreen(
                 onClickOrderNotification = onClickOrderNotification
             )
         } else {
+            val maxAlbumCount =
+                if (orderProduct.id == 0) MAX_ALBUM_INSTA_BOOK_COUNT else MAX_ALBUM_COUNT
             OrderButtonWidget(
-                albumRequireCount = MAX_ALBUM_COUNT - albumRecord.size * 2,
+                albumRequireCount = maxAlbumCount - albumRecord.size * 2,
                 onClickRequestPayment = onClickRequestPayment,
-                isButtonEnabled = MAX_ALBUM_COUNT <= albumRecord.size * 2,
+                isButtonEnabled = maxAlbumCount <= albumRecord.size * 2,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -291,7 +293,7 @@ fun ProductInfoWidget(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                text = "배송비 포함",
+                text = "배송비 3000원",
                 style = PetgrowTheme.typography.medium,
                 color = gray86,
                 fontSize = 14.sp,

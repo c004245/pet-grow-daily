@@ -55,5 +55,6 @@ fun CommonAppBarOnlyButton(
 }
 
 const val MAX_ALBUM_COUNT = 40 //앨범 제작에 필요한 카운트
+const val MAX_ALBUM_INSTA_BOOK_COUNT = 62 //인스타북 제작에 필요한 카운트
 const val TODAY_LIMIT_CREATE = 5 //하루 앨범 제작 리밋
 const val ORDER_TODAY_DONE = 0

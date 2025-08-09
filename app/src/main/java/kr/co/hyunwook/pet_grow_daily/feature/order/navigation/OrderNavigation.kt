@@ -51,13 +51,16 @@ fun NavGraphBuilder.orderNavGraph(
 fun NavGraphBuilder.albumSelectNavGraph(
     navigateToDeliveryCheck: () -> Unit,
     navigateToDeliveryRegister: () -> Unit,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    onBackClick: () -> Unit
+
 ) {
     composable<AlbumSelect> { backStackEntry ->
         AlbumSelectRoute(
             viewModel = viewModel,
             navigateToDeliveryCheck = navigateToDeliveryCheck,
-            navigateToDeliveryRegister = navigateToDeliveryRegister
+            navigateToDeliveryRegister = navigateToDeliveryRegister,
+            onBackClick = onBackClick
         )
     }
 }

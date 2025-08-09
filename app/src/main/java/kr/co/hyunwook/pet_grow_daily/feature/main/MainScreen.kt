@@ -132,7 +132,7 @@ internal fun MainScreen(
                             navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
                         }
                     )
-                        businessInfoNavGraph(
+                    businessInfoNavGraph(
                         navigateToMyPage = {
                             navigate(navigator, NavigateEnum.MYPAGE)
                         }
@@ -216,7 +216,17 @@ internal fun MainScreen(
                         navigateToDeliveryRegister = {
                             navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
                         },
-                        viewModel = orderViewModel
+                        viewModel = orderViewModel,
+                        onBackClick = {
+                            orderViewModel.currentOrderProduct.value?.let { orderProduct ->
+                                navigator.navigateToOrder(orderProduct, navOptions {
+                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                })
+                            }
+                        }
                     )
 
                     deliveryCheckNavGraph(

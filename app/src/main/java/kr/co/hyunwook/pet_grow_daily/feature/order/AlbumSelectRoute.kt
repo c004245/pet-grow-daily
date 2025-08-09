@@ -1,6 +1,8 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,13 +57,17 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_INSTA_BOOK_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
 
 @Composable
 fun AlbumSelectRoute(
     viewModel: OrderViewModel,
     navigateToDeliveryRegister: () -> Unit,
-    navigateToDeliveryCheck: () -> Unit
+    navigateToDeliveryCheck: () -> Unit,
+    onBackClick: () -> Unit = {}
+
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
     val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
@@ -69,7 +75,11 @@ fun AlbumSelectRoute(
     var shouldNavigate by remember { mutableStateOf(false) }
 
     currentOrderProduct?.let { orderProduct ->
-        Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productDiscount}")
+        Log.d("HWO", "전달받은 상품: ${orderProduct.id}, ${orderProduct.productDiscount}")
+    }
+
+    BackHandler {
+        onBackClick()
     }
 
     LaunchedEffect(Unit) {
@@ -92,35 +102,43 @@ fun AlbumSelectRoute(
 
     AlbumSelectScreen(
         albumRecord = albumRecord,
+        currentOrderProduct = currentOrderProduct,
         navigateToDeliveryInfo = { selectedItems ->
             val selectedRecords = selectedItems.map { albumRecord[it] }
             Log.d("HWO", "selectedREcord-> ${selectedRecords.size}")
             viewModel.setSelectedAlbumRecords(selectedRecords)
             viewModel.checkDeliveryInfo()
             shouldNavigate = true
-        }
+        },
+        onBackClick = onBackClick
     )
 }
 
 @Composable
 fun AlbumSelectScreen(
     albumRecord: List<AlbumRecord>,
-    navigateToDeliveryInfo: (Set<Int>) -> Unit
+    currentOrderProduct: OrderProduct?,
+    navigateToDeliveryInfo: (Set<Int>) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleAppBar()
+        TitleAppBar{
+            onBackClick()
+        }
+
         AlbumListSelectWidget(
             modifier = Modifier.padding(top = 16.dp),
             albumRecordItem = albumRecord,
+            currentOrderProduct = currentOrderProduct,
             navigateToDeliveryInfo = navigateToDeliveryInfo
         )
     }
 }
 
 @Composable
-fun TitleAppBar() {
+fun TitleAppBar(onBackClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,7 +152,7 @@ fun TitleAppBar() {
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp)
                 .clickable {
-
+                    onBackClick()
                 }
         )
         Text(
@@ -151,12 +169,16 @@ fun TitleAppBar() {
 fun AlbumListSelectWidget(
     modifier: Modifier,
     albumRecordItem: List<AlbumRecord>,
+    currentOrderProduct: OrderProduct?,
     navigateToDeliveryInfo: (Set<Int>) -> Unit
 ) {
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
 
+    val maxAlbumCount =
+        if (currentOrderProduct?.id == 0) MAX_ALBUM_INSTA_BOOK_COUNT else MAX_ALBUM_COUNT
     val selectedCount = selectedItems.size * 2
-    val isButtonEnabled = selectedCount == 40
+    val isButtonEnabled = selectedCount == maxAlbumCount
+
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -198,7 +220,7 @@ fun AlbumListSelectWidget(
                 .background(if (isButtonEnabled) purple6C else purple6C.copy(alpha = 0.4f))
         ) {
             Text(
-                text = "사진 선택 ($selectedCount/40)",
+                text = "사진 선택 ($selectedCount/$maxAlbumCount)",
                 color = Color.White,
                 fontSize = 14.sp,
                 style = PetgrowTheme.typography.medium,

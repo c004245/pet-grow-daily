@@ -232,7 +232,7 @@ fun OrderProductItem(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "배송비 포함",
+                    text = "배송비 별도",
                     style = PetgrowTheme.typography.medium,
                     color = gray86,
                     fontSize = 13.sp,

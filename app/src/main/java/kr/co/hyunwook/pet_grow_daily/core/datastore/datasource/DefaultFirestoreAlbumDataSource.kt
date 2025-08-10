@@ -23,6 +23,7 @@ import kotlin.coroutines.resume
 import java.text.SimpleDateFormat
 import kotlinx.coroutines.delay
 import com.google.firebase.firestore.DocumentSnapshot
+import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutType
 
 class DefaultFirestoreAlbumDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -165,6 +166,7 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
 
     override suspend fun saveOrderRecord(
         selectedAlbumRecords: List<AlbumRecord>,
+        selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
         userId: Long,
@@ -187,6 +189,7 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
 
             val orderMap = hashMapOf(
                 "selectedImages" to selectedImageUris,
+                "selectedAlbumLayout" to selectedAlbumLayoutType,
                 "contents" to contents,
                 "deliveryInfo" to mapOf(
                     "zipCode" to deliveryInfo.zipCode,

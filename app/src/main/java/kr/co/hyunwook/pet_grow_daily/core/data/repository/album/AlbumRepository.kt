@@ -8,6 +8,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.PetProfile
 import com.google.firebase.firestore.DocumentSnapshot
+import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutType
 
 interface AlbumRepository {
     suspend fun saveFcmToken(fcmToken: String)
@@ -19,6 +20,7 @@ interface AlbumRepository {
 
     suspend fun saveOrderRecord(
         selectedAlbumRecords: List<AlbumRecord>,
+        selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
         fcmToken: String

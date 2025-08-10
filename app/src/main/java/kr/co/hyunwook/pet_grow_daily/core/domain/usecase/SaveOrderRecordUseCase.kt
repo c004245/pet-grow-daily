@@ -3,6 +3,7 @@ package kr.co.hyunwook.pet_grow_daily.core.domain.usecase
 import kr.co.hyunwook.pet_grow_daily.core.data.repository.album.AlbumRepository
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
+import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutType
 import javax.inject.Inject
 
 class SaveOrderRecordUseCase @Inject constructor(
@@ -10,9 +11,10 @@ class SaveOrderRecordUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         selectedAlbumRecords: List<AlbumRecord>,
+        selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
         fcmToken: String,
     ): String =
-        albumRepository.saveOrderRecord(selectedAlbumRecords, deliveryInfo, paymentInfo, fcmToken)
+        albumRepository.saveOrderRecord(selectedAlbumRecords, selectedAlbumLayoutType, deliveryInfo, paymentInfo, fcmToken)
 }

@@ -17,6 +17,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import com.google.firebase.firestore.DocumentSnapshot
+import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutType
 
 class AlbumRepositoryImpl @Inject constructor(
     private val albumRecordDao: AlbumRecordDao,
@@ -45,6 +46,7 @@ class AlbumRepositoryImpl @Inject constructor(
 
     override suspend fun saveOrderRecord(
         selectedAlbumRecords: List<AlbumRecord>,
+        selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
         fcmToken: String
@@ -52,6 +54,7 @@ class AlbumRepositoryImpl @Inject constructor(
         val userId = getUserId()
         return firestoreDataSource.saveOrderRecord(
             selectedAlbumRecords,
+            selectedAlbumLayoutType,
             deliveryInfo,
             paymentInfo,
             userId,

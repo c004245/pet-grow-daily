@@ -181,7 +181,7 @@ fun AlbumLayoutItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(260.dp)
+            .height(240.dp)
             .clickable { onSelected() }
             .border(
                 width = if (isSelected) 2.dp else 1.dp,

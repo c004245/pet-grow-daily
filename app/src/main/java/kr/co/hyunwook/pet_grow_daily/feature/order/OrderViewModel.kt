@@ -204,6 +204,7 @@ class OrderViewModel @Inject constructor(
                 val fcmToken = getFcmTokenUseCase.invoke().first()
                 val orderId = saveOrderRecordUseCase(
                     selectedAlbumRecords = _selectedAlbumRecords.value,
+                    selectedAlbumLayoutType = _selectedAlbumLayout.value,
                     deliveryInfo = selectedDeliveryInfo,
                     paymentInfo = paymentInfo,
                     fcmToken = fcmToken ?: ""

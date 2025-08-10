@@ -62,5 +62,6 @@
     <string name="text_another_pet_done">모든 사진을 확인했어요 🐾</string>
     <string name="text_today_album_done">오늘 앨범 목표치 완료! 👍</string>
     <string name="text_another_none">아직 올라온 사진이없어요.\n첫 사진을 업로드해보세요.</string>
+    <string name="text_album_layout_title">사진 레이아웃을\n선택해주세요.</string>
 
 </resources>

@@ -23,6 +23,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.main.splash.navigation.Splash
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.BusinessInfo
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.MyPage
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumLayout
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.Order
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.OrderProductList
@@ -150,6 +151,12 @@ class MainNavigator(
         navOptions: NavOptions
     ) {
         navController.navigate(BusinessInfo, navOptions)
+    }
+
+    fun navigateToAlbumLayout(
+        navOptions: NavOptions
+    ) {
+        navController.navigate(AlbumLayout, navOptions)
     }
 
     @Composable

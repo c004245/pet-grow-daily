@@ -58,6 +58,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.alarmNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.businessInfoNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.myPageNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumLayoutNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.albumSelectNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderDoneNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
@@ -71,16 +72,9 @@ internal fun MainScreen(
     navigator: MainNavigator = rememberMainNavigator(),
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
 
     val orderViewModel: OrderViewModel = hiltViewModel()
 
-    val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-    var isSheetOpen by remember { mutableStateOf(false) }
 
     var navigatorEnum by remember { mutableStateOf(NavigateEnum.ALBUM) }
 
@@ -209,13 +203,32 @@ internal fun MainScreen(
                         }
                     )
 
-                    albumSelectNavGraph(
+                    albumLayoutNavGraph(
                         navigateToDeliveryCheck = {
+                            navigatorEnum = NavigateEnum.DELIVERY_CHECK
                             navigate(navigator, NavigateEnum.DELIVERY_CHECK)
                         },
                         navigateToDeliveryRegister = {
+                            navigatorEnum = NavigateEnum.DELIVERY_REGISTER
                             navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
                         },
+                        viewModel = orderViewModel,
+                        onBackClick = {
+                            orderViewModel.currentOrderProduct.value?.let { orderProduct ->
+                                navigator.navigateToOrder(orderProduct, navOptions {
+                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                })
+                            }
+                        }
+                    )
+                    albumSelectNavGraph(
+                       navigateToAlbumLayout = {
+                           navigatorEnum = NavigateEnum.ALBUM_LAYOUT
+                           navigate(navigator, NavigateEnum.ALBUM_LAYOUT)
+                       },
                         viewModel = orderViewModel,
                         onBackClick = {
                             orderViewModel.currentOrderProduct.value?.let { orderProduct ->
@@ -370,6 +383,9 @@ fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {
         }
         NavigateEnum.BUSINESS_INFO -> {
             navigator.navigateToBusinessInfo(navOptions = navOptions)
+        }
+        NavigateEnum.ALBUM_LAYOUT -> {
+            navigator.navigateToAlbumLayout(navOptions = navOptions)
         }
         else -> {
             navigator.navigateToOnBoarding(navOptions = navOptions)
@@ -530,5 +546,6 @@ fun MainScreenPreview() {
 enum class NavigateEnum {
     ALBUM, ORDER, ORDER_PRODUCT_LIST, ANOTHERPET, MYPAGE, ADD, RECORDWRITE,
     PROFILE, DELIVERY_ADD, DELIVERY_LIST, ALBUM_SELECT,
-    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM, ORDER_DONE, BUSINESS_INFO
+    DELIVERY_REGISTER, DELIVERY_CHECK, ALARM, ORDER_DONE, BUSINESS_INFO,
+    ALBUM_LAYOUT
 }

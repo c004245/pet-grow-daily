@@ -13,6 +13,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.OrderProductListRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.gson.Gson
+import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutRoute
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderDoneRoute
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -49,14 +50,32 @@ fun NavGraphBuilder.orderNavGraph(
 }
 
 fun NavGraphBuilder.albumSelectNavGraph(
-    navigateToDeliveryCheck: () -> Unit,
-    navigateToDeliveryRegister: () -> Unit,
+//    navigateToDeliveryCheck: () -> Unit,
+//    navigateToDeliveryRegister: () -> Unit,
+    navigateToAlbumLayout: () -> Unit,
     viewModel: OrderViewModel,
     onBackClick: () -> Unit
 
 ) {
     composable<AlbumSelect> { backStackEntry ->
         AlbumSelectRoute(
+            viewModel = viewModel,
+//            navigateToDeliveryCheck = navigateToDeliveryCheck,
+//            navigateToDeliveryRegister = navigateToDeliveryRegister,
+            navigateToAlbumLayout = navigateToAlbumLayout,
+            onBackClick = onBackClick
+        )
+    }
+}
+
+fun NavGraphBuilder.albumLayoutNavGraph(
+    navigateToDeliveryCheck: () -> Unit,
+    navigateToDeliveryRegister: () -> Unit,
+    viewModel: OrderViewModel,
+    onBackClick: () -> Unit
+) {
+    composable<AlbumLayout> { backStackEntry ->
+        AlbumLayoutRoute(
             viewModel = viewModel,
             navigateToDeliveryCheck = navigateToDeliveryCheck,
             navigateToDeliveryRegister = navigateToDeliveryRegister,
@@ -88,6 +107,11 @@ data object OrderProductList: Route {
 @Serializable
 data object AlbumSelect : Route {
     override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumSelect"
+}
+
+@Serializable
+data object AlbumLayout: Route {
+    override val route = "kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumLayout"
 }
 
 @Serializable

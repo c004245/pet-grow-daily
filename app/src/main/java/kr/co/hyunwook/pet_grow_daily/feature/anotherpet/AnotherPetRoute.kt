@@ -1,6 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.anotherpet
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -54,11 +55,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
 
 @Composable
 fun AnotherPetRoute(
@@ -123,6 +126,7 @@ fun AnotherPetScreen(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(whiteF8)
             .pullRefresh(pullRefreshState)
     ) {
         if (isLoading) {
@@ -152,9 +156,7 @@ fun AnotherPetScreen(
 
             itemsIndexed(anotherImageList) { index, item ->
                 LookAnotherItem(item)
-                if (index < anotherImageList.lastIndex) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
+
             }
 
 
@@ -167,21 +169,45 @@ fun AnotherPetScreen(
             // 더 이상 데이터가 없을 때 표시
             if (!hasMoreData && anotherImageList.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.text_another_pet_done),
-                        style = PetgrowTheme.typography.medium,
-                        color = gray5E,
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp, horizontal = 16.dp)
-                    )
+                   AnotherLastWidget()
                 }
             }
         }
     }
 }
 
+@Composable
+fun AnotherLastWidget() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_another_around_done),
+                contentDescription = null,
+                modifier = Modifier.padding(top = 20.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.text_another_pet_done),
+                style = PetgrowTheme.typography.bold,
+                color = black21,
+                fontSize = 13.sp,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
+        }
+    }
+}
 @Composable
 fun LoadingIndicator() {
     Column(
@@ -231,7 +257,8 @@ fun LookAnotherItem(item: AnotherPetModel) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .padding(horizontal = 12.dp)
-                .shadow(elevation = 16.dp,
+                .shadow(
+                    elevation = 16.dp,
                     spotColor = Color(0xD0000000),
                     shape = RoundedCornerShape(12.dp)
                 )

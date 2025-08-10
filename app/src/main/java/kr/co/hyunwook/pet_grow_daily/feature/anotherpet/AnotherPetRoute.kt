@@ -136,11 +136,10 @@ fun AnotherPetScreen(
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            item {
+
+        // 빈 리스트일 때 전체 화면으로 EmptyWidget 표시
+        if (anotherImageList.isEmpty() && !isLoading) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 CommonTopBar(
                     title = {
                         Text(
@@ -151,25 +150,47 @@ fun AnotherPetScreen(
                         )
                     }
                 )
-                Spacer(Modifier.height(12.dp))
-            }
-
-            itemsIndexed(anotherImageList) { index, item ->
-                LookAnotherItem(item)
-
-            }
-
-
-            if (isLoading && anotherImageList.isNotEmpty()) {
-                item {
-                    LoadingIndicator()
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EmptyAnotherWidget()
                 }
             }
-
-            // 더 이상 데이터가 없을 때 표시
-            if (!hasMoreData && anotherImageList.isNotEmpty()) {
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+            ) {
                 item {
-                   AnotherLastWidget()
+                    CommonTopBar(
+                        title = {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.text_take_a_look),
+                                style = PetgrowTheme.typography.bold,
+                                color = black21
+                            )
+                        }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                itemsIndexed(anotherImageList) { index, item ->
+                    LookAnotherItem(item)
+                }
+
+                if (isLoading && anotherImageList.isNotEmpty()) {
+                    item {
+                        LoadingIndicator()
+                    }
+                }
+
+                // 더 이상 데이터가 없을 때 표시
+                if (!hasMoreData && anotherImageList.isNotEmpty()) {
+                    item {
+                        AnotherLastWidget()
+                    }
                 }
             }
         }
@@ -208,6 +229,35 @@ fun AnotherLastWidget() {
         }
     }
 }
+
+@Composable
+fun EmptyAnotherWidget() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+        
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_another_tab_none),
+                contentDescription = null,
+                modifier = Modifier.padding(top = 40.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.text_another_none),
+                style = PetgrowTheme.typography.medium,
+                color = black21,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
 @Composable
 fun LoadingIndicator() {
     Column(

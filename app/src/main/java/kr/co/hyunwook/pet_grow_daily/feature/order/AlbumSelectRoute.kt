@@ -71,9 +71,7 @@ fun AlbumSelectRoute(
 
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
-//    val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
     val currentOrderProduct by viewModel.currentOrderProduct.collectAsState()
-//    var shouldNavigate by remember { mutableStateOf(false) }
 
     currentOrderProduct?.let { orderProduct ->
         Log.d("HWO", "전달받은 상품: ${orderProduct.id}, ${orderProduct.productDiscount}")
@@ -87,19 +85,6 @@ fun AlbumSelectRoute(
         viewModel.getAlbumSelectRecord()
     }
 
-//    LaunchedEffect(hasDeliveryInfo, shouldNavigate) {
-//        if (shouldNavigate) {
-//            delay(100)
-//            if (hasDeliveryInfo) {
-//                Log.d("HWO", "hasDeliveryInfo true")
-//                navigateToDeliveryCheck()
-//            } else {
-//                navigateToDeliveryRegister()
-//                Log.d("HWO", "hasDeliveryInfo false")
-//            }
-//            shouldNavigate = false
-//        }
-//    }
 
     AlbumSelectScreen(
         albumRecord = albumRecord,
@@ -110,13 +95,6 @@ fun AlbumSelectRoute(
             navigateToAlbumLayout()
 
         },
-//        navigateToDeliveryInfo = { selectedItems ->
-//            val selectedRecords = selectedItems.map { albumRecord[it] }
-//            Log.d("HWO", "selectedREcord-> ${selectedRecords.size}")
-//            viewModel.setSelectedAlbumRecords(selectedRecords)
-//            viewModel.checkDeliveryInfo()
-//            shouldNavigate = true
-//        },
         onBackClick = onBackClick
     )
 }

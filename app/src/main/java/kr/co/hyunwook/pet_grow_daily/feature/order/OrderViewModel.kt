@@ -74,6 +74,9 @@ class OrderViewModel @Inject constructor(
     private val _selectedAlbumRecords = MutableStateFlow<List<AlbumRecord>>(emptyList())
     val selectedAlbumRecords: StateFlow<List<AlbumRecord>> get() = _selectedAlbumRecords
 
+    private val _selectedAlbumLayout = MutableStateFlow<AlbumLayoutType>(AlbumLayoutType.LAYOUT_A)
+    val selectedAlbumLayout: StateFlow<AlbumLayoutType> get() = _selectedAlbumLayout
+
     private val _saveOrderDoneEvent = MutableSharedFlow<Boolean>()
     val saveOrderDoneEvent: SharedFlow<Boolean> get() = _saveOrderDoneEvent
 
@@ -176,6 +179,9 @@ class OrderViewModel @Inject constructor(
         _selectedAlbumRecords.value = records
     }
 
+    fun setSelectedAlbumLayout(type: AlbumLayoutType) {
+        _selectedAlbumLayout.value = type
+    }
     fun saveOrderRecord(selectedDeliveryInfo: DeliveryInfo) {
         viewModelScope.launch {
             try {

@@ -27,6 +27,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
@@ -49,11 +52,12 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.AlbumLayout
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 enum class AlbumLayoutType {
-    LAYOUT_A, // 세로형 2개
-    LAYOUT_B  // 가로형 2개
+    LAYOUT_A, //
+    LAYOUT_B  //
 }
 
 @Composable
@@ -63,17 +67,38 @@ fun AlbumLayoutRoute(
     navigateToDeliveryCheck: () -> Unit,
     onBackClick: () -> Unit = {}
 ) {
+
+    val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
+    var shouldNavigate by remember { mutableStateOf(false) }
     BackHandler {
         onBackClick()
     }
 
+    LaunchedEffect(hasDeliveryInfo, shouldNavigate) {
+        if (shouldNavigate) {
+            delay(100)
+            if (hasDeliveryInfo) {
+                navigateToDeliveryCheck()
+            } else {
+                navigateToDeliveryRegister()
+            }
+            shouldNavigate = false
+        }
+    }
+
     AlbumLayoutScreen(
+        navigateToDeliveryInfo = { selectedLayout ->
+            viewModel.setSelectedAlbumLayout(selectedLayout)
+            viewModel.checkDeliveryInfo()
+            shouldNavigate = true
+        },
         onBackClick = onBackClick
     )
 }
 
 @Composable
 fun AlbumLayoutScreen(
+    navigateToDeliveryInfo: (AlbumLayoutType) -> Unit,
     onBackClick: () -> Unit
 ) {
     var selectedLayout by remember { mutableStateOf<AlbumLayoutType?>(null) }
@@ -126,7 +151,8 @@ fun AlbumLayoutScreen(
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .clickable {
                     if (isButtonEnabled) {
-                        // TODO: 다음 화면으로 이동 로직
+                        navigateToDeliveryInfo(selectedLayout ?: AlbumLayoutType.LAYOUT_A)
+
                     }
                 }
                 .clip(RoundedCornerShape(14.dp))

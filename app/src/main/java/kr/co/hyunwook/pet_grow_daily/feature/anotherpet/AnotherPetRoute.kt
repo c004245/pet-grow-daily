@@ -241,39 +241,43 @@ fun LoadingIndicator() {
 @Composable
 fun LookAnotherItem(item: AnotherPetModel) {
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .shadow(
+                elevation = 8.dp,
+                spotColor = Color(0x1A000000),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clip(RoundedCornerShape(16.dp))
     ) {
-        val imageList = remember {
-            listOf(item.firstImage, item.secondImage)
-        }
-
-        var pagerState = androidx.compose.foundation.pager.rememberPagerState(
-            initialPage = 0,
-            pageCount = { 2 })
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .padding(horizontal = 12.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    spotColor = Color(0xD0000000),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .clip(RoundedCornerShape(12.dp))
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .shadow(8.dp, RoundedCornerShape(12.dp), clip = false)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
+            val imageList = remember {
+                listOf(item.firstImage, item.secondImage)
+            }
+
+            var pagerState = androidx.compose.foundation.pager.rememberPagerState(
+                initialPage = 0,
+                pageCount = { 2 })
+
+            // 이미지 영역
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
                     GlideImage(
                         model = imageList[page],
                         contentDescription = null,
@@ -283,44 +287,43 @@ fun LookAnotherItem(item: AnotherPetModel) {
                         failure = placeholder(ColorPainter(grayEF))
                     )
                 }
-            }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-                    .align(Alignment.BottomCenter)
-            ) {
-                Row(
+                // 페이지 인디케이터
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .align(Alignment.BottomCenter)
                 ) {
-                    for (i in imageList.indices) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(
-                                    if (pagerState.currentPage == i) Color.White
-                                    else Color.White.copy(alpha = 0.5f)
-                                )
-                        )
+                    Row(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        for (i in imageList.indices) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        if (pagerState.currentPage == i) Color.White
+                                        else Color.White.copy(alpha = 0.5f)
+                                    )
+                            )
+                        }
                     }
                 }
             }
+
+            // 텍스트 영역
+            Text(
+                text = item.content,
+                style = PetgrowTheme.typography.regular,
+                color = gray5E,
+                fontSize = 13.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            )
         }
-        Text(
-            text = item.content,
-            style = PetgrowTheme.typography.regular,
-            color = gray5E,
-            fontSize = 13.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 16.dp)
-        )
-
     }
-
 }
-

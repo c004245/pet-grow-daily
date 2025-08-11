@@ -211,7 +211,7 @@ fun OrderProductItem(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "배송비 별도",
+                    text = "배송비 3000원 포함!",
                     style = PetgrowTheme.typography.medium,
                     color = gray86,
                     fontSize = 13.sp,

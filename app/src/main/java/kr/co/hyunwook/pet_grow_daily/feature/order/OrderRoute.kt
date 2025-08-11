@@ -293,7 +293,7 @@ fun ProductInfoWidget(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                text = "배송비 3000원",
+                text = "배송비 3000원 포함!",
                 style = PetgrowTheme.typography.medium,
                 color = gray86,
                 fontSize = 14.sp,

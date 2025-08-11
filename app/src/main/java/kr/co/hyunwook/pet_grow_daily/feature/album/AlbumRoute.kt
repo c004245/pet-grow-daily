@@ -189,13 +189,13 @@ fun AlbumScreen(
                 )
 
                 AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
-                if (pagerState.currentPage == 0) {
+
                     Spacer(Modifier.height(16.dp))
                     AlbumProgressWidget(
                         progress = albumRecord.size,
                         navigateToOrderProductList = navigateToOrderProductList
                     )
-                }
+
 
                 HorizontalPager(
                     state = pagerState,
@@ -237,7 +237,7 @@ fun AlbumScreen(
             }
         }
 
-        if (albumRecord.isNotEmpty() && !isLoading) {
+        if (albumRecord.isNotEmpty() && !isLoading && selectedTab == AlbumTab.LIST) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

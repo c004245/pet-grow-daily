@@ -17,9 +17,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -34,8 +34,10 @@ fun AlbumImageRoute(
 
     val albumImageList by viewModel.albumImageList.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getAlbumImageList()
+    LaunchedEffect(albumImageList.isEmpty()) {
+        if (albumImageList.isEmpty()) {
+            viewModel.getAlbumImageList()
+        }
     }
 
     AlbumImageScreen(
@@ -53,7 +55,8 @@ fun AlbumImageScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier
-                .fillMaxSize().padding(top = 13.dp)
+                .fillMaxSize()
+                .padding(top = 13.dp)
                 .background(Color.Transparent),
             horizontalArrangement = Arrangement.spacedBy(1.dp),
             verticalArrangement = Arrangement.spacedBy(1.dp),
@@ -75,7 +78,8 @@ fun AlbumImageScreen(
 @Composable
 fun AlbumImageGridItem(albumImage: AlbumImageModel) {
     Box(
-        modifier = Modifier.aspectRatio(1f)
+        modifier = Modifier
+            .aspectRatio(1f)
             .fillMaxWidth()
     ) {
         GlideImage(

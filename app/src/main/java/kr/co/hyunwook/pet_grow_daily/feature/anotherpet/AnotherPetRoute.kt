@@ -70,6 +70,7 @@ fun AnotherPetRoute(
 
     val anotherImageList by viewModel.anotherPetList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val isInitialLoading by viewModel.isInitialLoading.collectAsState()
     val hasMoreData by viewModel.hasMoreData.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -79,6 +80,7 @@ fun AnotherPetRoute(
     AnotherPetScreen(
         anotherImageList = anotherImageList,
         isLoading = isLoading,
+        isInitialLoading = isInitialLoading,
         hasMoreData = hasMoreData,
         onLoadMore = {
             viewModel.loadMoreData()
@@ -94,6 +96,7 @@ fun AnotherPetRoute(
 fun AnotherPetScreen(
     anotherImageList: List<AnotherPetModel>,
     isLoading: Boolean,
+    isInitialLoading: Boolean,
     hasMoreData: Boolean,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit
@@ -138,7 +141,7 @@ fun AnotherPetScreen(
         }
 
         // 빈 리스트일 때 전체 화면으로 EmptyWidget 표시
-        if (anotherImageList.isEmpty() && !isLoading) {
+        if (anotherImageList.isEmpty() && !isInitialLoading) {
             Column(modifier = Modifier.fillMaxSize()) {
                 CommonTopBar(
                     title = {
@@ -157,6 +160,10 @@ fun AnotherPetScreen(
                     EmptyAnotherWidget()
                 }
             }
+        } else if (isInitialLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            )
         } else {
             LazyColumn(
                 state = listState,

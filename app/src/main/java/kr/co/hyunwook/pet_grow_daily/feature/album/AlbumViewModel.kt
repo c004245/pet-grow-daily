@@ -38,6 +38,9 @@ class AlbumViewModel @Inject constructor(
     private val _isDisableUpload = MutableStateFlow<Boolean>(false)
     val isDisableUpload: StateFlow<Boolean> get() = _isDisableUpload
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
     fun getShouldDisableUpload() {
         viewModelScope.launch {
             val isDisable = getShouldDisableUploadUseCase()
@@ -49,8 +52,10 @@ class AlbumViewModel @Inject constructor(
 
     fun getAlbumRecord() {
         viewModelScope.launch {
+            _isLoading.value = true
             getAlbumRecordUseCase().collect { records ->
                 _albumRecord.value = records
+                _isLoading.value = false
             }
         }
     }
@@ -58,14 +63,17 @@ class AlbumViewModel @Inject constructor(
 
     fun getAlbumImageList() {
         viewModelScope.launch {
+            _isLoading.value = true
             getAllImageUseCase().collect { images ->
                 _albumImageList.value = images
+                _isLoading.value = false
             }
         }
     }
 
     fun getTodayUserPhotoCount() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val count = getTodayUserPhotoCountUseCase()
                 Log.d("HWO", "오늘 오늘 유저수 : $count")
@@ -74,6 +82,7 @@ class AlbumViewModel @Inject constructor(
                 Log.e("HWO", "오늘 유저", e)
                 _todayUserPhotoCount.value = 0
             }
+            _isLoading.value = false
         }
 
     }

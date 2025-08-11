@@ -23,6 +23,9 @@ class AnotherPetViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> get() = _isLoading
 
+    private val _isInitialLoading = MutableStateFlow(true)
+    val isInitialLoading: StateFlow<Boolean> get() = _isInitialLoading
+
     private val _hasMoreData = MutableStateFlow(true)
     val hasMoreData: StateFlow<Boolean> get() = _hasMoreData
 
@@ -43,7 +46,7 @@ class AnotherPetViewModel @Inject constructor(
                 _anotherPetList.value = newItems
                 lastDocument = newLastDocument
                 _hasMoreData.value = newItems.size >= pageSize
-
+                _isInitialLoading.value = false
 
             } catch (e: Exception) {
                 e.printStackTrace()

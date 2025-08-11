@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.album
 
+import android.util.Log
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -63,6 +64,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 
 @Composable
@@ -76,6 +81,7 @@ fun AlbumRoute(
     val albumRecord by viewModel.albumRecord.collectAsState()
     val todayUserCount by viewModel.todayUserPhotoCount.collectAsState()
     val isDisableUpload by viewModel.isDisableUpload.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getShouldDisableUpload()
@@ -92,6 +98,7 @@ fun AlbumRoute(
         albumRecord = albumRecord,
         isDisableUpload = isDisableUpload,
         todayUserCount = todayUserCount,
+        isLoading = isLoading,
         navigateToAdd = navigateToAdd,
         navigateToAnotherPet = navigateToAnotherPet,
         navigateToOrderProductList  = navigateToOrderProductList
@@ -103,6 +110,7 @@ fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
     isDisableUpload: Boolean,
     todayUserCount: Int,
+    isLoading: Boolean,
     navigateToAdd: () -> Unit = {},
     navigateToAnotherPet: () -> Unit = {},
     navigateToOrderProductList: () -> Unit
@@ -127,75 +135,109 @@ fun AlbumScreen(
             .fillMaxSize()
             .background(grayF8)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CommonTopBar(
-                title = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.text_album_title),
-                        style = PetgrowTheme.typography.bold,
-                        color = black21
-                    )
-                },
-                icon = {
-                    AlbumSwitch(
-                        selectedTab = selectedTab,
-                        onTablSelected = {
-                            selectedTab = it
-                        }
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            )
+//            val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .background(Color.White.copy(alpha = 0.9f)),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    LottieAnimation(
+//                        composition = lottieComposition,
+//                        iterations = LottieConstants.IterateForever,
+//                        modifier = Modifier
+//                            .height(200.dp)
+//                            .fillMaxWidth()
+//                            .padding(horizontal = 36.dp)
+//                    )
+//                    androidx.compose.material.Text(
+//                        text = "저장한 앨범 정보를 가져오고 있어요...",
+//                        style = PetgrowTheme.typography.medium,
+//                        color = black21,
+//                        fontSize = 16.sp
+//                    )
+//                }
+//            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CommonTopBar(
+                    title = {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(id = R.string.text_album_title),
+                            style = PetgrowTheme.typography.bold,
+                            color = black21
+                        )
+                    },
+                    icon = {
+                        AlbumSwitch(
+                            selectedTab = selectedTab,
+                            onTablSelected = {
+                                selectedTab = it
+                            }
+                        )
+                    }
+                )
+
+                AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
+                if (pagerState.currentPage == 0) {
+                    Spacer(Modifier.height(16.dp))
+                    AlbumProgressWidget(
+                        progress = albumRecord.size,
+                        navigateToOrderProductList = navigateToOrderProductList
                     )
                 }
-            )
 
-            AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
-            if (pagerState.currentPage == 0) {
-                Spacer(Modifier.height(16.dp))
-                AlbumProgressWidget(
-                    progress = albumRecord.size,
-                    navigateToOrderProductList = navigateToOrderProductList
-                )
-            }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> {
-                        if (albumRecord.isNotEmpty()) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
-                            ) {
-                                itemsIndexed(albumRecord) { index, item ->
-                                    AlbumCard(
-                                        albumRecord = item,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp)
-                                            .padding(bottom = 16.dp)
-                                    )
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> {
+                            if (albumRecord.isNotEmpty()) {
+                                Log.d("HWO", "AlbumCard show")
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
+                                ) {
+                                    itemsIndexed(albumRecord) { index, item ->
+                                        AlbumCard(
+                                            albumRecord = item,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp)
+                                                .padding(bottom = 16.dp)
+                                        )
+                                    }
                                 }
+                            } else {
+                                Log.d("HWO", "AlbumCard show 2")
+                                EmptyAlbumWidget(
+                                    navigateToAdd = navigateToAdd,
+                                    modifier = Modifier.fillMaxSize()
+                                )
                             }
-                        } else {
-                            EmptyAlbumWidget(
-                                navigateToAdd = navigateToAdd,
-                                modifier = Modifier.fillMaxSize()
+                        }
+                        1 -> {
+                            AlbumImageRoute(
+                                navigateToAdd = navigateToAdd
                             )
                         }
-                    }
-                    1 -> {
-                        AlbumImageRoute(
-                            navigateToAdd = navigateToAdd
-                        )
                     }
                 }
             }
         }
 
-        if (albumRecord.isNotEmpty()) {
+        if (albumRecord.isNotEmpty() && !isLoading) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

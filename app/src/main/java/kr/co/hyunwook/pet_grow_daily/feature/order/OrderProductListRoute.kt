@@ -123,32 +123,11 @@ fun OrderProductListScreen(
         }
 
         if (isLoadingOrderProducts) {
-            val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.9f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LottieAnimation(
-                        composition = lottieComposition,
-                        iterations = LottieConstants.IterateForever,
-                        modifier = Modifier
-                            .height(200.dp)
-                            .fillMaxWidth()
-                            .padding(horizontal = 36.dp)
-                    )
-                    Text(
-                        text = "상품 정보를 가져오고 있어요...",
-                        style = PetgrowTheme.typography.medium,
-                        color = black21,
-                        fontSize = 16.sp
-                    )
-                }
-            }
+            )
         }
     }
 }

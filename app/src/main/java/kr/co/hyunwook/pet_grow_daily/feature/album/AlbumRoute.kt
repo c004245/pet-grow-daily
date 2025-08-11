@@ -150,11 +150,13 @@ fun AlbumScreen(
             )
 
             AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
-            Spacer(Modifier.height(16.dp))
-            AlbumProgressWidget(
-                progress = albumRecord.size,
-                navigateToOrderProductList = navigateToOrderProductList
-            )
+            if (pagerState.currentPage == 0) {
+                Spacer(Modifier.height(16.dp))
+                AlbumProgressWidget(
+                    progress = albumRecord.size,
+                    navigateToOrderProductList = navigateToOrderProductList
+                )
+            }
 
             HorizontalPager(
                 state = pagerState,

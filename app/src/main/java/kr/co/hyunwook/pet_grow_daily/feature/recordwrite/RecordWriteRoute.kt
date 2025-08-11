@@ -51,7 +51,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -65,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -178,6 +178,7 @@ fun RecordWriteScreen(
                 onCheckedChange = onPublicChange,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
+
             Spacer(Modifier.height(12.dp))
             AddDoneWriteButton(
                 isEnabled = true,
@@ -496,40 +497,51 @@ fun ShareCheckBox(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+    Column (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment =  Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
-                .size(18.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .background(Color.Transparent)
-                .border(
-                    width = 1.dp,
-                    color = if (isChecked) Color.Transparent else gray60,
-                    shape = RoundedCornerShape(6.dp)
-                )
-                .clickable { onCheckedChange(!isChecked) }
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            if (isChecked) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_add_share_checkbox),
-                    contentDescription = "checkbox icon",
-                    modifier = Modifier.fillMaxSize()
-                )
+            Box(
+                modifier = Modifier
+                    .size(18.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color.Transparent)
+                    .border(
+                        width = 1.dp,
+                        color = if (isChecked) Color.Transparent else gray60,
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                    .clickable { onCheckedChange(!isChecked) }
+            ) {
+                if (isChecked) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_add_share_checkbox),
+                        contentDescription = "checkbox icon",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.text_share_message),
+                style = PetgrowTheme.typography.regular,
+                color = black21,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable {
+                    onCheckedChange(!isChecked)
+                }
+            )
         }
-        Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource( R.string.text_share_message),
+            text = stringResource( R.string.text_insta_message),
             style = PetgrowTheme.typography.regular,
             color = black21,
-            fontSize = 14.sp,
-            modifier = Modifier.clickable {
-                onCheckedChange(!isChecked)
-            }
+            fontSize = 10.sp,
         )
     }
 

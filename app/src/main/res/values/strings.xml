@@ -42,6 +42,7 @@
     <string name="text_business_info">사업자 정보</string>
     <string name="text_logout">로그아웃</string>
     <string name="text_share_message">다른 강아지도 볼 수 있게 공개할게요!</string>
+    <string name="text_insta_message">데일리 독 인스타에 올라갈 수도 있어요!</string>
 
     <string name="text_onboarding_title1">소중한 추억을\n한 권의 앨범으로 만들어드려요!</string>
     <string name="text_onboarding_title2">하루에 한 페이지씩\n앨범에 담길 내용을 적어보세요!</string>

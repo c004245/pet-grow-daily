@@ -50,6 +50,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -90,6 +91,7 @@ fun AlbumSelectRoute(
         albumRecord = albumRecord,
         currentOrderProduct = currentOrderProduct,
         navigateToAlbumLayout = { selectedItems ->
+            viewModel.addEvent(EventConstants.CLICK_ALBUM_SELECT_DONE_EVENT)
             val selectedRecords = selectedItems.map { albumRecord[it] }
             viewModel.setSelectedAlbumRecords(selectedRecords)
             navigateToAlbumLayout()

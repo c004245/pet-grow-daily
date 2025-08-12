@@ -47,6 +47,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 
 @Composable
 fun DeliveryRegisterRoute(
@@ -70,6 +71,7 @@ fun DeliveryRegisterRoute(
         viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
+                viewModel.addEvent(EventConstants.SHOW_ORDER_DONE_EVENT)
                 navigateToOrderDone()
             } else {
                 Log.e("HWO", "주문 저장 실패")
@@ -82,6 +84,7 @@ fun DeliveryRegisterRoute(
         viewModel.saveDeliveryDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "saveDeliveryDone")
+                viewModel.addEvent(EventConstants.CLICK_DELIVERY_DONE_EVENT)
                 currentOrderProduct?.let { orderProduct ->
                     viewModel.requestKakaoPayPayment(orderProduct)
                 }
@@ -94,6 +97,7 @@ fun DeliveryRegisterRoute(
     LaunchedEffect(paymentData) {
         paymentData?.let { data ->
             Log.d("HWO", "결제 요청 데이터: $data")
+            viewModel.addEvent(EventConstants.START_ORDER_PG_EVENT)
             showPaymentWebView = true
         }
     }

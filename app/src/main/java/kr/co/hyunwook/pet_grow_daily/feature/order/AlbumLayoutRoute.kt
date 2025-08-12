@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
@@ -88,6 +89,7 @@ fun AlbumLayoutRoute(
 
     AlbumLayoutScreen(
         navigateToDeliveryInfo = { selectedLayout ->
+            viewModel.addEvent(EventConstants.CLICK_ALBUM_LAYOUT_DONE_EVENT, mapOf(EventConstants.LAYOUT_TYPE_PROPERTY to selectedLayout.name))
             viewModel.setSelectedAlbumLayout(selectedLayout)
             viewModel.checkDeliveryInfo()
             shouldNavigate = true

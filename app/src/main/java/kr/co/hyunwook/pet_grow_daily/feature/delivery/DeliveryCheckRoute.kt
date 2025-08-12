@@ -53,6 +53,7 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import com.airbnb.lottie.compose.*
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 
 @Composable
 fun DeliveryCheckRoute(
@@ -84,6 +85,7 @@ fun DeliveryCheckRoute(
         viewModel.saveOrderDoneEvent.collectLatest { isSuccess ->
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
+                viewModel.addEvent(EventConstants.SHOW_ORDER_DONE_EVENT)
                 navigateToOrderDone()
             } else {
                 Log.e("HWO", "주문 저장 실패")
@@ -95,6 +97,7 @@ fun DeliveryCheckRoute(
     LaunchedEffect(paymentData) {
         paymentData?.let { data ->
             Log.d("HWO", "결제 요청 데이터: $data")
+            viewModel.addEvent(EventConstants.START_ORDER_PG_EVENT)
             showPaymentWebView = true
         }
     }
@@ -133,6 +136,7 @@ fun DeliveryCheckRoute(
                 onPaymentResult = { success, message, transactionId ->
                     if (success) {
                         val amount = currentPaymentData?.get("amount") ?: "0"
+
                         viewModel.setPaymentResult(
                             PaymentResult.Success(
                                 transactionId ?: "",
@@ -188,6 +192,7 @@ fun DeliveryCheckRoute(
                 deliveryInfos = deliveryInfos,
                 onOrderConfirm = { selectedDeliveryInfo ->
                     Log.d("HWO", "주문 확인 버튼 클릭")
+                    viewModel.addEvent(EventConstants.CLICK_DELIVERY_DONE_EVENT)
                     deliveryInfo = selectedDeliveryInfo
                     currentOrderProduct?.let { orderProduct ->
                         viewModel.requestKakaoPayPayment(orderProduct)

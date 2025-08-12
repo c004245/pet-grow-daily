@@ -31,6 +31,8 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetTodayZipFileCountUse
 import kr.co.hyunwook.pet_grow_daily.core.config.RemoteConfigWrapper
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import com.google.firebase.ktx.Firebase
+import kr.co.hyunwook.pet_grow_daily.analytics.Analytics
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.SlackNotificationRequest
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
@@ -50,7 +52,8 @@ class OrderViewModel @Inject constructor(
     private val getTodayZipFileCountUseCase: GetTodayZipFileCountUseCase,
     private val postSlackUseCase: PostSlackUseCase,
     private val getFcmTokenUseCase: GetFcmTokenUseCase,
-    private val photoReminderNotificationManager: PhotoReminderNotificationManager
+    private val photoReminderNotificationManager: PhotoReminderNotificationManager,
+    private val analytics: Analytics
 ) : ViewModel() {
 
     private val _paymentData = MutableStateFlow<Map<String, String>?>(null)
@@ -212,6 +215,15 @@ class OrderViewModel @Inject constructor(
 
                 Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
 
+                val productName = paymentInfo["name"] ?: ""
+                val productAmount = paymentInfo["amount"]?.toIntOrNull() ?: 0
+                addEvent(
+                    EventConstants.DONE_ORDER_PG_EVENT,
+                    mapOf(
+                        EventConstants.PRODUCT_TITLE_PROPERTY to productName,
+                        EventConstants.PRODUCT_DISCOUNT_PROPERTY to productAmount
+                    )
+                )
                 // Firebase Function 호출하여 ZIP 생성 요청 (결과를 기다림)
                 callPdfGenerationFunction(orderId, userId)
 
@@ -256,6 +268,7 @@ class OrderViewModel @Inject constructor(
                         )
                     }
 
+                    addEvent(EventConstants.DONE_CREATE_ZIP_FILE_EVENT)
                     // 성공적으로 완료
                     continuation.resume(Unit)
                 }
@@ -318,5 +331,46 @@ class OrderViewModel @Inject constructor(
 
     fun scheduleOrderAvailableNotification() {
         photoReminderNotificationManager.scheduleOrderAvailableNotification()
+    }
+
+    fun addEvent(event: String, properties: Map<String, Any>? = null) {
+        Log.d("HWO", "addEvent -> $event -- $properties")
+        when (event) {
+            EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT -> {
+                analytics.track(event, properties)
+            }
+
+            EventConstants.CLICK_ORDER_START_EVENT -> {
+                analytics.track(event)
+            }
+
+            EventConstants.CLICK_ALBUM_SELECT_DONE_EVENT -> {
+                analytics.track(event)
+            }
+
+            EventConstants.CLICK_ALBUM_LAYOUT_DONE_EVENT -> {
+                analytics.track(event, properties)
+            }
+
+            EventConstants.CLICK_DELIVERY_DONE_EVENT -> {
+                analytics.track(event)
+            }
+
+            EventConstants.START_ORDER_PG_EVENT -> {
+                analytics.track(event)
+            }
+
+            EventConstants.DONE_ORDER_PG_EVENT -> {
+                analytics.track(event, properties)
+            }
+
+            EventConstants.DONE_CREATE_ZIP_FILE_EVENT -> {
+                analytics.track(event)
+            }
+
+            EventConstants.SHOW_ORDER_DONE_EVENT -> {
+                analytics.track(event)
+            }
+        }
     }
 }

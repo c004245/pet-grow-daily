@@ -53,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
@@ -91,6 +92,7 @@ fun OrderRoute(
             albumRecord = albumRecord,
             orderProduct = orderProduct,
             onClickRequestPayment = {
+                viewModel.addEvent(EventConstants.CLICK_ORDER_START_EVENT)
                 navigateToAlbumSelect(orderProduct)
 
             },

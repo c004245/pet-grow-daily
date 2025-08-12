@@ -42,6 +42,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray86
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.add.navigation.addNavGraph
@@ -175,6 +176,8 @@ internal fun MainScreen(
 
                     orderProductListGraph(
                         navigateToOrder = { orderProduct ->
+                            orderViewModel.addEvent(EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT,
+                                mapOf(EventConstants.PRODUCT_TYPE_PROPERTY to orderProduct.productTitle))
                             navigator.navigateToOrder(orderProduct, navOptions {
                                 popUpTo(navigator.navController.graph.findStartDestination().id) {
                                     inclusive = true

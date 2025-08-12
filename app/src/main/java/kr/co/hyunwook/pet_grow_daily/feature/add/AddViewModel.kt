@@ -61,11 +61,10 @@ class AddViewModel @Inject constructor(
         loadImages()
     }
 
-    fun uploadImageEvent(isWriteMemo: Boolean, isPublic: Boolean) {
+    fun uploadImageEvent(isPublic: Boolean) {
         analytics.track(
             EventConstants.UPLOAD_IMAGE_EVENT,
             mapOf(
-                EventConstants.IS_WRITE_MEMO_PROPERTY to isWriteMemo,
                 EventConstants.IS_PUBLIC_PROPERTY to isPublic
             )
         )
@@ -100,7 +99,7 @@ class AddViewModel @Inject constructor(
                 saveAlbumRecord(albumRecord)
 
                 // 저장 완료 후 Analytics 이벤트 호출
-                uploadImageEvent(isWriteMemo = content.isNotEmpty(), isPublic = isPublic)
+                uploadImageEvent(isPublic = isPublic)
                 _saveDoneEvent.emit(true)
             } catch (e: Exception) {
                 Log.e("AddViewModel", "Error uploading/saving album record", e)

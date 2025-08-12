@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kr.co.hyunwook.pet_grow_daily.analytics.Analytics
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAllImageUseCase
@@ -22,6 +24,7 @@ class AlbumViewModel @Inject constructor(
     private val getAllImageUseCase: GetAllImageUseCase,
     private val getTodayUserPhotoCountUseCase: GetTodayUserPhotoCountUseCase,
     private val getShouldDisableUploadUseCase: GetShouldDisableUploadUseCase,
+    private val analytics: Analytics
 ) : ViewModel() {
 
     private val _albumRecord = MutableStateFlow<List<AlbumRecord>>(emptyList())
@@ -41,6 +44,9 @@ class AlbumViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> get() = _isLoading
 
+    // 세션(프로세스)당 1회만 이벤트를 전송하기 위한 가드 플래그
+    private var hasLoggedAlbumEnter: Boolean = false
+
     fun getShouldDisableUpload() {
         viewModelScope.launch {
             val isDisable = getShouldDisableUploadUseCase()
@@ -56,8 +62,24 @@ class AlbumViewModel @Inject constructor(
             getAlbumRecordUseCase().collect { records ->
                 _albumRecord.value = records
                 _isLoading.value = false
+
+                // albumRecord를 최초로 가져온 직후 1회만 이벤트 로깅
+                if (!hasLoggedAlbumEnter) {
+                    Log.d("HWO", "앨범 탭 진입 이벤트(1회): albumRecord 로드 완료")
+                    enterAlbumTabEvent(albumRecord.value.size)
+                    hasLoggedAlbumEnter = true
+                }
             }
         }
+    }
+
+    fun enterAlbumTabEvent(count: Int) {
+        analytics.track(
+            EventConstants.ENTER_ALBUM_TAB_EVENT,
+            mapOf(
+                EventConstants.ALBUM_COUNT_PROPERTY to count)
+            )
+
     }
 
 

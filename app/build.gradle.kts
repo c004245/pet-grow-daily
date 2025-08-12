@@ -8,6 +8,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
     alias(libs.plugins.google.services)
+    id("com.google.firebase.crashlytics") version "2.9.9"
 
 }
 
@@ -152,6 +153,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.config.ktx)
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
     testImplementation(libs.kotest.engine)
     testImplementation(libs.kotest.assertions)

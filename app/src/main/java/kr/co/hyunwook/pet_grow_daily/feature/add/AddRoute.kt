@@ -410,7 +410,7 @@ fun AddNextPhotoButton(
 
     val cornerRadius = 12.dp
     Button(
-        onClick = onNextClick,
+        onClick = { if (isEnabled) onNextClick() },
         modifier = Modifier
             .fillMaxWidth()
             .then(modifier),

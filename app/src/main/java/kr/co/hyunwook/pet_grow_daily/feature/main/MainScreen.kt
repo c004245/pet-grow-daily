@@ -120,6 +120,7 @@ internal fun MainScreen(
                             navigate(navigator, NavigateEnum.ADD)
                         },
                         navigateToAnotherPet = {
+                            navigatorEnum = NavigateEnum.ANOTHERPET
                             navigate(navigator, NavigateEnum.ANOTHERPET)
                         },
                         navigateToOrderProductList = {

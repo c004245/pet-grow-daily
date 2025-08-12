@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,6 +52,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.LottieConstants
+import androidx.compose.ui.layout.ContentScale
 
 
 //주문 상품 고를 수 있는 화면
@@ -144,14 +146,13 @@ fun OrderProductItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
             .clip(RoundedCornerShape(16.dp))
             .combinedClickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = LocalIndication.current,
                 onClick = { onItemClick(product) }
             )
-            .padding(vertical = 16.dp, horizontal = 0.dp)
     ) {
         Box(
             modifier = Modifier
@@ -162,7 +163,11 @@ fun OrderProductItem(
             Image(
                 painter = painterResource(id = getProductDrawableResource(product.productTitle)),
                 contentDescription = product.productTitle,
-                modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.5f)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
             )
         }
 

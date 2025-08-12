@@ -251,6 +251,8 @@ fun ImageSliderWithIndicator() {
 fun ProductInfoWidget(
     orderProduct: OrderProduct
 ) {
+
+    val discountAmount = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -285,7 +287,7 @@ fun ProductInfoWidget(
             )
             Spacer(Modifier.width(2.dp))
             Text(
-                text = "${orderProduct.productCost * (100 - orderProduct.productDiscount) / 100}원",
+                text = formatPrice(discountAmount),
                 color = black21,
                 fontSize = 22.sp,
                 lineHeight = 22.sp,
@@ -293,7 +295,7 @@ fun ProductInfoWidget(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                text = "배송비 3000원 포함!",
+                text = "배송비 3,000원 포함!",
                 style = PetgrowTheme.typography.medium,
                 color = gray86,
                 fontSize = 14.sp,

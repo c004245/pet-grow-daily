@@ -33,15 +33,15 @@ fun AlbumImageRoute(
 ) {
 
     val albumImageList by viewModel.albumImageList.collectAsState()
+    val isLoading by viewModel.isImageLoading.collectAsState()
 
-    LaunchedEffect(albumImageList.isEmpty()) {
-        if (albumImageList.isEmpty()) {
-            viewModel.getAlbumImageList()
-        }
+    LaunchedEffect(Unit) {
+        viewModel.getAlbumImageList()
     }
 
     AlbumImageScreen(
         albumImageList = albumImageList,
+        isLoading = isLoading,
         navigateToAdd = navigateToAdd
     )
 }
@@ -49,9 +49,17 @@ fun AlbumImageRoute(
 @Composable
 fun AlbumImageScreen(
     albumImageList: List<AlbumImageModel>,
+    isLoading: Boolean,
     navigateToAdd: () -> Unit = {}
 ){
-    if (albumImageList.isNotEmpty()) {
+    if (isLoading) {
+        // Lightweight loading placeholder to avoid layout flicker
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+        )
+    } else if (albumImageList.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier
@@ -68,7 +76,8 @@ fun AlbumImageScreen(
         }
     } else {
         EmptyAlbumWidget(
-            navigateToAdd = navigateToAdd
+            navigateToAdd = navigateToAdd,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

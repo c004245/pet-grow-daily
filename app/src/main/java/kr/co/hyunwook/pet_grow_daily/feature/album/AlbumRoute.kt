@@ -90,7 +90,7 @@ fun AlbumRoute(
     val albumRecord by viewModel.albumRecord.collectAsState()
     val todayUserCount by viewModel.todayUserPhotoCount.collectAsState()
     val isDisableUpload by viewModel.isDisableUpload.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val isRecordLoading by viewModel.isRecordLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.getShouldDisableUpload()
@@ -107,7 +107,7 @@ fun AlbumRoute(
         albumRecord = albumRecord,
         isDisableUpload = isDisableUpload,
         todayUserCount = todayUserCount,
-        isLoading = isLoading,
+        isRecordLoading = isRecordLoading,
         navigateToAdd = navigateToAdd,
         navigateToAnotherPet = navigateToAnotherPet,
         navigateToOrderProductList  = navigateToOrderProductList
@@ -119,7 +119,7 @@ fun AlbumScreen(
     albumRecord: List<AlbumRecord>,
     isDisableUpload: Boolean,
     todayUserCount: Int,
-    isLoading: Boolean,
+    isRecordLoading: Boolean,
     navigateToAdd: () -> Unit = {},
     navigateToAnotherPet: () -> Unit = {},
     navigateToOrderProductList: () -> Unit
@@ -144,7 +144,7 @@ fun AlbumScreen(
             .fillMaxSize()
             .background(grayF8)
     ) {
-        if (isLoading) {
+        if (isRecordLoading) {
             Box(
                 modifier = Modifier.fillMaxSize()
             )
@@ -220,7 +220,7 @@ fun AlbumScreen(
             }
         }
 
-        if (albumRecord.isNotEmpty() && !isLoading && selectedTab == AlbumTab.LIST) {
+        if (albumRecord.isNotEmpty() && !isRecordLoading && selectedTab == AlbumTab.LIST) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

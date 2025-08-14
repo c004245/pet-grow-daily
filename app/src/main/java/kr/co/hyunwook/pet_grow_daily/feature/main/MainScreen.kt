@@ -282,7 +282,10 @@ internal fun MainScreen(
 
                         deliveryAddNavGraph(
                             navigateToDeliveryList = {
-                                navigate(navigator, NavigateEnum.DELIVERY_LIST)
+
+                                navigator.navController.popBackStack()
+
+//                                navigate(navigator, NavigateEnum.DELIVERY_LIST)
                             }
                         )
 

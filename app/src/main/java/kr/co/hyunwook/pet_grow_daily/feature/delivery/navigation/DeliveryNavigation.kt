@@ -58,8 +58,34 @@ fun NavGraphBuilder.deliveryListNavGraph(
 fun NavGraphBuilder.deliveryAddNavGraph(
     navigateToDeliveryList: () -> Unit
 ) {
-    composable<DeliveryAdd> { backStackEntry ->
+    composable<DeliveryAdd>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
         val args = backStackEntry.toRoute<DeliveryAdd>()
+
         DeliveryAddRoute(
             deliveryId = args.deliveryId,
             navigateToDeliveryList = navigateToDeliveryList

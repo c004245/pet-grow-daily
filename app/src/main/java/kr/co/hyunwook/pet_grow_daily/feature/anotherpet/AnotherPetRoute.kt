@@ -7,8 +7,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.google.accompanist.pager.rememberPagerState
 
 import kr.co.hyunwook.pet_grow_daily.R
@@ -18,7 +18,8 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
+import kr.co.hyunwook.pet_grow_daily.feature.album.ShimmerBox
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun AnotherPetRoute(
@@ -335,14 +337,36 @@ fun LookAnotherItem(item: AnotherPetModel) {
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    GlideImage(
+                    GlideSubcomposition(
                         model = imageList[page],
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        loading = placeholder(ColorPainter(grayEF)),
-                        failure = placeholder(ColorPainter(grayEF))
-                    )
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        when (this.state) {
+                            RequestState.Loading -> {
+                                ShimmerBox(
+                                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+
+                            is RequestState.Success -> {
+                                Image(
+                                    painter = this.painter,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+
+                            RequestState.Failure -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(grayEF)
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // 페이지 인디케이터

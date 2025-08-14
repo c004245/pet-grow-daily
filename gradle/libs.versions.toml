@@ -27,6 +27,7 @@ kotlinxSerializationJson = "1.7.0"
 
 accompanistSystemuicontroller = "0.17.0"
 glide-compose = "1.0.0-beta01"
+compose-placeholder = "1.0.11"
 
 firebase-bom = "33.7.0"
 google-services = "4.3.15"

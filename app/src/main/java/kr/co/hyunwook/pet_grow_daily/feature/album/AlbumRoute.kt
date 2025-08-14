@@ -2,8 +2,9 @@ package kr.co.hyunwook.pet_grow_daily.feature.album
 
 import android.util.Log
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.GlideSubcompositionScope
+import com.bumptech.glide.integration.compose.RequestState
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.datastore.datasource.ALBUM_CREATE_COMPLETE
@@ -17,6 +18,12 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.feature.albumimage.AlbumImageRoute
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,13 +61,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,32 +148,6 @@ fun AlbumScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             )
-//            val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .background(Color.White.copy(alpha = 0.9f)),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Column(
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    LottieAnimation(
-//                        composition = lottieComposition,
-//                        iterations = LottieConstants.IterateForever,
-//                        modifier = Modifier
-//                            .height(200.dp)
-//                            .fillMaxWidth()
-//                            .padding(horizontal = 36.dp)
-//                    )
-//                    androidx.compose.material.Text(
-//                        text = "저장한 앨범 정보를 가져오고 있어요...",
-//                        style = PetgrowTheme.typography.medium,
-//                        color = black21,
-//                        fontSize = 16.sp
-//                    )
-//                }
-//            }
         } else {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -190,11 +173,11 @@ fun AlbumScreen(
 
                 AlbumTodayUploadWidget(todayUserCount, navigateToAnotherPet)
 
-                    Spacer(Modifier.height(16.dp))
-                    AlbumProgressWidget(
-                        progress = albumRecord.size,
-                        navigateToOrderProductList = navigateToOrderProductList
-                    )
+                Spacer(Modifier.height(16.dp))
+                AlbumProgressWidget(
+                    progress = albumRecord.size,
+                    navigateToOrderProductList = navigateToOrderProductList
+                )
 
 
                 HorizontalPager(
@@ -400,14 +383,36 @@ fun AlbumImageWidget(
                 .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topStart = 16.dp))
         ) {
-            GlideImage(
+            GlideSubcomposition(
                 model = firstImageUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-                loading = placeholder(ColorPainter(grayEF)),
-                failure = placeholder(ColorPainter(grayEF))
-            )
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (this.state) {
+                    RequestState.Loading -> {
+                        ShimmerBox(
+                            shape = RoundedCornerShape(topStart = 16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    is RequestState.Success -> {
+                        Image(
+                            painter = this.painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    RequestState.Failure -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(grayEF)
+                        )
+                    }
+                }
+            }
         }
         Spacer(modifier = Modifier.width(2.dp))
 
@@ -417,14 +422,36 @@ fun AlbumImageWidget(
                 .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topEnd = 16.dp))
         ) {
-            GlideImage(
+            GlideSubcomposition(
                 model = secondImageUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-                loading = placeholder(ColorPainter(grayEF)),
-                failure = placeholder(ColorPainter(grayEF))
-            )
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (this.state) {
+                    RequestState.Loading -> {
+                        ShimmerBox(
+                            shape = RoundedCornerShape(topEnd = 16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    is RequestState.Success -> {
+                        Image(
+                            painter = this.painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    RequestState.Failure -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(grayEF)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -684,4 +711,55 @@ fun AlbumProgressWidget(
 
 enum class AlbumTab {
     LIST, GRID
+}
+
+@Composable
+fun ShimmerBox(
+    shape: androidx.compose.ui.graphics.Shape,
+    modifier: Modifier
+) {
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+    val animatedFraction by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerFraction"
+    )
+
+    val width = containerSize.width.toFloat().coerceAtLeast(1f)
+    val height = containerSize.height.toFloat().coerceAtLeast(1f)
+    val startX = -width + 2f * width * animatedFraction
+    val base = grayEF
+    val highlight = Color.White.copy(alpha = 0.9f)
+
+    val brush = Brush.linearGradient(
+        colorStops = arrayOf(
+            0.0f to base,
+            0.35f to base,
+            0.5f to highlight,
+            0.65f to base,
+            1.0f to base
+        ),
+        start = Offset(startX, 0f),
+        end = Offset(startX + width, height)
+    )
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(base)
+            .onGloballyPositioned { coordinates ->
+                containerSize = coordinates.size
+            }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush)
+        )
+    }
 }

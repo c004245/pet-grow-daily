@@ -71,18 +71,11 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 @Composable
 internal fun MainScreen(
     navigator: MainNavigator = rememberMainNavigator(),
-    viewModel: MainViewModel = hiltViewModel()
 ) {
 
     val orderViewModel: OrderViewModel = hiltViewModel()
 
-
     var navigatorEnum by remember { mutableStateOf(NavigateEnum.ALBUM) }
-
-
-    LaunchedEffect(Unit) {
-
-    }
 
 
     Scaffold(
@@ -177,6 +170,7 @@ internal fun MainScreen(
 
                     orderProductListGraph(
                         navigateToOrder = { orderProduct ->
+                            navigatorEnum = NavigateEnum.ORDER
                             orderViewModel.addEvent(EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT,
                                 mapOf(EventConstants.PRODUCT_TYPE_PROPERTY to orderProduct.productTitle))
                             navigator.navigateToOrder(orderProduct, navOptions {

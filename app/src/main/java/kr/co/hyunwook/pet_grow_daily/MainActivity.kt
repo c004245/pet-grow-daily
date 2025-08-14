@@ -16,6 +16,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.messaging.FirebaseMessaging
@@ -98,7 +99,11 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("권한이 필요합니다. 설정에서 권한을 허용해주세요.", textAlign = TextAlign.Center)
+                Text(
+                    style = PetgrowTheme.typography.regular,
+                    fontSize = 18.sp,
+                    text = "데일리 독을 이용하기 위해서는 권한이 필요합니다.\n설정에서 권한을 허용해주세요!",
+                    textAlign = TextAlign.Center)
             }
         }
     }

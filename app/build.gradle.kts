@@ -35,8 +35,8 @@ android {
         applicationId = "kr.co.hyunwook.pet_grow_daily"
         minSdk = 24
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.0.2"
+        versionCode = 12
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

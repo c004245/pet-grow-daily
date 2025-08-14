@@ -62,6 +62,9 @@ class MyPageViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<Pair<String?, String?>>(value = Pair("견주", "DailyDog"))
     val userInfo: StateFlow<Pair<String?, String?>> = _userInfo.asStateFlow()
 
+    private val _isUpdatingProfile = MutableStateFlow(false)
+    val isUpdatingProfile: StateFlow<Boolean> = _isUpdatingProfile.asStateFlow()
+
     init {
         viewModelScope.launch {
             val userInfoData = getUserInfoUseCase()
@@ -72,6 +75,7 @@ class MyPageViewModel @Inject constructor(
 
     fun updateProfileImage(imageUri: String) {
         viewModelScope.launch {
+            _isUpdatingProfile.value = true
             try {
                 val currentProfile = petProfile.value
 
@@ -101,6 +105,8 @@ class MyPageViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e("MyPageViewModel", "프로필 이미지 업데이트 실패: ${e.message}", e)
+            } finally {
+                _isUpdatingProfile.value = false
             }
         }
     }

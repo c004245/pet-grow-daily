@@ -46,6 +46,20 @@ fun NavGraphBuilder.alarmNavGraph(
                 targetOffsetX = { it },
                 animationSpec = tween(300)
             )
+        },
+        popEnterTransition = {
+            // Back to MyPage: enter from left
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            // Back stack popping: exit to left
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
         }
     ) {
         AlarmRoute(
@@ -72,6 +86,20 @@ fun NavGraphBuilder.businessInfoNavGraph(
                 targetOffsetX = { it },
                 animationSpec = tween(300)
             )
+        },
+        popEnterTransition = {
+            // Back to MyPage: enter from left
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            // Back stack popping: exit to left
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
         }
     ) {
         BusinessInfoRoute(
@@ -80,6 +108,7 @@ fun NavGraphBuilder.businessInfoNavGraph(
         )
     }
 }
+
 
 @Serializable
 data object MyPage: Route {

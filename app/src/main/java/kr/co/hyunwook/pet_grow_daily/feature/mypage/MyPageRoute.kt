@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -54,6 +53,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
+import kr.co.hyunwook.pet_grow_daily.BuildConfig
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun MyPageRoute(
@@ -65,6 +70,7 @@ fun MyPageRoute(
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
     val userInfo by viewModel.userInfo.collectAsState()
+    val isUpdating by viewModel.isUpdatingProfile.collectAsState()
 
     // 갤러리 런처
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -82,6 +88,7 @@ fun MyPageRoute(
     MyPageScreen(
         petProfile = petProfile,
         userInfo = userInfo,
+        isUpdating = isUpdating,
         onCameraClick = {
             galleryLauncher.launch("image/*")
         },
@@ -125,6 +132,7 @@ fun MyPageRoute(
 fun MyPageScreen(
     petProfile: PetProfile?,
     userInfo: Pair<String?, String?>,
+    isUpdating: Boolean,
     onCameraClick: () -> Unit,
     onClickService: () -> Unit,
     onClickTerm: () -> Unit,
@@ -170,11 +178,41 @@ fun MyPageScreen(
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
                 Text(
-                    text = "앱 버전 1.0.0",
+                    text = "앱 버전 ${BuildConfig.VERSION_NAME}",
                     style = PetgrowTheme.typography.regular,
                     color = gray5E,
                     fontSize = 12.sp,
                 )
+            }
+        }
+        if (isUpdating) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val composition by rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(R.raw.loading_animation)
+                    )
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .height(200.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.text_save_profile),
+                        style = PetgrowTheme.typography.bold,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

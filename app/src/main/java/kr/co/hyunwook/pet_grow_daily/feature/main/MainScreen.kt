@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
@@ -66,6 +67,8 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderNavGraph
 import kr.co.hyunwook.pet_grow_daily.feature.order.navigation.orderProductListGraph
 import kr.co.hyunwook.pet_grow_daily.feature.recordwrite.navigation.recordWriteGraph
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.Alarm
+import kr.co.hyunwook.pet_grow_daily.feature.mypage.navigation.BusinessInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,14 +125,10 @@ internal fun MainScreen(
                         }
                     )
                     businessInfoNavGraph(
-                        navigateToMyPage = {
-                            navigate(navigator, NavigateEnum.MYPAGE)
-                        }
+                        navigateToMyPage = { navigator.navController.popBackStack() }
                     )
                     alarmNavGraph(
-                        navigateToMyPage = {
-                            navigate(navigator, NavigateEnum.MYPAGE)
-                        }
+                        navigateToMyPage = { navigator.navController.popBackStack() }
                     )
                     myPageNavGraph(
                         navigateToDeliveryList = {

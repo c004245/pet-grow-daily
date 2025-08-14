@@ -81,9 +81,7 @@ fun MyPageRoute(
         }
     }
 
-    LaunchedEffect(Unit) {
-
-    }
+    LaunchedEffect(Unit) { }
 
     MyPageScreen(
         petProfile = petProfile,

@@ -54,6 +54,7 @@
     <string name="text_new_delivery">새 배송지 추가</string>
     <string name="text_upload_image">사진을 저장하고 있어요...</string>
     <string name="text_save_profile">프로필을 저장하는 중입니다...</string>
+    <string name="text_update_profile">프로필을 업데이트 하는 중입니다...</string>
     <string name="text_delivery_check_title">앨범 받을 주소를\n확인해주세요.</string>
     <string name="text_confirm_done">확인했어요</string>
     <string name="text_home_navigate">홈으로 이동</string>

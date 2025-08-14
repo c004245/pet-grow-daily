@@ -25,7 +25,7 @@ fun NavGraphBuilder.myPageNavGraph(
         MyPageRoute(
             onClickDeliveryList = navigateToDeliveryList,
             onClickAlarm = navigateToAlarm,
-            onClickBusinessInfo = navigateToBusinessInfo
+            onClickBusinessInfo = navigateToBusinessInfo,
         )
     }
 }

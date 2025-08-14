@@ -32,6 +32,20 @@ fun NavGraphBuilder.deliveryListNavGraph(
                 targetOffsetX = { it },
                 animationSpec = tween(300)
             )
+        },
+        popEnterTransition = {
+            // Back to MyPage: enter from left
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            // Back stack popping: exit to left
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
         }
     ) {
         DeliveryListRoute(
@@ -81,20 +95,24 @@ fun NavGraphBuilder.deliveryRegisterNavGraph(
 
 @Serializable
 data object DeliveryList : Route {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList"
+    override val route =
+        "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryList"
 }
 
 @Serializable
 data class DeliveryAdd(val deliveryId: Int? = null) : Route {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd"
+    override val route =
+        "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryAdd"
 }
 
 @Serializable
 data object DeliveryRegister : Route {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister"
+    override val route =
+        "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryRegister"
 }
 
 @Serializable
 data object DeliveryCheck : Route {
-    override val route = "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck"
+    override val route =
+        "kr.co.hyunwook.pet_grow_daily.feature.mypage.delivery.navigation.DeliveryCheck"
 }

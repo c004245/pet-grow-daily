@@ -81,243 +81,247 @@ internal fun MainScreen(
     var navigatorEnum by remember { mutableStateOf(NavigateEnum.ALBUM) }
 
 
-    Scaffold(
-        content = { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                NavHost(
-                    navController = navigator.navController,
-                    startDestination = navigator.startDestination,
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                    popEnterTransition = { EnterTransition.None },
-                    popExitTransition = { ExitTransition.None }
+        Scaffold(
+            content = { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
                 ) {
-                    splashNavGraph(
-                        navigateToAlbum = {
-                            navigatorEnum = NavigateEnum.ALBUM
-                            navigate(navigator, NavigateEnum.ALBUM)
-                        },
-                        navigateToOnBoarding = {
-                            navigate(navigator)
-                        },
-                        navigateToProfile = {
-                            navigatorEnum = NavigateEnum.PROFILE
-                            navigate(navigator, NavigateEnum.PROFILE)
-                        }
-                    )
+                    NavHost(
+                        navController = navigator.navController,
+                        startDestination = navigator.startDestination,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
+                    ) {
+                        splashNavGraph(
+                            navigateToAlbum = {
+                                navigatorEnum = NavigateEnum.ALBUM
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            },
+                            navigateToOnBoarding = {
+                                navigate(navigator)
+                            },
+                            navigateToProfile = {
+                                navigatorEnum = NavigateEnum.PROFILE
+                                navigate(navigator, NavigateEnum.PROFILE)
+                            }
+                        )
 
-                    albumNavGraph(
-                        paddingValues = paddingValues,
-                        navigateToAdd = {
-                            navigate(navigator, NavigateEnum.ADD)
-                        },
-                        navigateToAnotherPet = {
-                            navigatorEnum = NavigateEnum.ANOTHERPET
-                            navigate(navigator, NavigateEnum.ANOTHERPET)
-                        },
-                        navigateToOrderProductList = {
-                            navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
-                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
-                        }
-                    )
-                    businessInfoNavGraph(
-                        navigateToMyPage = { navigator.navController.popBackStack() }
-                    )
-                    alarmNavGraph(
-                        navigateToMyPage = { navigator.navController.popBackStack() }
-                    )
-                    myPageNavGraph(
-                        navigateToDeliveryList = {
-                            navigate(navigator, NavigateEnum.DELIVERY_LIST)
-                        },
-                        navigateToAlarm = {
-                            navigate(navigator, NavigateEnum.ALARM)
-                        },
-                        navigateToBusinessInfo = {
-                            navigate(navigator, NavigateEnum.BUSINESS_INFO)
-                        }
-                    )
+                        albumNavGraph(
+                            paddingValues = paddingValues,
+                            navigateToAdd = {
+                                navigate(navigator, NavigateEnum.ADD)
+                            },
+                            navigateToAnotherPet = {
+                                navigatorEnum = NavigateEnum.ANOTHERPET
+                                navigate(navigator, NavigateEnum.ANOTHERPET)
+                            },
+                            navigateToOrderProductList = {
+                                navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                                navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
+                            }
+                        )
+                        businessInfoNavGraph(
+                            navigateToMyPage = { navigator.navController.popBackStack() }
+                        )
+                        alarmNavGraph(
+                            navigateToMyPage = { navigator.navController.popBackStack() }
+                        )
+                        deliveryListNavGraph(
+                            navigateToMyPage = {
+                                navigator.navController.popBackStack()
+                            },
+                            navigateToDeliveryAdd = { deliveryId ->
+                                navigator.navigateToDeliveryAdd(deliveryId)
+                            }
+                        )
+                        myPageNavGraph(
+                            navigateToDeliveryList = {
+                                navigate(navigator, NavigateEnum.DELIVERY_LIST)
+                            },
+                            navigateToAlarm = {
+                                navigate(navigator, NavigateEnum.ALARM)
+                            },
+                            navigateToBusinessInfo = {
+                                navigate(navigator, NavigateEnum.BUSINESS_INFO)
+                            }
+                        )
 
-                    profileNavGraph(
-                        navigateToAlbum = {
-                            navigate(navigator, NavigateEnum.ALBUM)
-                        }
-                    )
+                        profileNavGraph(
+                            navigateToAlbum = {
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            }
+                        )
 
-                    onboardingNavGraph(
-                        navigateToAlbum = {
-                            navigate(navigator, NavigateEnum.ALBUM)
-                        },
-                        navigateToProfile = {
-                            navigate(navigator, NavigateEnum.PROFILE)
-                        }
-                    )
+                        onboardingNavGraph(
+                            navigateToAlbum = {
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            },
+                            navigateToProfile = {
+                                navigate(navigator, NavigateEnum.PROFILE)
+                            }
+                        )
 
-                    addNavGraph(
-                        navigateToRecordWrite = { selectedImageUris ->
-                            navigator.navigateToRecordWrite(selectedImageUris)
-                        },
-                        onBackClick = {
-                            navigatorEnum = NavigateEnum.ALBUM
-                            navigate(navigator, NavigateEnum.ALBUM)
-                        }
-                    )
+                        addNavGraph(
+                            navigateToRecordWrite = { selectedImageUris ->
+                                navigator.navigateToRecordWrite(selectedImageUris)
+                            },
+                            onBackClick = {
+                                navigatorEnum = NavigateEnum.ALBUM
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            }
+                        )
 
-                    orderProductListGraph(
-                        navigateToOrder = { orderProduct ->
-                            navigatorEnum = NavigateEnum.ORDER
-                            orderViewModel.addEvent(EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT,
-                                mapOf(EventConstants.PRODUCT_TYPE_PROPERTY to orderProduct.productTitle))
-                            navigator.navigateToOrder(orderProduct, navOptions {
-                                popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                    inclusive = true
+                        orderProductListGraph(
+                            navigateToOrder = { orderProduct ->
+                                navigatorEnum = NavigateEnum.ORDER
+                                orderViewModel.addEvent(
+                                    EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT,
+                                    mapOf(EventConstants.PRODUCT_TYPE_PROPERTY to orderProduct.productTitle)
+                                )
+                                navigator.navigateToOrder(orderProduct, navOptions {
+                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                })
+                            },
+                            viewModel = orderViewModel
+                        )
+
+                        orderNavGraph(
+                            navigateToAlbumSelect = {
+                                navigate(navigator, NavigateEnum.ALBUM_SELECT)
+                            },
+                            onBackClick = {
+                                navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                                navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
+                            },
+                            viewModel = orderViewModel
+                        )
+
+                        orderDoneNavGraph(
+                            navigateToAlbum = {
+                                navigatorEnum = NavigateEnum.ALBUM
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            }
+                        )
+
+                        albumLayoutNavGraph(
+                            navigateToDeliveryCheck = {
+                                navigatorEnum = NavigateEnum.DELIVERY_CHECK
+                                navigate(navigator, NavigateEnum.DELIVERY_CHECK)
+                            },
+                            navigateToDeliveryRegister = {
+                                navigatorEnum = NavigateEnum.DELIVERY_REGISTER
+                                navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
+                            },
+                            viewModel = orderViewModel,
+                            onBackClick = {
+                                orderViewModel.currentOrderProduct.value?.let { orderProduct ->
+                                    navigator.navigateToOrder(orderProduct, navOptions {
+                                        popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    })
                                 }
-                                launchSingleTop = true
-                            })
-                        },
-                        viewModel = orderViewModel
-                    )
+                            }
+                        )
+                        albumSelectNavGraph(
+                            navigateToAlbumLayout = {
+                                navigatorEnum = NavigateEnum.ALBUM_LAYOUT
+                                navigate(navigator, NavigateEnum.ALBUM_LAYOUT)
+                            },
+                            viewModel = orderViewModel,
+                            onBackClick = {
+                                orderViewModel.currentOrderProduct.value?.let { orderProduct ->
+                                    navigator.navigateToOrder(orderProduct, navOptions {
+                                        popUpTo(navigator.navController.graph.findStartDestination().id) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    })
+                                }
+                            }
+                        )
 
-                    orderNavGraph(
-                        navigateToAlbumSelect = {
-                            navigate(navigator, NavigateEnum.ALBUM_SELECT)
-                        },
-                        onBackClick = {
-                            navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
-                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
-                        },
-                        viewModel = orderViewModel
-                    )
+                        deliveryCheckNavGraph(
+                            viewModel = orderViewModel,
+                            navigateToOrderDone = {
+                                navigatorEnum = NavigateEnum.ORDER_DONE
+                                navigate(navigator, NavigateEnum.ORDER_DONE)
+                            },
+                            onBackClick = {
+                                navigatorEnum = NavigateEnum.ALBUM_SELECT
+                                navigate(navigator, NavigateEnum.ALBUM_SELECT)
+                            }
+                        )
+                        deliveryRegisterNavGraph(
+                            viewModel = orderViewModel,
+                            navigateToOrderDone = {
+                                navigatorEnum = NavigateEnum.ORDER_DONE
+                                navigate(navigator, NavigateEnum.ORDER_DONE)
 
-                    orderDoneNavGraph(
-                        navigateToAlbum = {
+                            }
+                        )
+
+                        recordWriteGraph(
+                            navigateToAlbum = {
+                                navigate(navigator, NavigateEnum.ALBUM)
+                            },
+                            onBackClick = {
+                                navigate(navigator, NavigateEnum.ADD)
+                            }
+                        )
+
+                        anotherPetGraph()
+
+                        deliveryAddNavGraph(
+                            navigateToDeliveryList = {
+                                navigate(navigator, NavigateEnum.DELIVERY_LIST)
+                            }
+                        )
+
+
+
+                    }
+                }
+            },
+            bottomBar = {
+                if (navigator.isShowBottomBar()) {
+                    CustomBottomBar(
+                        onAlbumClick = {
                             navigatorEnum = NavigateEnum.ALBUM
                             navigate(navigator, NavigateEnum.ALBUM)
-                        }
-                    )
-
-                    albumLayoutNavGraph(
-                        navigateToDeliveryCheck = {
-                            navigatorEnum = NavigateEnum.DELIVERY_CHECK
-                            navigate(navigator, NavigateEnum.DELIVERY_CHECK)
-                        },
-                        navigateToDeliveryRegister = {
-                            navigatorEnum = NavigateEnum.DELIVERY_REGISTER
-                            navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
-                        },
-                        viewModel = orderViewModel,
-                        onBackClick = {
-                            orderViewModel.currentOrderProduct.value?.let { orderProduct ->
-                                navigator.navigateToOrder(orderProduct, navOptions {
-                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                })
-                            }
-                        }
-                    )
-                    albumSelectNavGraph(
-                       navigateToAlbumLayout = {
-                           navigatorEnum = NavigateEnum.ALBUM_LAYOUT
-                           navigate(navigator, NavigateEnum.ALBUM_LAYOUT)
-                       },
-                        viewModel = orderViewModel,
-                        onBackClick = {
-                            orderViewModel.currentOrderProduct.value?.let { orderProduct ->
-                                navigator.navigateToOrder(orderProduct, navOptions {
-                                    popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                })
-                            }
-                        }
-                    )
-
-                    deliveryCheckNavGraph(
-                        viewModel = orderViewModel,
-                        navigateToOrderDone = {
-                            navigatorEnum = NavigateEnum.ORDER_DONE
-                            navigate(navigator, NavigateEnum.ORDER_DONE)
-                        },
-                        onBackClick = {
-                            navigatorEnum = NavigateEnum.ALBUM_SELECT
-                            navigate(navigator, NavigateEnum.ALBUM_SELECT)
-                        }
-                    )
-                    deliveryRegisterNavGraph(
-                        viewModel = orderViewModel,
-                        navigateToOrderDone = {
-                            navigatorEnum = NavigateEnum.ORDER_DONE
-                            navigate(navigator, NavigateEnum.ORDER_DONE)
-
-                        }
-                    )
-
-                    recordWriteGraph(
-                        navigateToAlbum = {
-                            navigate(navigator, NavigateEnum.ALBUM)
-                        },
-                        onBackClick = {
-                            navigate(navigator, NavigateEnum.ADD)
-                        }
-                    )
-
-                    anotherPetGraph()
-
-                    deliveryAddNavGraph(
-                        navigateToDeliveryList = {
-                            navigate(navigator, NavigateEnum.DELIVERY_LIST)
-                        }
-                    )
-
-                    deliveryListNavGraph(
-                        navigateToMyPage = {
-                            navigate(navigator, NavigateEnum.MYPAGE)
-                        },
-                        navigateToDeliveryAdd = { deliveryId ->
-                            navigator.navigateToDeliveryAdd(deliveryId)
-                        }
-                    )
-
-                }
-            }
-        },
-        bottomBar = {
-            if (navigator.isShowBottomBar()) {
-                CustomBottomBar(
-                    onAlbumClick = {
-                        navigatorEnum = NavigateEnum.ALBUM
-                        navigate(navigator, NavigateEnum.ALBUM)
 //                        coroutineScope.launch {
 //                            sheetState.show()
 //                        }
 //                        isSheetOpen = true
-                    },
-                    onOrderProductListClick = {
-                        navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
-                        navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
-                    },
-                    onAnotherPetClick = {
-                        navigatorEnum = NavigateEnum.ANOTHERPET
-                        navigate(navigator, NavigateEnum.ANOTHERPET)
-                    },
-                    onMyPageClick = {
-                        navigatorEnum = NavigateEnum.MYPAGE
-                        navigate(navigator, NavigateEnum.MYPAGE)
-                    },
-                    navigateEnum = navigatorEnum
-                )
+                        },
+                        onOrderProductListClick = {
+                            navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
+                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
+                        },
+                        onAnotherPetClick = {
+                            navigatorEnum = NavigateEnum.ANOTHERPET
+                            navigate(navigator, NavigateEnum.ANOTHERPET)
+                        },
+                        onMyPageClick = {
+                            navigatorEnum = NavigateEnum.MYPAGE
+                            navigate(navigator, NavigateEnum.MYPAGE)
+                        },
+                        navigateEnum = navigatorEnum
+                    )
+
+                }
 
             }
+        )
 
-        }
-    )
 }
 
 fun navigate(navigator: MainNavigator, navigateEnum: NavigateEnum? = null) {

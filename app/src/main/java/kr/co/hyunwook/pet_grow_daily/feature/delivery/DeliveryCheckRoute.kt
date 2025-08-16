@@ -1,26 +1,17 @@
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,9 +30,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.flow.collectLatest
 import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.DeliveryInfo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayDE
@@ -50,10 +45,7 @@ import kr.co.hyunwook.pet_grow_daily.core.model.PaymentResult
 import kr.co.hyunwook.pet_grow_daily.feature.delivery.DeliveryInfoItem
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.order.PaymentWebView
-import kr.co.hyunwook.pet_grow_daily.core.database.entity.OrderProduct
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
-import com.airbnb.lottie.compose.*
-import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 
 @Composable
 fun DeliveryCheckRoute(
@@ -76,6 +68,8 @@ fun DeliveryCheckRoute(
     currentOrderProduct?.let { orderProduct ->
         Log.d("HWO", "전달받은 상품: ${orderProduct.productTitle}, ${orderProduct.productCost}")
     }
+
+    Log.d("HWO", "DeliveryCheck state -> $showPaymentWebView --- $paymentData -- $showProcessing")
 
     LaunchedEffect(Unit) {
         viewModel.getDeliveryList()
@@ -191,10 +185,11 @@ fun DeliveryCheckRoute(
             DeliveryCheckScreen(
                 deliveryInfos = deliveryInfos,
                 onOrderConfirm = { selectedDeliveryInfo ->
-                    Log.d("HWO", "주문 확인 버튼 클릭")
+                    Log.d("HWO", "주문 확인 버튼 클릭 --> $")
                     viewModel.addEvent(EventConstants.CLICK_DELIVERY_DONE_EVENT)
                     deliveryInfo = selectedDeliveryInfo
                     currentOrderProduct?.let { orderProduct ->
+                        Log.d("HWO", "주문 버튼 클릭 ")
                         viewModel.requestKakaoPayPayment(orderProduct)
                     }
                 },
@@ -252,7 +247,8 @@ fun DeliveryCheckScreen(
                     },
                     onDeleteClick = {
 //                        onDeleteClick(deliveryInfo.id)
-                    }
+                    },
+                    isDeleteShow = false
                 )
                 if (index < deliveryInfos.size - 1) {
                     Spacer(modifier = Modifier.height(24.dp))

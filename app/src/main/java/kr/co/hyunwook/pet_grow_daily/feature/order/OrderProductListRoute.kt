@@ -53,6 +53,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.LottieConstants
 import androidx.compose.ui.layout.ContentScale
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 
 
 //주문 상품 고를 수 있는 화면
@@ -147,7 +148,7 @@ fun OrderProductListScreen(
                     androidx.compose.material3.Text(
                         text = stringResource(R.string.text_order_product),
                         style = PetgrowTheme.typography.bold,
-                        color = Color.White,
+                        color = gray5E,
                         fontSize = 16.sp
                     )
                 }

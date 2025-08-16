@@ -142,8 +142,8 @@ class PhotoReminderNotificationManager @Inject constructor(
 
         val notification = NotificationCompat.Builder(context, ORDER_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_main_app)
-            .setContentTitle("앨범 주문이 정상적으로 확인됐어요! 🎉")
-            .setContentText("제작을 시작하면 다시 한번 알림을 보내드려요! 정성껏 예쁘게 만들어볼게요 😀")
+            .setContentTitle("앨범을 믿고 결제해 주셔서 감사해요 🎁")
+            .setContentText("제작을 시작 할 때 다시 한번 알림을 드려요!")
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText("제작을 시작하면 다시 한번 알림을 보내드려요! 정성껏 예쁘게 만들어볼게요 😀")

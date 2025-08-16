@@ -123,7 +123,8 @@ fun DeliveryListScreen(
                         },
                         onDeleteClick = {
                             onDeleteClick(deliveryInfo.id)
-                        }
+                        },
+                        isDeleteShow = true
                     )
 
                     if (index < deliveryInfos.size - 1) {
@@ -221,7 +222,8 @@ fun DeliveryInfoItem(
     isSelected: Boolean = false,
     onItemClick: () -> Unit = {},
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    isDeleteShow: Boolean,
 ) {
     Box(
         modifier = Modifier
@@ -294,36 +296,23 @@ fun DeliveryInfoItem(
 
             Spacer(Modifier.height(20.dp))
 
-            Row {
-//                Text(
-//                    text = "수정",
-//                    color = gray5E,
-//                    fontSize = 14.sp,
-//                    style = PetgrowTheme.typography.medium,
-//                    modifier = Modifier
-//                        .clickable { onEditClick() }
-//                        .background(
-//                            color = grayf1,
-//                            shape = RoundedCornerShape(8.dp)
-//                        )
-//                        .padding(horizontal = 8.dp, vertical = 4.dp)
-//                )
-//                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "삭제",
-                    color = gray5E,
-                    fontSize = 14.sp,
-                    style = PetgrowTheme.typography.medium,
-                    modifier = Modifier
-                        .clickable { onDeleteClick() }
-                        .background(
-                            color = grayf1,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                )
+            if (isDeleteShow) {
+                Row {
+                    Text(
+                        text = "삭제",
+                        color = gray5E,
+                        fontSize = 14.sp,
+                        style = PetgrowTheme.typography.medium,
+                        modifier = Modifier
+                            .clickable { onDeleteClick() }
+                            .background(
+                                color = grayf1,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
-
         }
 
     }

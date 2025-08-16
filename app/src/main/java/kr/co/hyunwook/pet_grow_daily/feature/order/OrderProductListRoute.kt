@@ -125,11 +125,33 @@ fun OrderProductListScreen(
         }
 
         if (isLoadingOrderProducts) {
-
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-            )
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val composition by rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(R.raw.loading_animation)
+                    )
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .height(200.dp)
+                    )
+                    androidx.compose.material3.Text(
+                        text = stringResource(R.string.text_order_product),
+                        style = PetgrowTheme.typography.bold,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
         }
     }
 }
@@ -197,7 +219,7 @@ fun OrderProductItem(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Bottom,
             ) {
                 Text(
                     text = "${product.productDiscount}%",

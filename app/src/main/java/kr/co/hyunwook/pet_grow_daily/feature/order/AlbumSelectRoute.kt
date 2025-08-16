@@ -48,6 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import kotlinx.coroutines.delay
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
@@ -61,6 +63,15 @@ import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_INSTA_BOOK_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
 
 @Composable
 fun AlbumSelectRoute(
@@ -321,14 +332,36 @@ fun AlbumImageSelectWidget(
                 .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topStart = 16.dp))
         ) {
-            GlideImage(
+            GlideSubcomposition(
                 model = firstImageUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-                loading = placeholder(ColorPainter(grayEF)),
-                failure = placeholder(ColorPainter(grayEF))
-            )
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (this.state) {
+                    RequestState.Loading -> {
+                        ShimmerBox(
+                            shape = RoundedCornerShape(topStart = 16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    is RequestState.Success -> {
+                        Image(
+                            painter = this.painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    RequestState.Failure -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(grayEF)
+                        )
+                    }
+                }
+            }
         }
         Spacer(modifier = Modifier.width(2.dp))
 
@@ -338,14 +371,36 @@ fun AlbumImageSelectWidget(
                 .aspectRatio(1f)
                 .background(grayEF, RoundedCornerShape(topEnd = 16.dp))
         ) {
-            GlideImage(
+            GlideSubcomposition(
                 model = secondImageUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-                loading = placeholder(ColorPainter(grayEF)),
-                failure = placeholder(ColorPainter(grayEF))
-            )
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (this.state) {
+                    RequestState.Loading -> {
+                        ShimmerBox(
+                            shape = RoundedCornerShape(topEnd = 16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    is RequestState.Success -> {
+                        Image(
+                            painter = this.painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    RequestState.Failure -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(grayEF)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -373,6 +428,57 @@ fun AlbumTextSelect(
             fontSize = 14.sp,
             style = PetgrowTheme.typography.regular,
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun ShimmerBox(
+    shape: androidx.compose.ui.graphics.Shape,
+    modifier: Modifier
+) {
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+    val animatedFraction by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerFraction"
+    )
+
+    val width = containerSize.width.toFloat().coerceAtLeast(1f)
+    val height = containerSize.height.toFloat().coerceAtLeast(1f)
+    val startX = -width + 2f * width * animatedFraction
+    val base = grayEF
+    val highlight = Color.White.copy(alpha = 0.9f)
+
+    val brush = Brush.linearGradient(
+        colorStops = arrayOf(
+            0.0f to base,
+            0.35f to base,
+            0.5f to highlight,
+            0.65f to base,
+            1.0f to base
+        ),
+        start = Offset(startX, 0f),
+        end = Offset(startX + width, height)
+    )
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(base)
+            .onGloballyPositioned { coordinates ->
+                containerSize = coordinates.size
+            }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush)
         )
     }
 }

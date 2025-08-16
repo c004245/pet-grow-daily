@@ -53,6 +53,7 @@
     <string name="text_empty_delivery_address">앨범을 배송 받을 주소를 추가해주세요.</string>
     <string name="text_new_delivery">새 배송지 추가</string>
     <string name="text_upload_image">사진을 저장하고 있어요...</string>
+    <string name="text_order_product">상품 정보를 가져오고 있어요</string>
     <string name="text_save_profile">프로필을 저장하는 중입니다...</string>
     <string name="text_update_profile">프로필을 업데이트 하는 중입니다...</string>
     <string name="text_delivery_check_title">앨범 받을 주소를\n확인해주세요.</string>

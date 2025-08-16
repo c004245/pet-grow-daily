@@ -278,7 +278,7 @@ fun ProductInfoWidget(
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ) {
             Text(
                 text = "${orderProduct.productDiscount}%",

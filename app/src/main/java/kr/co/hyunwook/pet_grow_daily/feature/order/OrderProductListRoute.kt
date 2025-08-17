@@ -251,10 +251,10 @@ fun OrderProductItem(
 }
 
 private fun getProductDrawableResource(productTitle: String): Int {
-    return when (productTitle) {
-        "인스타북" -> R.drawable.ic_order_dummy2
-        "포토북 라이트" -> R.drawable.ic_order_dummy2
-        "포토북 고급" -> R.drawable.ic_order_dummy2
+    return when {
+        productTitle.contains("인스타북") -> R.drawable.ic_product_light_main
+        productTitle.contains("하드") -> R.drawable.ic_product_middle_main
+        productTitle.contains("고급") -> R.drawable.ic_product_advance_main
         else -> R.drawable.ic_order_dummy2
     }
 }

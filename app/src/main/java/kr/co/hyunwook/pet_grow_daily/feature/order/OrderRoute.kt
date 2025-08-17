@@ -137,7 +137,7 @@ fun OrderScreen(
                     .verticalScroll(scrollState)
             ) {
                 Spacer(Modifier.height(13.dp))
-                ImageSliderWithIndicator()
+                ImageSliderWithIndicator(orderProduct.productTitle)
                 Spacer(Modifier.height(24.dp))
                 ProductInfoWidget(orderProduct = orderProduct)
                 Spacer(Modifier.height(16.dp))
@@ -175,16 +175,43 @@ fun OrderScreen(
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ImageSliderWithIndicator() {
-    val images = remember {
+fun ImageSliderWithIndicator(title: String) {
+    val lightImages = remember {
         listOf(
-            R.drawable.ic_dummy1,
-            R.drawable.ic_dummy2,
-            R.drawable.ic_dummy1,
-            R.drawable.ic_dummy2,
+            R.drawable.ic_product_light_submain1,
+            R.drawable.ic_product_light_submain2,
+            R.drawable.ic_product_light_submain3,
+            R.drawable.ic_product_light_submain4,
         )
     }
 
+    val middleImages = remember {
+        listOf(
+            R.drawable.ic_product_middle_submain1,
+            R.drawable.ic_product_middle_submain2,
+            R.drawable.ic_product_middle_submain3,
+            R.drawable.ic_product_middle_submain4,
+        )
+    }
+
+    val advanceImages = remember {
+        listOf(
+            R.drawable.ic_product_advance_submain1,
+            R.drawable.ic_product_advance_submain2,
+            R.drawable.ic_product_advance_submain3,
+            R.drawable.ic_product_advance_submain4,
+
+        )
+    }
+
+    val images = remember(title) {
+        when {
+            title.contains("인스타북") -> lightImages
+            title.contains("하드") -> middleImages
+            title.contains("고급") -> advanceImages
+            else -> lightImages
+        }
+    }
 
     val pagerState = androidx.compose.foundation.pager.rememberPagerState(
         initialPage = 0,

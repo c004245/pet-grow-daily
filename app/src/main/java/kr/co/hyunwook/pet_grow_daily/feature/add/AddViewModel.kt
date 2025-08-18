@@ -17,6 +17,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveAlbumRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
 import kr.co.hyunwook.pet_grow_daily.util.formatDate
 import android.content.ContentUris
 import android.content.ContentValues
@@ -38,7 +39,6 @@ import kotlin.math.min
 import androidx.core.net.toUri
 import kr.co.hyunwook.pet_grow_daily.analytics.Analytics
 import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
-import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetUserIdUseCase
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
@@ -134,7 +134,19 @@ class AddViewModel @Inject constructor(
 
             storageRef.putFile(optimizedImageUri).await()
             val downloadUrl = storageRef.downloadUrl.await().toString()
-            context.contentResolver.delete(optimizedImageUri, null, null)
+
+            // 앱의 private cache 파일 삭제 (권한 문제 없음)
+            try {
+                if (optimizedImageUri.scheme == "file") {
+                    val file = java.io.File(optimizedImageUri.path ?: "")
+                    if (file.exists()) {
+                        file.delete()
+                        Log.d("AddViewModel", "임시 파일 삭제 완료: ${file.name}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w("AddViewModel", "임시 파일 삭제 중 예외 발생: ${e.message}")
+            }
 
             downloadUrl
         } catch (e: Exception) {
@@ -198,7 +210,6 @@ class AddViewModel @Inject constructor(
     private suspend fun optimizeImage(uri: Uri): Uri {
         return withContext(Dispatchers.IO) {
             try {
-
                 var originalSize = 0L
                 try {
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
@@ -232,43 +243,29 @@ class AddViewModel @Inject constructor(
                     rotatedBitmap
                 }
 
+                // 앱의 private cache directory에 임시 파일 저장
                 val fileName = "optimized_${System.currentTimeMillis()}.jpg"
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                    put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-                }
-
-                val imageUri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues
-                )
-                    ?: throw IOException("Failed to create media store record")
+                val tempFile = java.io.File(context.cacheDir, fileName)
 
                 // 압축 품질 85%로 저장
-                context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                tempFile.outputStream().use { outputStream ->
                     resizeBitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
-                } ?: throw IOException("Failed to open output stream")
+                }
 
                 // 최종 파일 크기 확인
-                var optimizedSize = 0L
-                try {
-                    context.contentResolver.openInputStream(imageUri)?.use { inputStream ->
-                        optimizedSize = inputStream.available().toLong()
-                    }
-                    val compressionRatio = if (originalSize > 0) {
-                        (100 - (optimizedSize * 100 / originalSize))
-                    } else 0
-                } catch (e: Exception) {
-                }
+                var optimizedSize = tempFile.length()
+                val compressionRatio = if (originalSize > 0) {
+                    (100 - (optimizedSize * 100 / originalSize))
+                } else 0
 
                 if (resizeBitmap != rotatedBitmap) {
                     resizeBitmap.recycle()
                 }
                 rotatedBitmap.recycle()
-                // originalBitmap은 위에서 이미 recycle됨 또는 rotatedBitmap와 동일
 
-                imageUri
+                tempFile.toUri()
             } catch (e: Exception) {
+                Log.e("AddViewModel", "이미지 최적화 실패", e)
                 uri // 실패 시 원본 반환
             }
         }

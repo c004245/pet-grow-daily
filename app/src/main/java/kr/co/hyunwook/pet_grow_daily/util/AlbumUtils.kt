@@ -9,11 +9,13 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import kotlin.math.min
 
@@ -35,20 +37,13 @@ suspend fun optimizeImageForAlbumCover(context: Context, uri: Uri): Uri =
             val rotatedBitmap = getRotatedBitmap(context, uri, originalBitmap)
             val processedBitmap = createOptimalAlbumCoverBitmap(rotatedBitmap)
 
+            // 앱의 private cache directory에 임시 파일 저장
             val fileName = "profile_temp_${System.currentTimeMillis()}.jpg"
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-            }
+            val tempFile = File(context.cacheDir, fileName)
 
-            val imageUri = context.contentResolver.insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues
-            ) ?: throw IOException("Failed to create media store record")
-
-            context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+            tempFile.outputStream().use { outputStream ->
                 processedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-            } ?: throw IOException("Failed to open output stream")
+            }
 
             if (processedBitmap != rotatedBitmap) {
                 processedBitmap.recycle()
@@ -58,7 +53,7 @@ suspend fun optimizeImageForAlbumCover(context: Context, uri: Uri): Uri =
             }
             originalBitmap.recycle()
 
-            imageUri
+            tempFile.toUri()
         } catch (e: Exception) {
             Log.e("ProfileImageUtils", "이미지 최적화 실패: ${e.message}", e)
             uri // 실패 시 원본 반환
@@ -136,8 +131,20 @@ suspend fun uploadProfileImageToFirebase(context: Context, imageUri: Uri, userId
             .child(fileName)
         storageRef.putFile(optimizedImageUri).await()
         val downloadUrl = storageRef.downloadUrl.await().toString()
-        // 임시 파일 삭제
-        context.contentResolver.delete(optimizedImageUri, null, null)
+
+        // 앱의 private cache 파일 삭제 (권한 문제 없음)
+        try {
+            if (optimizedImageUri.scheme == "file") {
+                val file = File(optimizedImageUri.path ?: "")
+                if (file.exists()) {
+                    file.delete()
+                    Log.d("ProfileImageUtils", "임시 파일 삭제 완료: ${file.name}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.w("ProfileImageUtils", "임시 파일 삭제 중 예외 발생: ${e.message}")
+        }
+
         downloadUrl
     } catch (e: Exception) {
         Log.e("ProfileImageUtils", "Firebase 업로드 실패: ${e.message}", e)

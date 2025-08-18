@@ -98,7 +98,32 @@ fun NavGraphBuilder.deliveryCheckNavGraph(
     navigateToOrderDone: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    composable<DeliveryCheck> { backStackEntry ->
+    composable<DeliveryCheck>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
         DeliveryCheckRoute(
             viewModel = viewModel,
             navigateToOrderDone = navigateToOrderDone,
@@ -109,12 +134,39 @@ fun NavGraphBuilder.deliveryCheckNavGraph(
 
 fun NavGraphBuilder.deliveryRegisterNavGraph(
     viewModel: OrderViewModel,
-    navigateToOrderDone: () -> Unit
+    navigateToOrderDone: () -> Unit,
+    onBackClick: () -> Unit
 ) {
-    composable<DeliveryRegister> { backStackEntry ->
+    composable<DeliveryRegister>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
         DeliveryRegisterRoute(
             viewModel = viewModel,
-            navigateToOrderDone = navigateToOrderDone
+            navigateToOrderDone = navigateToOrderDone,
+            onBackClick = onBackClick
         )
     }
 }

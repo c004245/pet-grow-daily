@@ -81,14 +81,39 @@ fun NavGraphBuilder.orderNavGraph(
 }
 
 fun NavGraphBuilder.albumSelectNavGraph(
-//    navigateToDeliveryCheck: () -> Unit,
-//    navigateToDeliveryRegister: () -> Unit,
     navigateToAlbumLayout: () -> Unit,
     viewModel: OrderViewModel,
     onBackClick: () -> Unit
 
 ) {
-    composable<AlbumSelect> { backStackEntry ->
+    composable<AlbumSelect>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            // Back to MyPage: enter from left
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            // Back stack popping: exit to left
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
         AlbumSelectRoute(
             viewModel = viewModel,
 //            navigateToDeliveryCheck = navigateToDeliveryCheck,
@@ -105,7 +130,32 @@ fun NavGraphBuilder.albumLayoutNavGraph(
     viewModel: OrderViewModel,
     onBackClick: () -> Unit
 ) {
-    composable<AlbumLayout> { backStackEntry ->
+    composable<AlbumLayout>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
         AlbumLayoutRoute(
             viewModel = viewModel,
             navigateToDeliveryCheck = navigateToDeliveryCheck,

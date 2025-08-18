@@ -222,14 +222,19 @@ internal fun MainScreen(
                             },
                             viewModel = orderViewModel,
                             onBackClick = {
-                                orderViewModel.currentOrderProduct.value?.let { orderProduct ->
-                                    navigator.navigateToOrder(orderProduct, navOptions {
-                                        popUpTo(navigator.navController.graph.findStartDestination().id) {
-                                            inclusive = true
-                                        }
-                                        launchSingleTop = true
-                                    })
-                                }
+                                navigatorEnum = NavigateEnum.ALBUM_SELECT
+                                navigator.navController.popBackStack()
+
+
+
+//                                orderViewModel.currentOrderProduct.value?.let { orderProduct ->
+//                                    navigator.navigateToOrder(orderProduct, navOptions {
+//                                        popUpTo(navigator.navController.graph.findStartDestination().id) {
+//                                            inclusive = true
+//                                        }
+//                                        launchSingleTop = true
+//                                    })
+//                                }
                             }
                         )
                         albumSelectNavGraph(
@@ -257,8 +262,9 @@ internal fun MainScreen(
                                 navigate(navigator, NavigateEnum.ORDER_DONE)
                             },
                             onBackClick = {
-                                navigatorEnum = NavigateEnum.ALBUM_SELECT
-                                navigate(navigator, NavigateEnum.ALBUM_SELECT)
+                                navigatorEnum = NavigateEnum.ALBUM_LAYOUT
+                                navigator.navController.popBackStack()
+
                             }
                         )
                         deliveryRegisterNavGraph(
@@ -266,7 +272,10 @@ internal fun MainScreen(
                             navigateToOrderDone = {
                                 navigatorEnum = NavigateEnum.ORDER_DONE
                                 navigate(navigator, NavigateEnum.ORDER_DONE)
-
+                            },
+                            onBackClick = {
+                                navigatorEnum = NavigateEnum.ALBUM_LAYOUT
+                                navigator.navController.popBackStack()
                             }
                         )
 

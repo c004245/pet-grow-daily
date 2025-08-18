@@ -52,7 +52,8 @@ import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
 @Composable
 fun DeliveryRegisterRoute(
     viewModel: OrderViewModel,
-    navigateToOrderDone: () -> Unit
+    navigateToOrderDone: () -> Unit,
+    onBackClick: () -> Unit
 ) {
 
     val paymentData by viewModel.paymentData.collectAsState()
@@ -165,9 +166,7 @@ fun DeliveryRegisterRoute(
                     deliveryInfo = info
                     viewModel.saveDeliveryInfo(info)
                 },
-                onBackClick = {
-
-                }
+                onBackClick = onBackClick
             )
         }
     }
@@ -232,7 +231,7 @@ fun DeliveryRegisterScreen(
             .verticalScroll(scrollState)
     ) {
         TitleDeliveryAppBarOnlyButton({
-
+            onBackClick()
         })
         Spacer(Modifier.height(40.dp))
         Text(

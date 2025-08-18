@@ -1,5 +1,8 @@
 package kr.co.hyunwook.pet_grow_daily.feature.order.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import kotlinx.serialization.Serializable
 import kr.co.hyunwook.pet_grow_daily.core.navigation.Route
 import kr.co.hyunwook.pet_grow_daily.feature.order.OrderRoute
@@ -35,7 +38,35 @@ fun NavGraphBuilder.orderNavGraph(
     onBackClick: () -> Unit,
     viewModel: OrderViewModel
 ) {
-    composable<Order> { backStackEntry ->
+    composable<Order>(
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            // Back to MyPage: enter from left
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            // Back stack popping: exit to left
+            slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        }
+    ) { backStackEntry ->
+
         val args = backStackEntry.toRoute<Order>()
         val decodedJson =
             URLDecoder.decode(args.orderProductJson, StandardCharsets.UTF_8.toString())

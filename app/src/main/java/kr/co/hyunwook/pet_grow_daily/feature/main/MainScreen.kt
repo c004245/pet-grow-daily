@@ -198,7 +198,8 @@ internal fun MainScreen(
                             },
                             onBackClick = {
                                 navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
-                                navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
+                                navigator.navController.popBackStack()
+
                             },
                             viewModel = orderViewModel
                         )

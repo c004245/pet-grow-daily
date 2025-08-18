@@ -202,12 +202,14 @@ internal fun MainScreen(
 
                     orderNavGraph(
                         navigateToAlbumSelect = {
-                            navigate(navigator, NavigateEnum.ALBUM_SELECT)
+                            navigator.navigateToAlbumSelect(navOptions {
+                                launchSingleTop = true
+                            })
                         },
                         onBackClick = {
+                            // Order에서 OrderProduct로 직접 이동
                             navigatorEnum = NavigateEnum.ORDER_PRODUCT_LIST
-                            navigator.navController.popBackStack()
-
+                            navigate(navigator, NavigateEnum.ORDER_PRODUCT_LIST)
                         },
                         viewModel = orderViewModel
                     )

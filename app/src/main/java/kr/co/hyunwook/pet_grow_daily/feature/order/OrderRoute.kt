@@ -92,25 +92,23 @@ fun OrderRoute(
         onBackClick()
     }
 
-
     OrderScreen(
-            albumRecord = albumRecord,
-            orderProduct = orderProduct,
-            onClickRequestPayment = {
-                viewModel.addEvent(EventConstants.CLICK_ORDER_START_EVENT)
-                navigateToAlbumSelect(orderProduct)
+        albumRecord = albumRecord,
+        orderProduct = orderProduct,
+        onClickRequestPayment = {
+            viewModel.addEvent(EventConstants.CLICK_ORDER_START_EVENT)
+            navigateToAlbumSelect(orderProduct)
 
-            },
-            onBackClick = onBackClick,
-            todayOrderCount = todayOrderCount,
-            onClickOrderNotification = {
-                Toast.makeText(context, "내일 9시에 알림을 보내드릴게요!", Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.scheduleOrderAvailableNotification()
-            }
-        )
-    }
-
+        },
+        onBackClick = onBackClick,
+        todayOrderCount = todayOrderCount,
+        onClickOrderNotification = {
+            Toast.makeText(context, "내일 9시에 알림을 보내드릴게요!", Toast.LENGTH_SHORT)
+                .show()
+            viewModel.scheduleOrderAvailableNotification()
+        }
+    )
+}
 
 @Composable
 fun OrderScreen(

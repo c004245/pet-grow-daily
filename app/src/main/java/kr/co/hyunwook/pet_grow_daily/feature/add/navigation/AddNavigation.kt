@@ -19,13 +19,25 @@ fun NavGraphBuilder.addNavGraph(
     composable<Add>(
         enterTransition = {
             slideInHorizontally(
-                initialOffsetX = { -it },
+                initialOffsetX = { it },
                 animationSpec = tween(300)
             )
         },
         exitTransition = {
             slideOutHorizontally(
-                targetOffsetX = { -it },
+                targetOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(300)
+            )
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it },
                 animationSpec = tween(300)
             )
         }

@@ -119,20 +119,20 @@ fun AddRoute(
             permissionLauncher.launch(permission)
         }
     }
-
-    fun handleBackClick() {
-        isVisible = false
-        // 애니메이션 시간 후 실제 네비게이션 실행
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(300) // 애니메이션 시간과 일치
-            onBackClick()
-        }
-    }
+//
+//    fun handleBackClick() {
+//        isVisible = false
+//        // 애니메이션 시간 후 실제 네비게이션 실행
+//        CoroutineScope(Dispatchers.Main).launch {
+//            delay(300) // 애니메이션 시간과 일치
+//            onBackClick()
+//        }
+//    }
 
     // Handle physical back press with the same animation
-    BackHandler(enabled = isVisible) {
-        handleBackClick()
-    }
+//    BackHandler(enabled = isVisible) {
+//        handleBackClick()
+//    }
 
     AnimatedVisibility(
         visible = isVisible,
@@ -165,7 +165,7 @@ fun AddRoute(
 
                     navigateToRecordWrite(selectedImages.map { it.uri.toString() })
                 },
-                onBackClick = ::handleBackClick
+                onBackClick = onBackClick
             )
         }
     }

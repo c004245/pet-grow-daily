@@ -171,7 +171,7 @@ internal fun MainScreen(
                             },
                             onBackClick = {
                                 navigatorEnum = NavigateEnum.ALBUM
-                                navigate(navigator, NavigateEnum.ALBUM)
+                                navigator.navController.popBackStack()
                             }
                         )
 

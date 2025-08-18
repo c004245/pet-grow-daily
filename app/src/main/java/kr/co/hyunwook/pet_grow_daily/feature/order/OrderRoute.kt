@@ -7,6 +7,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -469,6 +470,11 @@ fun PaymentWebView(
     onBackPressed: () -> Unit
 ) {
     val context = LocalContext.current
+
+    // 시스템 백버튼 처리 추가
+    BackHandler {
+        onBackPressed()
+    }
 
     AndroidView(
         factory = { context ->

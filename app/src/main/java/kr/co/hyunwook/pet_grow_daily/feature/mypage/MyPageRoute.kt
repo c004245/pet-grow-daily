@@ -59,13 +59,15 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import androidx.activity.compose.BackHandler
 
 @Composable
 fun MyPageRoute(
     viewModel: MyPageViewModel = hiltViewModel(),
     onClickDeliveryList: () -> Unit,
     onClickAlarm: () -> Unit,
-    onClickBusinessInfo: () -> Unit
+    onClickBusinessInfo: () -> Unit,
+    onBackPress: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
@@ -83,6 +85,9 @@ fun MyPageRoute(
 
     LaunchedEffect(Unit) { }
 
+    BackHandler {
+        onBackPress()
+    }
     MyPageScreen(
         petProfile = petProfile,
         userInfo = userInfo,

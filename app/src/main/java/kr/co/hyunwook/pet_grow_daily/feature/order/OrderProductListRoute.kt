@@ -54,13 +54,14 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.LottieConstants
 import androidx.compose.ui.layout.ContentScale
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
-
+import androidx.activity.compose.BackHandler
 
 //주문 상품 고를 수 있는 화면
 @Composable
 fun OrderProductListRoute(
     navigateToOrder: (OrderProduct) -> Unit,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    onBackPress: () -> Unit = {}
 ) {
 
     val albumRecord by viewModel.albumRecord.collectAsState()
@@ -70,6 +71,10 @@ fun OrderProductListRoute(
     LaunchedEffect(Unit) {
         viewModel.getAlbumSelectRecord()
         viewModel.fetchOrderProducts()
+    }
+
+    BackHandler {
+        onBackPress()
     }
 
     OrderProductListScreen(

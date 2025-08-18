@@ -23,16 +23,19 @@ import java.nio.charset.StandardCharsets
 
 fun NavGraphBuilder.orderProductListGraph(
     navigateToOrder: (OrderProduct) -> Unit,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    onBackPress: () -> Unit = {}
 ) {
     composable<OrderProductList> {
         OrderProductListRoute(
             navigateToOrder = navigateToOrder,
-            viewModel = viewModel
+            viewModel = viewModel,
+            onBackPress = onBackPress
         )
     }
 
 }
+
 fun NavGraphBuilder.orderNavGraph(
     navigateToAlbumSelect: () -> Unit,
     onBackClick: () -> Unit,

@@ -56,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -78,6 +79,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
+import androidx.activity.compose.BackHandler
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import kotlin.system.exitProcess
 
 @Composable
 fun AlbumRoute(
@@ -91,6 +96,21 @@ fun AlbumRoute(
     val todayUserCount by viewModel.todayUserPhotoCount.collectAsState()
     val isDisableUpload by viewModel.isDisableUpload.collectAsState()
     val isRecordLoading by viewModel.isRecordLoading.collectAsState()
+    val context = LocalContext.current
+
+    var backPressedTime by remember { mutableStateOf(0L) }
+
+    BackHandler {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - backPressedTime < 2000) {
+            // 2초 내 두 번째 클릭 시 앱 종료
+            exitProcess(0)
+        } else {
+            // 첫 번째 클릭 시 토스트 메시지
+            backPressedTime = currentTime
+            Toast.makeText(context, "정말 종료하시겠어요?", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getShouldDisableUpload()

@@ -64,10 +64,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
+import androidx.activity.compose.BackHandler
 
 @Composable
 fun AnotherPetRoute(
-    viewModel: AnotherPetViewModel = hiltViewModel()
+    viewModel: AnotherPetViewModel = hiltViewModel(),
+    onBackPress: () -> Unit = {}
 ) {
 
     val anotherImageList by viewModel.anotherPetList.collectAsState()
@@ -77,6 +79,10 @@ fun AnotherPetRoute(
 
     LaunchedEffect(Unit) {
         viewModel.getAnotherPetList()
+    }
+
+    BackHandler {
+        onBackPress()
     }
 
     AnotherPetScreen(

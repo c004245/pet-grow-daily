@@ -20,12 +20,14 @@ fun NavGraphBuilder.myPageNavGraph(
     navigateToDeliveryList: () -> Unit,
     navigateToAlarm: () -> Unit,
     navigateToBusinessInfo: () -> Unit,
+    onBackPress: () -> Unit = {}
 ) {
     composable<MyPage> {
         MyPageRoute(
             onClickDeliveryList = navigateToDeliveryList,
             onClickAlarm = navigateToAlarm,
             onClickBusinessInfo = navigateToBusinessInfo,
+            onBackPress = onBackPress
         )
     }
 }

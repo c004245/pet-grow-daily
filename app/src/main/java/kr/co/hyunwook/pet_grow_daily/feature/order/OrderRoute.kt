@@ -88,8 +88,12 @@ fun OrderRoute(
         viewModel.setCurrentOrderProduct(orderProduct)
     }
 
+    BackHandler {
+        onBackClick()
+    }
 
-        OrderScreen(
+
+    OrderScreen(
             albumRecord = albumRecord,
             orderProduct = orderProduct,
             onClickRequestPayment = {

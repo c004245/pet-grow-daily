@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -59,6 +60,20 @@ class AddViewModel @Inject constructor(
 
     init {
         loadImages()
+    }
+
+    // 임시 파일 정리 함수
+    private fun cleanupTempFile(uri: Uri) {
+        try {
+            if (uri.scheme == "file") {
+                val file = java.io.File(uri.path ?: return)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AddViewModel", "임시 파일 정리 실패", e)
+        }
     }
 
     fun uploadImageEvent(isPublic: Boolean) {
@@ -123,6 +138,9 @@ class AddViewModel @Inject constructor(
 
 
     private suspend fun uploadImageToStorage(uri: Uri, userId: String): String {
+        var retryCount = 0
+        val maxRetries = 3
+
         return try {
             val optimizedImageUri = optimizeImage(uri)
             val fileName = "album_${userId}_${System.currentTimeMillis()}.jpg"
@@ -132,24 +150,50 @@ class AddViewModel @Inject constructor(
                 .child("albums")
                 .child(fileName)
 
-            storageRef.putFile(optimizedImageUri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
+            // 재시도 로직 추가
+            while (retryCount < maxRetries) {
+                try {
+                    // 업로드 태스크에 메타데이터 설정으로 안정성 향상
+                    val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+                        .setContentType("image/jpeg")
+                        .build()
 
-            // 앱의 private cache 파일 삭제 (권한 문제 없음)
-            try {
-                if (optimizedImageUri.scheme == "file") {
-                    val file = java.io.File(optimizedImageUri.path ?: "")
-                    if (file.exists()) {
-                        file.delete()
-                        Log.d("AddViewModel", "임시 파일 삭제 완료: ${file.name}")
+                    val uploadTask = storageRef.putFile(optimizedImageUri, metadata)
+
+                    // 업로드 진행률 모니터링으로 세션 유지
+                    uploadTask.addOnProgressListener { taskSnapshot ->
+                        val progress =
+                            (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                        Log.d("AddViewModel", "업로드 진행률: ${progress.toInt()}%")
                     }
+
+                    // 업로드 완료 대기
+                    uploadTask.await()
+
+                    val downloadUrl = storageRef.downloadUrl.await().toString()
+
+                    // 앱의 private cache 파일 삭제 (권한 문제 없음)
+                    cleanupTempFile(optimizedImageUri)
+
+                    return downloadUrl
+
+                } catch (e: Exception) {
+                    retryCount++
+                    Log.w("AddViewModel", "업로드 시도 ${retryCount}/$maxRetries 실패: ${e.message}")
+
+                    if (retryCount >= maxRetries) {
+                        throw e
+                    }
+
+                    // 재시도 전 잠시 대기 (백오프 전략)
+                    delay(1000L * retryCount)
                 }
-            } catch (e: Exception) {
-                Log.w("AddViewModel", "임시 파일 삭제 중 예외 발생: ${e.message}")
             }
 
-            downloadUrl
+            throw IOException("최대 재시도 횟수 초과")
+
         } catch (e: Exception) {
+            Log.e("AddViewModel", "Firebase Storage 업로드 최종 실패", e)
             throw e
         }
     }

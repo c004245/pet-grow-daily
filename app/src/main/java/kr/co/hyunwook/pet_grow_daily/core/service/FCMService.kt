@@ -80,29 +80,30 @@ class FCMService : FirebaseMessagingService() {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
         }
 
-        // 알림 메시지 처리
-        remoteMessage.notification?.let { notification ->
-            Log.d(TAG, "Message Notification Body: ${notification.body}")
+        // 알림 타입 확인 (서버에서 보내는 데이터에 type 필드 포함)
+        val notificationType = remoteMessage.data["type"]?.also {
+            Log.d(TAG, "알림 타입(type 필드): $it")
+        } ?: run {
+            Log.w(
+                TAG,
+                "type 필드가 없어 기본값($NOTIFICATION_TYPE_SYSTEM)으로 처리됩니다. [푸쉬 메시지 작성 시 data에 type 필수!]"
+            )
+            NOTIFICATION_TYPE_SYSTEM
+        }
+        Log.d(TAG, "실제 사용 알림 타입: $notificationType")
 
-            // 알림 타입 확인 (서버에서 보내는 데이터에 type 필드 포함)
-            val notificationType = remoteMessage.data["type"]?.also {
-                Log.d(TAG, "알림 타입(type 필드): $it")
-            } ?: run {
-                Log.w(
-                    TAG,
-                    "type 필드가 없어 기본값($NOTIFICATION_TYPE_SYSTEM)으로 처리됩니다. [푸쉬 메시지 작성 시 data에 type 필수!]"
-                )
-                NOTIFICATION_TYPE_SYSTEM
-            }
-            Log.d(TAG, "실제 사용 알림 타입: $notificationType")
+        // 알림 또는 데이터에서 제목과 본문 추출
+        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"]
+        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"]
 
-            // 알림 설정 확인 후 전송
-            CoroutineScope(Dispatchers.IO).launch {
-                if (shouldShowNotification(notificationType)) {
-                    sendNotification(notification.title, notification.body)
-                } else {
-                    Log.d(TAG, "알림 설정으로 인해 알림 차단: $notificationType")
-                }
+        Log.d(TAG, "Message Title: $title, Body: $body")
+
+        // 알림 설정 확인 후 전송
+        CoroutineScope(Dispatchers.IO).launch {
+            if (shouldShowNotification(notificationType)) {
+                sendNotification(title, body)
+            } else {
+                Log.d(TAG, "알림 설정으로 인해 알림 차단: $notificationType")
             }
         }
     }

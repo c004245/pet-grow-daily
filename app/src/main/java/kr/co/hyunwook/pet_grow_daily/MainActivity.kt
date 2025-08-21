@@ -83,6 +83,13 @@ class MainActivity : ComponentActivity() {
 
             mainViewModel.saveFcmToken(token)
         }
+
+        // 전체 알림용 토픽에 자동 구독
+        FirebaseMessaging.getInstance().subscribeToTopic("all_users")
+            .addOnCompleteListener { task ->
+                val msg = if (task.isSuccessful) "all_users 토픽 구독 성공" else "all_users 토픽 구독 실패"
+                Log.d("FCM", msg)
+            }
     }
 
     private fun hasAllPermissions(): Boolean {
@@ -90,8 +97,6 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
         }
     }
-
-
 
     private fun showPermissionDeniedMessage() {
         setContent {

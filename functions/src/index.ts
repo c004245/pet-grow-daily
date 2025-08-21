@@ -234,3 +234,127 @@ async function createImageZip(
   });
 }
 
+// 푸시 알림 전송 Function
+export const sendPushNotification = onCall({
+  enforceAppCheck: false, // AppCheck 비활성화
+  timeoutSeconds: 60, // 1분 타임아웃
+}, async (request) => {
+  try {
+    const { type, title, body, targetType, targetValue } = request.data;
+    
+    // 파라미터 검증
+    if (!type || !title || !body) {
+      throw new Error('type, title, body는 필수 파라미터입니다.');
+    }
+    
+    // 지원되는 알림 타입 확인
+    const validTypes = ['marketing', 'delivery', 'system'];
+    if (!validTypes.includes(type)) {
+      throw new Error(`지원되지 않는 알림 타입입니다. 지원 타입: ${validTypes.join(', ')}`);
+    }
+
+    logger.info(`푸시 알림 전송 시작 - Type: ${type}, Title: ${title}`);
+
+    let result;
+
+    // targetType이 없거나 비어있으면 무조건 전체 발송 ('all')
+    if (!targetType || targetType === '') {
+      // 모든 사용자에게 전송 (토픽 사용)
+      const topicMessage: admin.messaging.TopicMessage = {
+        topic: 'all_users',
+        data: {
+          type: type,
+          title: title,
+          body: body,
+        },
+      };
+      result = await admin.messaging().send(topicMessage);
+      logger.info(`모든 사용자에게 알림 전송 완료 (targetType 없음) - MessageId: ${result}`);
+    } else {
+      // targetType이 있는 경우 기존 로직 사용
+      switch (targetType) {
+        case 'all':
+          // 모든 사용자에게 전송 (토픽 사용)
+          const topicMessage: admin.messaging.TopicMessage = {
+            topic: 'all_users',
+            data: {
+              type: type,
+              title: title,
+              body: body,
+            },
+          };
+          result = await admin.messaging().send(topicMessage);
+          logger.info(`모든 사용자에게 알림 전송 완료 - MessageId: ${result}`);
+          break;
+          
+        case 'token':
+          // 특정 토큰에 전송
+          if (!targetValue) {
+            throw new Error('targetValue(FCM 토큰)가 필요합니다.');
+          }
+          const tokenMessage: admin.messaging.TokenMessage = {
+            token: targetValue,
+            data: {
+              type: type,
+              title: title,
+              body: body,
+            },
+          };
+          result = await admin.messaging().send(tokenMessage);
+          logger.info(`특정 토큰에 알림 전송 완료 - MessageId: ${result}`);
+          break;
+          
+        case 'user':
+          // 특정 사용자에게 전송 (사용자의 FCM 토큰 조회 필요)
+          if (!targetValue) {
+            throw new Error('targetValue(사용자 ID)가 필요합니다.');
+          }
+          
+          // Firestore에서 사용자의 FCM 토큰 조회
+          const userDoc = await admin.firestore()
+            .collection('users')
+            .doc(targetValue)
+            .get();
+            
+          if (!userDoc.exists) {
+            throw new Error('사용자를 찾을 수 없습니다.');
+          }
+          
+          const userData = userDoc.data();
+          const fcmToken = userData?.fcmToken;
+          
+          if (!fcmToken) {
+            throw new Error('사용자의 FCM 토큰이 없습니다.');
+          }
+          
+          const userTokenMessage: admin.messaging.TokenMessage = {
+            token: fcmToken,
+            data: {
+              type: type,
+              title: title,
+              body: body,
+            },
+          };
+          result = await admin.messaging().send(userTokenMessage);
+          logger.info(`특정 사용자에게 알림 전송 완료 - UserId: ${targetValue}, MessageId: ${result}`);
+          break;
+          
+        default:
+          throw new Error('지원되지 않는 targetType입니다. (all, token, user)');
+      }
+    }
+
+    return {
+      success: true,
+      messageId: result,
+      type: type,
+      targetType: targetType || 'all',
+      message: '푸시 알림 전송이 완료되었습니다.'
+    };
+
+  } catch (error) {
+    logger.error('푸시 알림 전송 실패:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`푸시 알림 전송에 실패했습니다: ${errorMessage}`);
+  }
+});

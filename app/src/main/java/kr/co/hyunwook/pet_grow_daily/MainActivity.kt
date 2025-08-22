@@ -100,15 +100,18 @@ class MainActivity : ComponentActivity() {
 
     private fun showPermissionDeniedMessage() {
         setContent {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    style = PetgrowTheme.typography.regular,
-                    fontSize = 18.sp,
-                    text = "데일리 독을 이용하기 위해서는 권한이 필요합니다.\n설정에서 권한을 허용해주세요!",
-                    textAlign = TextAlign.Center)
+            PetgrowTheme {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        style = PetgrowTheme.typography.regular,
+                        fontSize = 18.sp,
+                        text = "데일리 독을 이용하기 위해서는 권한이 필요합니다.\n설정에서 권한을 허용해주세요!",
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

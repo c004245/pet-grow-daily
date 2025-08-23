@@ -147,11 +147,11 @@ class OrderViewModel @Inject constructor(
         val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
 
         val paymentData = mapOf(
-            "userCode" to "imp26031685", // 제공받은 식별코드
-            "pg" to "kakaopay.TC0ONETIME", // 카카오페이 테스트 PG 설정
-            "name" to "${orderProduct.productTitle} (테스트)",
-            "merchant_uid" to "test_album_${System.currentTimeMillis()}",
-            "amount" to discountedPrice.toString(), // 실제 할인된 가격 사용
+            "userCode" to "imp28817041", // 실제 고객사 식별코드
+            "pg" to "kakaopay", // 테스트 모드 제거 (TC0ONETIME 삭제)
+            "name" to "데일리 독 ${orderProduct.productTitle}", // 테스트 문구 제거
+            "merchant_uid" to "petgrow_${System.currentTimeMillis()}", // 테스트 접두사 제거
+            "amount" to "100",
             "app_scheme" to "petgrowdaily"
         )
 

@@ -97,25 +97,26 @@ fun DeliveryCheckRoute(
     }
 
     LaunchedEffect(paymentResult) {
-        when (val result = paymentResult) {
-            is PaymentResult.Success -> {
-                Log.d("HWO", "결제 성공 - 주문 저장 시작")
-                showPaymentWebView = false
-                showProcessing = true
-                deliveryInfo?.let { deliveryInfos ->
-                    viewModel.saveOrderRecord(deliveryInfos)
+            when (val result = paymentResult) {
+                is PaymentResult.Success -> {
+                    Log.d("HWO", "결제 성공 - 주문 저장 시작")
+                    showPaymentWebView = false
+                    showProcessing = true
+                    deliveryInfo?.let { deliveryInfos ->
+                        viewModel.saveOrderRecord(deliveryInfos)
+                    }
                 }
-            }
 
-            is PaymentResult.Failure -> {
-                Log.d("HWO", "결제 실패: ${result.message}")
-                showPaymentWebView = false
-                showProcessing = false
-                Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
-                    .show()
-            }
+                is PaymentResult.Failure -> {
+                    Log.d("HWO", "결제 실패: ${result.message}")
+                    showPaymentWebView = false
+                    showProcessing = false
+                    Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
 
-            else -> {}
+                else -> {}
+
         }
     }
 

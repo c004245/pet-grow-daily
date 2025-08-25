@@ -147,10 +147,10 @@ class OrderViewModel @Inject constructor(
         val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
 
         val paymentData = mapOf(
-            "userCode" to "imp26031685", // 제공받은 식별코드
-            "pg" to "kakaopay.TC0ONETIME", // 카카오페이 테스트 PG 설정
-            "name" to "${orderProduct.productTitle} (테스트)",
-            "merchant_uid" to "test_album_${System.currentTimeMillis()}",
+            "userCode" to "imp28817041", // 제공받은 식별코드
+            "pg" to "TC0ONETIME", // 카카오페이 테스트 PG 설정
+            "name" to "${orderProduct.productTitle}",
+            "merchant_uid" to "${System.currentTimeMillis()}",
             "amount" to discountedPrice.toString(), // 실제 할인된 가격 사용
             "app_scheme" to "petgrowdaily"
         )
@@ -176,6 +176,7 @@ class OrderViewModel @Inject constructor(
     fun clearPaymentRequest() {
         _paymentData.value = null
     }
+
 
     //선택한 앨범 리스트
     fun setSelectedAlbumRecords(records: List<AlbumRecord>) {

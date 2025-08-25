@@ -630,12 +630,36 @@ fun PaymentWebView(
                                 }
                             }
 
-                            // 앱 스킴 처리
+                            // 앱 스킴 처리 (★ 실질 처리)
                             if (currentUrl.startsWith("petgrowdaily://")) {
-                                Log.d("HWO", "App scheme detected, handling callback")
+                                Log.d("HWO", "App scheme detected: $currentUrl")
+                                try {
+                                    val uri = android.net.Uri.parse(currentUrl)
+                                    val impUid = uri.getQueryParameter("imp_uid")
+                                    val merchantUid = uri.getQueryParameter("merchant_uid")
+                                    val impSuccess = uri.getQueryParameter("imp_success") == "true"
+                                    val errorMsg = uri.getQueryParameter("error_msg")
+
+                                    Log.d("HWO", "Parsed deeplink -> success=$impSuccess, imp_uid=$impUid, merchant_uid=$merchantUid, error=$errorMsg")
+
+                                    // TODO(권장): 서버로 impUid/merchantUid 보내서 PortOne REST로 결제 검증
+                                    // verifyPaymentOnServer(impUid, merchantUid)
+
+                                    (context as? Activity)?.runOnUiThread {
+                                        if (impSuccess && !impUid.isNullOrBlank()) {
+                                            onPaymentResult(true, null, impUid)   // 성공
+                                        } else {
+                                            onPaymentResult(false, errorMsg ?: "결제가 취소되었습니다.", null) // 실패/취소
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("HWO", "Error handling app scheme: $e")
+                                    (context as? Activity)?.runOnUiThread {
+                                        onPaymentResult(false, "결제 결과 처리 중 오류가 발생했습니다.", null)
+                                    }
+                                }
                                 return true
                             }
-
                             // iamport redirect URL 처리 - 안전하지 않은 리디렉션 방지
                             if (currentUrl.contains("service.iamport.kr") &&
                                 (currentUrl.contains("kakaoApprovalRedirect") || currentUrl.contains(

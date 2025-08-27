@@ -211,7 +211,7 @@ fun ImageSliderWithIndicator(title: String) {
         when {
             title.contains("인스타북") -> lightImages
             title.contains("하드") -> middleImages
-            title.contains("고급") -> advanceImages
+            title.contains("패브릭") -> advanceImages
             else -> lightImages
         }
     }
@@ -432,7 +432,7 @@ fun OrderButtonWidget(
                     .clickable {
                         //결제 테스트를 위한 주석 필요
                         if (isButtonEnabled) {
-                            onClickRequestPayment()
+                        onClickRequestPayment()
                         }
                     },
                 contentAlignment = Alignment.Center
@@ -473,10 +473,7 @@ fun PaymentWebView(
 ) {
     val context = LocalContext.current
 
-    // 시스템 백버튼 처리 추가
-    BackHandler {
-        onBackPressed()
-    }
+    BackHandler { onBackPressed() }
 
     AndroidView(
         factory = { context ->
@@ -485,318 +482,61 @@ fun PaymentWebView(
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
                     android.widget.FrameLayout.LayoutParams.MATCH_PARENT
                 )
-                webChromeClient = object : android.webkit.WebChromeClient() {
-                    override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
-                        Log.d(
-                            "WebView_Console",
-                            "${consoleMessage?.message()} -- From line ${consoleMessage?.lineNumber()} of ${consoleMessage?.sourceId()}"
-                        )
-                        return true
-                    }
-                }
-
+                webChromeClient = object : android.webkit.WebChromeClient() {}
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
-                        Log.d("HWO", "Page finished loading: $url")
-
-                        when {
-                            url?.contains("payment-result.html") == true -> {
-                                Log.d(
-                                    "HWO",
-                                    "Payment result page loaded, checking for result parameters"
-                                )
-
-                                // Android Interface 재확인
-                                view?.evaluateJavascript("console.log('Payment result page - Android interface check:', !!window.Android);") { result ->
-                                    Log.d(
-                                        "HWO",
-                                        "Payment result page - Android interface check result: $result"
-                                    )
+                        if (url?.contains("payment.html") == true) {
+                            val name = paymentData?.get("name") ?: orderProduct.productTitle
+                            val amount = paymentData?.get("amount") ?: "100"
+                            val merchantUid = paymentData?.get("merchant_uid")
+                                ?: ("test_" + System.currentTimeMillis())
+                            val jsCode = """
+                                if (typeof updateProductInfo === 'function') {
+                                    updateProductInfo(\"$name\", \"$amount\", \"$merchantUid\");
                                 }
-
-                                // 결제 결과 파라미터 추출 및 처리
-                                view?.evaluateJavascript(
-                                    """
-                                    (function() {
-                                        try {
-                                            var urlParams = new URLSearchParams(window.location.search);
-                                            var merchantUid = urlParams.get('merchant_uid');
-                                            var impUid = urlParams.get('imp_uid');
-                                            var impSuccess = urlParams.get('imp_success');
-                                            var errorMsg = urlParams.get('error_msg');
-                                            var amount = urlParams.get('amount') || '${
-                                        paymentData?.get(
-                                            "amount"
-                                        ) ?: "0"
-                                    }';
-                                            
-                                            console.log('Extracted payment params:', {
-                                                merchantUid: merchantUid,
-                                                impUid: impUid,
-                                                impSuccess: impSuccess,
-                                                errorMsg: errorMsg,
-                                                amount: amount
-                                            });
-                                            
-                                            if (merchantUid) {
-                                                if (impSuccess === 'true' && impUid) {
-                                                    console.log('Payment successful, calling Android interface');
-                                                    if (window.Android && typeof window.Android.onPaymentSuccess === 'function') {
-                                                        window.Android.onPaymentSuccess(impUid, amount);
-                                                    } else {
-                                                        console.error('Android.onPaymentSuccess not available');
-                                                    }
-                                                } else {
-                                                    console.log('Payment failed, calling Android interface');
-                                                    if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
-                                                        window.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
-                                                    } else {
-                                                        console.error('Android.onPaymentFailure not available');
-                                                    }
-                                                }
-                                            } else {
-                                                console.log('No merchant_uid found in URL parameters');
-                                            }
-                                            
-                                            return 'payment_result_processed';
-                                        } catch (error) {
-                                            console.error('Error processing payment result:', error);
-                                            if (window.Android && typeof window.Android.onPaymentFailure === 'function') {
-                                                window.Android.onPaymentFailure('결제 결과 처리 중 오류가 발생했습니다.');
-                                            }
-                                            return 'payment_result_error: ' + error.message;
-                                        }
-                                    })();
-                                """.trimIndent()
-                                ) { result ->
-                                    Log.d("HWO", "Payment result processing result: $result")
-                                }
-                            }
-
-                            url?.contains("payment.html") == true -> {
-                                // 페이지 로드 완료 후 상품 정보 JavaScript로 전달
-                                val amount = paymentData?.get("amount") ?: "0"
-                                val merchantUid = paymentData?.get("merchant_uid") ?: ""
-
-                                val jsCode = """
-                                    if (typeof updateProductInfo === 'function') {
-                                        updateProductInfo('${orderProduct.productTitle}', '$amount', '$merchantUid');
-                                    }
-                                """.trimIndent()
-
-                                view?.evaluateJavascript(jsCode) { result ->
-                                    Log.d("HWO", "JavaScript execution result: $result")
-                                }
-
-                                // Android Interface가 제대로 설정되었는지 확인
-                                view?.evaluateJavascript("console.log('Android interface check:', !!window.Android);") { result ->
-                                    Log.d("HWO", "Android interface check result: $result")
-                                }
-                            }
+                            """.trimIndent()
+                            view?.evaluateJavascript(jsCode, null)
                         }
-                    }
-
-                    override fun onReceivedSslError(
-                        view: WebView?,
-                        handler: android.webkit.SslErrorHandler?,
-                        error: android.net.http.SslError?
-                    ) {
-                        // 보안을 위해 SSL 인증서 오류 발생 시 연결을 중단합니다.
-                        // Never ignore SSL errors. For Korean users' safety and global policy compliance, do NOT use handler?.proceed().
-                        handler?.cancel()
-                        // TODO: 필요하다면 사용자에게 SSL 오류 알림 다이얼로그를 추가할 수 있습니다.
                     }
 
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                        Log.d("HWO", "URL loading: $url")
-
-                        url?.let { currentUrl ->
-                            // 카카오톡 앱 스킴 처리
-                            if (currentUrl.startsWith("kakaotalk://") ||
-                                currentUrl.startsWith("kakaokompassauth://") ||
-                                currentUrl.startsWith("intent://")
-                            ) {
+                        if (url == null) return false
+                        return when {
+                            url.startsWith("intent://") || url.startsWith("kakaopay://") || url.startsWith(
+                                "kakaotalk://"
+                            ) -> {
                                 try {
                                     val intent = android.content.Intent.parseUri(
-                                        currentUrl,
+                                        url,
                                         android.content.Intent.URI_INTENT_SCHEME
                                     )
                                     context.startActivity(intent)
-                                    return true
                                 } catch (e: Exception) {
-                                    Log.e("WebView", "Failed to handle intent: $e")
-                                    return false
+                                    e.printStackTrace()
                                 }
+                                true
                             }
 
-                            // 앱 스킴 처리 (★ 실질 처리)
-                            if (currentUrl.startsWith("petgrowdaily://")) {
-                                Log.d("HWO", "App scheme detected: $currentUrl")
-                                try {
-                                    val uri = android.net.Uri.parse(currentUrl)
-                                    val impUid = uri.getQueryParameter("imp_uid")
-                                    val merchantUid = uri.getQueryParameter("merchant_uid")
-                                    val impSuccess = uri.getQueryParameter("imp_success") == "true"
-                                    val errorMsg = uri.getQueryParameter("error_msg")
-
-                                    Log.d("HWO", "Parsed deeplink -> success=$impSuccess, imp_uid=$impUid, merchant_uid=$merchantUid, error=$errorMsg")
-
-                                    // TODO(권장): 서버로 impUid/merchantUid 보내서 PortOne REST로 결제 검증
-                                    // verifyPaymentOnServer(impUid, merchantUid)
-
-                                    (context as? Activity)?.runOnUiThread {
-                                        if (impSuccess && !impUid.isNullOrBlank()) {
-                                            onPaymentResult(true, null, impUid)   // 성공
-                                        } else {
-                                            onPaymentResult(false, errorMsg ?: "결제가 취소되었습니다.", null) // 실패/취소
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("HWO", "Error handling app scheme: $e")
-                                    (context as? Activity)?.runOnUiThread {
-                                        onPaymentResult(false, "결제 결과 처리 중 오류가 발생했습니다.", null)
-                                    }
-                                }
-                                return true
-                            }
-                            // iamport redirect URL 처리 - 안전하지 않은 리디렉션 방지
-                            if (currentUrl.contains("service.iamport.kr") &&
-                                (currentUrl.contains("kakaoApprovalRedirect") || currentUrl.contains(
-                                    "redirect"
-                                ))
-                            ) {
-                                Log.d(
-                                    "HWO",
-                                    "Detected iamport redirect URL, handling specially: $currentUrl"
-                                )
-
-                                try {
-                                    // URL에서 파라미터 추출
-                                    val uri = android.net.Uri.parse(currentUrl)
-                                    val pgToken = uri.getQueryParameter("pg_token")
-
-                                    if (pgToken != null) {
-                                        Log.d(
-                                            "HWO",
-                                            "Found pg_token, processing payment completion"
-                                        )
-
-                                        // 결제 완료 처리를 위해 결과 페이지로 리디렉션하는 대신
-                                        // 직접 결제 성공 처리
-                                        val amount = paymentData?.get("amount") ?: "0"
-                                        val merchantUid = paymentData?.get("merchant_uid") ?: ""
-                                        val impUid =
-                                            "imp_${System.currentTimeMillis()}" // 임시 imp_uid
-
-                                        // 결제 결과 페이지를 직접 로드
-                                        val resultUrl =
-                                            "file:///android_asset/payment-result.html?merchant_uid=$merchantUid&amount=$amount&imp_uid=$impUid&imp_success=true"
-                                        view?.loadUrl(resultUrl)
-                                        return true
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("HWO", "Error processing iamport redirect: $e")
-                                }
-                                return false
-                            }
-
-                            // payment-result.html 리디렉션 처리
-                            if (currentUrl.contains("payment-result.html")) {
-                                Log.d("HWO", "Payment result redirect detected: $currentUrl")
-                                return false // WebView에서 로드하도록 허용
-                            }
-
-                            // 카카오페이 및 결제 관련 URL은 모두 WebView에서 처리
-                            if (currentUrl.contains("iamport.kr") ||
-                                currentUrl.contains("inicis.com") ||
-                                currentUrl.contains("kcp.co.kr") ||
-                                currentUrl.contains("kakaopay.com") ||
-                                currentUrl.contains("kakao.com") ||
-                                currentUrl.contains("payment")
-                            ) {
-                                Log.d("HWO", "Payment related URL, loading in WebView: $currentUrl")
-                                return false
-                            }
-
-                            // 파일 URL은 WebView에서 처리
-                            if (currentUrl.startsWith("file://")) {
-                                Log.d("HWO", "File URL, loading in WebView: $currentUrl")
-                                return false
-                            }
-
-                            // HTTPS/HTTP URL은 WebView에서 처리
-                            if (currentUrl.startsWith("https://") || currentUrl.startsWith("http://")) {
-                                Log.d("HWO", "HTTP/HTTPS URL, loading in WebView: $currentUrl")
-                                return false
-                            }
+                            else -> false
                         }
-
-                        return false
                     }
                 }
-
                 settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
-                    allowFileAccess = true
-                    allowContentAccess = true
-                    allowUniversalAccessFromFileURLs = true
-                    allowFileAccessFromFileURLs = true
                     mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                    cacheMode = android.webkit.WebSettings.LOAD_NO_CACHE
-                    setSupportMultipleWindows(true)
-                    javaScriptCanOpenWindowsAutomatically = true
-                    userAgentString = "${userAgentString} PetGrowDaily"
                 }
-
                 addJavascriptInterface(object {
                     @JavascriptInterface
                     fun onPaymentSuccess(transactionId: String, amount: String) {
-                        Log.d(
-                            "HWO",
-                            "JavaScript Interface - Payment Success called: transactionId=$transactionId, amount=$amount"
-                        )
-                        try {
-                            (context as? Activity)?.runOnUiThread {
-                                Log.d("HWO", "Executing onPaymentResult for success on main thread")
-                                onPaymentResult(true, null, transactionId)
-                            }
-                        } catch (e: Exception) {
-                            Log.e("HWO", "Error in onPaymentSuccess: ${e.message}")
-                        }
+                        onPaymentResult(true, null, transactionId)
                     }
-
                     @JavascriptInterface
                     fun onPaymentFailure(message: String) {
-                        Log.d(
-                            "HWO",
-                            "JavaScript Interface - Payment Failure called: message=$message"
-                        )
-                        try {
-                            (context as? Activity)?.runOnUiThread {
-                                Log.d("HWO", "Executing onPaymentResult for failure on main thread")
-                                onPaymentResult(false, message, null)
-                            }
-                        } catch (e: Exception) {
-                            Log.e("HWO", "Error in onPaymentFailure: ${e.message}")
-                        }
-                    }
-
-                    @JavascriptInterface
-                    fun closeWebView() {
-                        Log.d("HWO", "JavaScript Interface - Close WebView called")
-                        try {
-                            (context as? Activity)?.runOnUiThread {
-                                Log.d("HWO", "Executing onBackPressed on main thread")
-                                onBackPressed()
-                            }
-                        } catch (e: Exception) {
-                            Log.e("HWO", "Error in closeWebView: ${e.message}")
-                        }
+                        onPaymentResult(false, message, null)
                     }
                 }, "Android")
-
                 loadUrl("file:///android_asset/payment.html")
             }
         },

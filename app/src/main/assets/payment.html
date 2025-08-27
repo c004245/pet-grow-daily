@@ -86,53 +86,40 @@
     var IMP = window.IMP;
     IMP.init('imp28817041'); // 제공받은 가맹점 식별코드
     
-    // 전역 변수로 상품 정보 저장
-    var productInfo = {
-        name: '코팅형 고급 앨범',
-        amount: 27000,
-        merchantUid: 'album_' + new Date().getTime()
+    // 최소 결제 데이터 구조 (OrderViewModel에서 전달하는 paymentData와 맞춤)
+    var product = {
+        name: '테스트 결제',
+        amount: 100,
+        merchantUid: 'test_' + new Date().getTime()
     };
 
-    // Android에서 호출할 함수
-    function updateProductInfo(productName, productAmount, merchantUid) {
-        console.log('Updating product info:', productName, productAmount, merchantUid);
-        
-        productInfo.name = productName;
-        productInfo.amount = parseInt(productAmount);
-        productInfo.merchantUid = merchantUid || ('album_' + new Date().getTime());
-        
-        // UI 업데이트
-        document.getElementById('product-title').innerText = '🐾 ' + productName;
-        document.getElementById('product-price').innerText = parseInt(productAmount).toLocaleString() + '원';
+    // OrderRoute에서 evaluateJavascript로 호출됨 - 값 전달 받아 화면 및 데이터 갱신
+    function updateProductInfo(name, amount, merchantUid) {
+        product.name = name || product.name;
+        product.amount = parseInt(amount) || 100;
+        product.merchantUid = merchantUid || ('test_' + new Date().getTime());
+        document.getElementById('product-title').innerText = product.name;
+        document.getElementById('product-price').innerText = product.amount.toLocaleString() + '원';
     }
 
     function requestPay() {
+        var resultEl = document.getElementById('result');
+        resultEl.textContent = '';
         IMP.request_pay({
-            pg: 'kakaopay',
+            channelKey: 'channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5',
+            pg: 'kakaopay.CA18847470',
             pay_method: 'card',
-            merchant_uid: productInfo.merchantUid,
-            name: productInfo.name,
-            amount: productInfo.amount,
-            m_redirect_url: 'file:///android_asset/payment-result.html?merchant_uid=' + productInfo.merchantUid + '&amount=' + productInfo.amount,
-            app_scheme: 'petgrowdaily'
+            merchant_uid: product.merchantUid,
+            name: product.name,
+            amount: product.amount,
+            m_redirect_url: 'https://pet-grow-daily.web.app/payment-result.html'
         }, function(rsp) {
-            var resultElement = document.getElementById('result');
-            resultElement.style.display = 'block';
-            
             if (rsp.success) {
-                resultElement.className = 'result-message success';
-                resultElement.innerHTML = '✅ 결제 성공!<br>결제 금액: ' + rsp.paid_amount + '원<br>거래번호: ' + rsp.imp_uid;
-                
-                if (window.Android) {
-                    window.Android.onPaymentSuccess(rsp.imp_uid, rsp.paid_amount);
-                }
+                resultEl.textContent = '결제 성공: ' + rsp.merchant_uid;
+                try { window.Android && window.Android.onPaymentSuccess && window.Android.onPaymentSuccess(rsp.imp_uid, String(rsp.paid_amount || product.amount)); } catch(e){}
             } else {
-                resultElement.className = 'result-message error';
-                resultElement.innerHTML = '❌ 결제 실패<br>' + rsp.error_msg;
-                
-                if (window.Android) {
-                    window.Android.onPaymentFailure(rsp.error_msg);
-                }
+                resultEl.textContent = '결제 실패: ' + (rsp.error_msg || '오류');
+                try { window.Android && window.Android.onPaymentFailure && window.Android.onPaymentFailure(rsp.error_msg || '결제 실패'); } catch(e){}
             }
         });
     }

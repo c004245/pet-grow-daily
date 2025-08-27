@@ -147,12 +147,11 @@ class OrderViewModel @Inject constructor(
         val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
 
         val paymentData = mapOf(
-            "userCode" to "imp26031685", // 제공받은 식별코드
-            "pg" to "kakaopay.TC0ONETIME", // 카카오페이 테스트 PG 설정
-            "name" to "${orderProduct.productTitle} (테스트)",
-            "merchant_uid" to "test_album_${System.currentTimeMillis()}",
-            "amount" to discountedPrice.toString(), // 실제 할인된 가격 사용
-            "app_scheme" to "petgrowdaily"
+            "channelKey" to "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
+            "merchant_uid" to "test_" + System.currentTimeMillis(),
+            "name" to "테스트 결제",
+            "amount" to "100",
+            "m_redirect_url" to "https://pet-grow-daily.web.app/payment-result.html"
         )
 
         _paymentData.value = paymentData

@@ -204,7 +204,7 @@ fun ImageSliderWithIndicator(title: String) {
             R.drawable.ic_product_advance_submain3,
             R.drawable.ic_product_advance_submain4,
 
-        )
+            )
     }
 
     val images = remember(title) {
@@ -403,8 +403,7 @@ fun OrderButtonWidget(
 
                 var message = if (isButtonEnabled) {
                     "앨범 주문이 가능해요 😀"
-                }
-                else {
+                } else {
                     "사진을 ${albumRequireCount}개 더 채우면 주문 가능해요."
                 }
 
@@ -576,12 +575,13 @@ fun PaymentWebView(
 
                             url?.contains("payment.html") == true -> {
                                 // 페이지 로드 완료 후 상품 정보 JavaScript로 전달
-                                val amount = paymentData?.get("amount") ?: "0"
-                                val merchantUid = paymentData?.get("merchant_uid") ?: ""
-
+                                val name = paymentData?.get("name") ?: orderProduct.productTitle
+                                val amount = paymentData?.get("amount") ?: "100"
+                                val merchantUid = paymentData?.get("merchant_uid")
+                                    ?: ("test_" + System.currentTimeMillis())
                                 val jsCode = """
                                     if (typeof updateProductInfo === 'function') {
-                                        updateProductInfo('${orderProduct.productTitle}', '$amount', '$merchantUid');
+                                        updateProductInfo('$name', '$amount', '$merchantUid');
                                     }
                                 """.trimIndent()
 

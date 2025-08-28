@@ -19,24 +19,21 @@
             justify-content: flex-start;
         }
         .header-bar {
-            padding-top: 8px;
-            padding-left: 16px;
-            height: 48px;
-            display: flex;
-            align-items: flex-start;
-            background: transparent;
+            display: none;
         }
         .back-btn {
-            width: 11px; height: 11px;
-            cursor: pointer;
-            border-radius: 100px;
-            border: none; background: transparent;
+            display: none;
         }
         .p-info {
             display: flex;
             flex-direction: column;
             padding: 18px 0 0 24px;
             gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .p-info.loaded {
+            opacity: 1;
         }
         .photo-count {
             color: #A9A9A9;
@@ -54,9 +51,9 @@
             font-size:22px;
         }
         .album-img-area {
-            margin:32px auto 0;
-            width: 82vw; max-width:400px;
-            border-radius: 18px;
+            margin: 32px 16px 0;
+            width: calc(100% - 32px);
+            border-radius: 16px;
             overflow: hidden;
         }
         .album-img-area img {
@@ -103,10 +100,8 @@
 </head>
 <body>
 <div class="header-bar">
-    <img class="back-btn" src="file:///android_asset/ic_arrow_back.png"
-         onclick="callAndroidBack()"/>
 </div>
-<div class="p-info">
+<div id="product-info" class="p-info">
     <div id="photo-count" class="photo-count">사진 최대 40장 수록</div>
     <div id="product-title" class="product-title">포토북 하드 커버</div>
     <div id="product-price" class="product-price">18,000원</div>
@@ -138,10 +133,27 @@
         product.merchantUid = merchantUid || ('test_' + new Date().getTime());
         product.maxPhotoCount = maxPhotoCount || product.maxPhotoCount;
         product.imageUrl = imageUrl || product.imageUrl;
-        document.getElementById('photo-count').innerText = '사진 최대 ' + product.maxPhotoCount + '장 수록';
+        
+        // 제품명에 따른 이미지 설정
+        var displayImageUrl = product.imageUrl;
+        var displayMaxPhotoCount = product.maxPhotoCount;
+        
+        if (product.name && product.name.includes('패브릭')) {
+            displayImageUrl = 'file:///android_asset/ic_product_advance_main.jpeg';
+            displayMaxPhotoCount = 40;
+        } else if (product.name && product.name.includes('하드')) {
+            displayImageUrl = 'file:///android_asset/ic_product_middle_main.jpeg';
+            displayMaxPhotoCount = 40;
+        } else {
+            displayImageUrl = 'file:///android_asset/ic_product_light_main.jpeg';
+            displayMaxPhotoCount = 62;
+        }
+        
+        document.getElementById('photo-count').innerText = '사진 최대 ' + displayMaxPhotoCount + '장 수록';
         document.getElementById('product-title').innerText = product.name;
         document.getElementById('product-price').innerText = product.amount.toLocaleString() + '원';
-        document.getElementById('album-image').src = product.imageUrl;
+        document.getElementById('album-image').src = displayImageUrl;
+        document.getElementById('product-info').classList.add('loaded');
     }
     function callAndroidBack() {
         if (window.Android && typeof window.Android.closeWebView === 'function') {
@@ -169,6 +181,7 @@
             }
         });
     }
+    updateProductInfo();
 </script>
 </body>
 </html>

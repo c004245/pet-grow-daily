@@ -211,7 +211,7 @@ fun ImageSliderWithIndicator(title: String) {
         when {
             title.contains("인스타북") -> lightImages
             title.contains("하드") -> middleImages
-            title.contains("고급") -> advanceImages
+            title.contains("패브릭") -> advanceImages
             else -> lightImages
         }
     }

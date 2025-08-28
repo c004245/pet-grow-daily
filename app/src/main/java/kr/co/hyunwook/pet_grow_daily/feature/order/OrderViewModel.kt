@@ -148,7 +148,7 @@ class OrderViewModel @Inject constructor(
 
         val paymentData = mapOf(
             "channelKey" to "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
-            "merchant_uid" to "test_" + System.currentTimeMillis(),
+            "merchant_uid" to "order_" + System.currentTimeMillis(),
             "name" to orderProduct.productTitle,
             "amount" to "100",
             "m_redirect_url" to "https://pet-grow-daily.web.app/payment-result.html"

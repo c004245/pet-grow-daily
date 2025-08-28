@@ -636,50 +636,43 @@ fun PaymentWebView(
                                 return true
                             }
 
-                            // iamport redirect URL 처리 - 안전하지 않은 리디렉션 방지
-                            if (currentUrl.contains("service.iamport.kr") &&
-                                (currentUrl.contains("kakaoApprovalRedirect") || currentUrl.contains(
-                                    "redirect"
-                                ))
-                            ) {
-                                Log.d(
-                                    "HWO",
-                                    "Detected iamport redirect URL, handling specially: $currentUrl"
-                                )
+                            // payment-result.html 리디렉션 처리 - 실제 m_redirect_url 도달 시에만 처리
+                            if (currentUrl.contains("pet-grow-daily.web.app/payment-result.html")) {
+                                Log.d("HWO", "Payment result redirect detected: $currentUrl")
 
                                 try {
-                                    // URL에서 파라미터 추출
                                     val uri = android.net.Uri.parse(currentUrl)
-                                    val pgToken = uri.getQueryParameter("pg_token")
+                                    val merchantUid = uri.getQueryParameter("merchant_uid")
+                                    val impUid = uri.getQueryParameter("imp_uid")
+                                    val impSuccess = uri.getQueryParameter("imp_success")
+                                    val amount = uri.getQueryParameter("amount")
+                                        ?: paymentData?.get("amount") ?: "100"
 
-                                    if (pgToken != null) {
+                                    Log.d(
+                                        "HWO",
+                                        "Payment result parameters - merchant_uid: $merchantUid, imp_uid: $impUid, imp_success: $impSuccess, amount: $amount"
+                                    )
+
+                                    if (merchantUid != null && impUid != null && impSuccess == "true") {
                                         Log.d(
                                             "HWO",
-                                            "Found pg_token, processing payment completion"
+                                            "Payment successful via redirect - imp_uid: $impUid"
                                         )
-
-                                        // 결제 완료 처리를 위해 결과 페이지로 리디렉션하는 대신
-                                        // 직접 결제 성공 처리
-                                        val amount = paymentData?.get("amount") ?: "0"
-                                        val merchantUid = paymentData?.get("merchant_uid") ?: ""
-                                        val impUid =
-                                            "imp_${System.currentTimeMillis()}" // 임시 imp_uid
-
-                                        // 결제 결과 페이지를 직접 로드
-                                        val resultUrl =
-                                            "file:///android_asset/payment-result.html?merchant_uid=$merchantUid&amount=$amount&imp_uid=$impUid&imp_success=true"
-                                        view?.loadUrl(resultUrl)
-                                        return true
+                                        (context as? Activity)?.runOnUiThread {
+                                            onPaymentResult(true, null, impUid)
+                                        }
+                                    } else {
+                                        Log.d("HWO", "Payment failed or cancelled via redirect")
+                                        (context as? Activity)?.runOnUiThread {
+                                            onPaymentResult(false, "결제가 취소되었습니다", null)
+                                        }
                                     }
                                 } catch (e: Exception) {
-                                    Log.e("HWO", "Error processing iamport redirect: $e")
+                                    Log.e("HWO", "Error processing payment result redirect: $e")
+                                    (context as? Activity)?.runOnUiThread {
+                                        onPaymentResult(false, "결제 결과 처리 중 오류가 발생했습니다", null)
+                                    }
                                 }
-                                return false
-                            }
-
-                            // payment-result.html 리디렉션 처리
-                            if (currentUrl.contains("payment-result.html")) {
-                                Log.d("HWO", "Payment result redirect detected: $currentUrl")
                                 return false // WebView에서 로드하도록 허용
                             }
 

@@ -128,8 +128,13 @@ fun DeliveryCheckRoute(
                 orderProduct = orderProduct,
                 paymentData = currentPaymentData,
                 onPaymentResult = { success, message, transactionId ->
+                    Log.d(
+                        "HWO",
+                        "결제 결과 콜백 - success: $success, message: $message, transactionId: $transactionId"
+                    )
                     if (success) {
                         val amount = currentPaymentData?.get("amount") ?: "0"
+                        Log.d("HWO", "결제 성공 - imp_uid: $transactionId, amount: $amount")
 
                         viewModel.setPaymentResult(
                             PaymentResult.Success(
@@ -139,6 +144,7 @@ fun DeliveryCheckRoute(
                         )
                         Log.d("HWO", "결제 완료")
                     } else {
+                        Log.d("HWO", "결제 실패 - message: $message, transactionId: $transactionId")
                         viewModel.setPaymentResult(PaymentResult.Failure(message ?: "결제 실패"))
                         Log.d("HWO", "결제 실패: $message")
                     }

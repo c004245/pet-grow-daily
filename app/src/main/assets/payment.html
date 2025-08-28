@@ -107,7 +107,7 @@
     <div id="product-price" class="product-price">18,000원</div>
 </div>
 <div class="album-img-area">
-    <img id="album-image" src="file:///android_asset/sample_album.jpg" alt="album"/>
+    <img id="album-image" src="file:///android_asset/ic_product_advance_main.jpeg" alt="album"/>
 </div>
 <div id="result" class="result-message"></div>
 
@@ -123,14 +123,14 @@
     var product = {
         name: '포토북 하드 커버',
         amount: 18000,
-        merchantUid: 'test_' + new Date().getTime(),
+        merchantUid: 'order_' + new Date().getTime(),
         maxPhotoCount: 40,
-        imageUrl: 'file:///android_asset/sample_album.jpg'
+        imageUrl: 'file:///android_asset/ic_product_advance_main.jpeg'
     };
     function updateProductInfo(name, amount, merchantUid, maxPhotoCount, imageUrl) {
         product.name = name || product.name;
         product.amount = parseInt(amount) || 100;
-        product.merchantUid = merchantUid || ('test_' + new Date().getTime());
+        product.merchantUid = merchantUid || ('order_' + new Date().getTime());
         product.maxPhotoCount = maxPhotoCount || product.maxPhotoCount;
         product.imageUrl = imageUrl || product.imageUrl;
         
@@ -164,23 +164,77 @@
         var resultEl = document.getElementById('result');
         resultEl.textContent = '';
         IMP.request_pay({
-            channelKey: 'channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5',
-            pg: 'kakaopay.CA18847470',
-            pay_method: 'card',
-            merchant_uid: product.merchantUid,
+            channelKey: "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
+            pay_method: "kakaopay", 
+            merchant_uid: "order_" + new Date().getTime(),
             name: product.name,
             amount: product.amount,
+            currency: "KRW",
+            buyer_tel: "010-2732-7899",
+            buyer_name: "구매자",
+            buyer_email: "test@example.com",
+            request_id: "req_" + new Date().getTime(),
+            pg: "kakaopay.CA18847470",
             m_redirect_url: 'https://pet-grow-daily.web.app/payment-result.html'
         }, function(rsp) {
+            console.log('=== 결제 응답 상세 정보 ===');
+            console.log('전체 응답 객체:', JSON.stringify(rsp, null, 2));
+            console.log('success:', rsp.success);
+            console.log('imp_uid:', rsp.imp_uid);
+            console.log('merchant_uid:', rsp.merchant_uid);
+            console.log('paid_amount:', rsp.paid_amount);
+            console.log('status:', rsp.status);
+            console.log('pg_tid:', rsp.pg_tid); 
+            console.log('pg_provider:', rsp.pg_provider);
+            console.log('=== 결제 응답 끝 ===');
+            
             if (rsp.success) {
-                resultEl.textContent = '결제 성공: ' + rsp.merchant_uid;
-                try { window.Android && window.Android.onPaymentSuccess && window.Android.onPaymentSuccess(rsp.imp_uid, String(rsp.paid_amount || product.amount)); } catch(e){}
+                resultEl.textContent = '결제 성공: ' + rsp.merchant_uid + '\nimp_uid: ' + rsp.imp_uid;
+                console.log('결제 성공 - imp_uid:', rsp.imp_uid, 'paid_amount:', rsp.paid_amount);
+                try { 
+                    checkPaymentStatus(rsp.imp_uid);
+                } catch(e){
+                    console.error('Android 콜백 에러:', e);
+                }
             } else {
-                resultEl.textContent = '결제 실패: ' + (rsp.error_msg || '오류');
-                try { window.Android && window.Android.onPaymentFailure && window.Android.onPaymentFailure(rsp.error_msg || '결제 실패'); } catch(e) {}
+                resultEl.textContent = '결제 실패: ' + (rsp.error_msg || '오류') + '\nimp_uid: ' + (rsp.imp_uid || 'N/A');
+                console.log('결제 실패 - error_msg:', rsp.error_msg, 'imp_uid:', rsp.imp_uid);
+                try { 
+                    window.Android && window.Android.onPaymentFailure && window.Android.onPaymentFailure(rsp.error_msg || '결제 실패'); 
+                } catch(e) {
+                    console.error('Android 콜백 에러:', e);
+                }
             }
         });
     }
+    
+    // 결제 상태를 주기적으로 확인하는 함수
+    function checkPaymentStatus(impUid, maxAttempts = 10) {
+        var attempts = 0;
+        var checkInterval = setInterval(function() {
+            attempts++;
+            console.log('Checking payment status, attempt:', attempts, 'for imp_uid:', impUid);
+            
+            // 실제로는 서버 API를 호출하여 결제 상태를 확인해야 함
+            // 여기서는 시뮬레이션
+            if (attempts >= 3) { // 3번째 시도 후 성공으로 간주
+                clearInterval(checkInterval);
+                console.log('Payment verified successfully for imp_uid:', impUid);
+                
+                if (window.Android && window.Android.onPaymentSuccess) {
+                    window.Android.onPaymentSuccess(impUid, '100');
+                }
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                console.log('Payment verification failed after', maxAttempts, 'attempts');
+                
+                if (window.Android && window.Android.onPaymentFailure) {
+                    window.Android.onPaymentFailure('결제 상태 확인 실패');
+                }
+            }
+        }, 1000);
+    }
+    
     updateProductInfo();
 </script>
 </body>

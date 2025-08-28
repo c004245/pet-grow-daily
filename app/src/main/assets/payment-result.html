@@ -46,7 +46,7 @@
         var impUid = urlParams.get('imp_uid');
         var impSuccess = urlParams.get('imp_success');
         var errorMsg = urlParams.get('error_msg');
-        var amount = urlParams.get('amount') || '27000';
+        var amount = urlParams.get('amount') || '100';
         
         console.log('URL params:', {
             merchantUid: merchantUid,
@@ -64,7 +64,7 @@
                 // 결제 성공
                 console.log('Payment successful via redirect, updating UI');
                 resultElement.className = 'success';
-                resultElement.innerHTML = '✅ 결제가 완료되었습니다! (리디렉션)<br>거래번호: ' + impUid + '<br>결제금액: ' + parseInt(amount).toLocaleString() + '원';
+                resultElement.innerHTML = '✅ 결제가 완료되었습니다!<br>거래번호: ' + impUid + '<br>결제금액: ' + parseInt(amount).toLocaleString() + '원';
                 
                 // 안드로이드 앱으로 결과 전달
                 setTimeout(function() {
@@ -74,20 +74,16 @@
                             window.Android.onPaymentSuccess(impUid, amount);
                         } else {
                             console.error('Android interface not available in result page');
-                            // Android 인터페이스가 없을 경우를 대비한 fallback
-                            if (window.parent && window.parent.Android) {
-                                window.parent.Android.onPaymentSuccess(impUid, amount);
-                            }
                         }
                     } catch (error) {
                         console.error('Error calling Android interface in result page:', error);
                     }
-                }, 500);
+                }, 1000);
             } else {
                 // 결제 실패 또는 취소
                 console.log('Payment failed or cancelled via redirect');
                 resultElement.className = 'error';
-                resultElement.innerHTML = '❌ 결제가 실패했습니다. (리디렉션)<br>' + (errorMsg || '사용자가 결제를 취소했습니다.');
+                resultElement.innerHTML = '❌ 결제가 실패했습니다.<br>' + (errorMsg || '사용자가 결제를 취소했습니다.');
                 
                 // 안드로이드 앱으로 결과 전달
                 setTimeout(function() {
@@ -97,15 +93,11 @@
                             window.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
                         } else {
                             console.error('Android interface not available for failure in result page');
-                            // Android 인터페이스가 없을 경우를 대비한 fallback
-                            if (window.parent && window.parent.Android) {
-                                window.parent.Android.onPaymentFailure(errorMsg || '결제가 취소되었습니다.');
-                            }
                         }
                     } catch (error) {
                         console.error('Error calling Android failure interface in result page:', error);
                     }
-                }, 500);
+                }, 1000);
             }
             
             // 3초 후 WebView 닫기

@@ -395,7 +395,7 @@ fun RecordWriteField(
 
         )
         Text(
-            text = "${memoText.length}/30",
+            text = "${memoText.length}/50",
             style = PetgrowTheme.typography.regular,
             fontSize = 12.sp,
             color = gray60,
@@ -422,7 +422,7 @@ fun RecordWriteMemoField(text: String, onTextChange: (String) -> Unit) {
         BasicTextField(
             value = text,
             onValueChange = { newText ->
-                if (newText.length <= 30) {
+                if (newText.length <= 50) {
                     onTextChange(newText)
                 }
             },

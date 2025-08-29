@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -427,6 +428,7 @@ fun PostcodeDialog(
                 .fillMaxSize()
                 .background(Color.White)
         ) {
+            // 웹뷰를 상단 여백을 두고 배치
             AndroidView(
                 factory = { context ->
                     WebView(context).apply {
@@ -485,24 +487,17 @@ fun PostcodeDialog(
                                 <title>우편번호 검색</title>
                             </head>
                             <body style="margin:0; padding:0;">
-                                <div id="wrap" style="display:none;border:1px solid;width:100%;height:100%;margin:0;position:relative">
-                                    <img src="//t1.daumcdn.net/postcode/resource/images/close.png" id="btnFoldWrap" style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1" onclick="foldDaumPostcode()" alt="접기 버튼">
+                                <div id="wrap" style="width:100%;height:100vh;margin:0;position:relative">
                                 </div>
                                 
                                 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                                 <script>
                                     var element_wrap = document.getElementById('wrap');
                                     
-                                    function foldDaumPostcode() {
-                                        element_wrap.style.display = 'none';
-                                    }
-                                    
                                     new daum.Postcode({
                                         oncomplete: function(data) {
                                             // JavaScript Interface를 통해 안드로이드로 데이터 전달
                                             Android.processDATA(JSON.stringify(data));
-                                            // iframe을 넣은 element를 안보이게 한다.
-                                            element_wrap.style.display = 'none';
                                         },
                                         onresize : function(size) {
                                             element_wrap.style.height = size.height+'px';
@@ -510,9 +505,6 @@ fun PostcodeDialog(
                                         width : '100%',
                                         height : '100%'
                                     }).embed(element_wrap);
-
-                                    // iframe을 넣은 element를 보이게 한다.
-                                    element_wrap.style.display = 'block';
                                 </script>
                             </body>
                             </html>
@@ -523,16 +515,30 @@ fun PostcodeDialog(
                         )
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 60.dp) // X버튼과 겹치지 않도록 상단 패딩 추가
             )
 
-            IconButton(
-                onClick = onDismiss,
+            // 컴포즈 X버튼만 유지
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(16.dp)
+                    .size(40.dp)
+                    .background(
+                        color = Color.Black.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .clickable { onDismiss() },
+                contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Filled.Close, "닫기")
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = "닫기",
+                    tint = Color.Black,
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
     }

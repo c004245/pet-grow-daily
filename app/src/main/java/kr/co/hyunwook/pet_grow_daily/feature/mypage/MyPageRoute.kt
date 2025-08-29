@@ -1,5 +1,6 @@
 package kr.co.hyunwook.pet_grow_daily.feature.mypage
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import kr.co.hyunwook.pet_grow_daily.R
@@ -96,24 +97,36 @@ fun MyPageRoute(
             galleryLauncher.launch("image/*")
         },
         onClickService = {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://www.instagram.com/dailydog_around/")
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://www.instagram.com/dailydog_around/")
+                }
+                context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Log.e("MyPageRoute", "Failed to open Instagram", e)
             }
-            context.startActivity(intent)
         },
         onClickPrivacy = {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data =
-                    Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180fbbd18d5bb86cf2988?source=copy_link")
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data =
+                        Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180fbbd18d5bb86cf2988?source=copy_link")
+                }
+                context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Log.e("MyPageRoute", "Failed to open privacy policy", e)
             }
-            context.startActivity(intent)
         },
         onClickTerm = {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data =
-                    Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180a8943eea44d6d1d4e6?source=copy_link")
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data =
+                        Uri.parse("https://gusty-lobe-f9b.notion.site/22ce91dcf9a180a8943eea44d6d1d4e6?source=copy_link")
+                }
+                context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Log.e("MyPageRoute", "Failed to open terms of service", e)
             }
-            context.startActivity(intent)
         },
         onClickAlarm = {
             onClickAlarm()

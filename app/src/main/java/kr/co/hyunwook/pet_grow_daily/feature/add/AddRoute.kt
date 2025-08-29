@@ -1,17 +1,7 @@
 package kr.co.hyunwook.pet_grow_daily.feature.add
 
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
-import kr.co.hyunwook.pet_grow_daily.R
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
-import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -53,23 +43,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
+import kr.co.hyunwook.pet_grow_daily.R
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
+import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
+import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 
 @Composable
 fun AddRoute(
@@ -98,7 +92,6 @@ fun AddRoute(
         )
     }
 
-
     var selectedImages by remember { mutableStateOf(setOf<GalleryImage>()) }
     val isSelectionComplete = selectedImages.size == 2
 
@@ -119,20 +112,6 @@ fun AddRoute(
             permissionLauncher.launch(permission)
         }
     }
-//
-//    fun handleBackClick() {
-//        isVisible = false
-//        // 애니메이션 시간 후 실제 네비게이션 실행
-//        CoroutineScope(Dispatchers.Main).launch {
-//            delay(300) // 애니메이션 시간과 일치
-//            onBackClick()
-//        }
-//    }
-
-    // Handle physical back press with the same animation
-//    BackHandler(enabled = isVisible) {
-//        handleBackClick()
-//    }
 
     AnimatedVisibility(
         visible = isVisible,
@@ -182,6 +161,8 @@ fun AddScreen(
     onConfirmSelection: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val viewModel: AddViewModel = hiltViewModel()
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -189,54 +170,93 @@ fun AddScreen(
             PermissionRequiredContent(requestPermission)
         } else if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else if (uiState.images.isEmpty()) {
-            Text("이미지가 없습니다.", modifier = Modifier.align(Alignment.Center))
         } else {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                TitleAppBar(onBackClick = onBackClick)
-                PictureChooseMessageWidget(selectedImages)
+                when (uiState.currentView) {
+                    AddViewType.FOLDER_LIST -> {
+                        TitleAppBar(
+                            title = stringResource(R.string.text_picture_add),
+                            onBackClick = onBackClick
+                        )
 
-                val groupedImages = uiState.images.groupBy { it.date }
+                        if (uiState.folders.isEmpty()) {
+                            Text(
+                                "폴더가 없습니다.",
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        } else {
+                            FolderListContent(
+                                folders = uiState.folders,
+                                onFolderClick = { folder ->
+                                    viewModel.selectFolder(folder)
+                                }
+                            )
+                        }
+                    }
 
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
+                    AddViewType.IMAGE_GRID -> {
+                        TitleAppBar(
+                            title = uiState.selectedFolder?.name ?: "",
+                            onBackClick = { viewModel.navigateToFolderList() }
+                        )
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
-                        groupedImages.forEach { (date, images) ->
-                            item {
-                                DateHeader(date = date)
+                        PictureChooseMessageWidget(selectedImages)
+
+                        if (uiState.images.isEmpty()) {
+                            Text(
+                                "이미지가 없습니다.",
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        } else {
+                            Box(modifier = Modifier.weight(1f)) {
+                                val groupedImages = uiState.images.groupBy { it.date }
+
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(vertical = 8.dp)
+                                ) {
+                                    groupedImages.forEach { (date, images) ->
+                                        item {
+                                            DateHeader(date = date)
+                                        }
+                                        item {
+                                            ImagesGridForDate(
+                                                images = images,
+                                                selectedImages = selectedImages,
+                                                onImageSelect = onImageSelect
+                                            )
+                                        }
+                                    }
+                                }
                             }
-                            item {
-                                ImagesGridForDate(
-                                    images = images,
-                                    selectedImages = selectedImages,
-                                    onImageSelect = onImageSelect
-                                )
-                            }
+
+                            AddNextPhotoButton(
+                                isEnabled = isSelectionComplete,
+                                onNextClick = onConfirmSelection,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        bottom = 24.dp,
+                                        start = 24.dp,
+                                        end = 24.dp,
+                                        top = 12.dp
+                                    )
+                            )
                         }
                     }
                 }
-
-                AddNextPhotoButton(
-                    isEnabled = isSelectionComplete,
-                    onNextClick = onConfirmSelection,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp, start = 24.dp, end = 24.dp, top = 12.dp)
-                )
             }
         }
     }
 }
 
 @Composable
-fun TitleAppBar(onBackClick: () -> Unit) {
+fun TitleAppBar(
+    title: String,
+    onBackClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,7 +274,7 @@ fun TitleAppBar(onBackClick: () -> Unit) {
                 }
         )
         Text(
-            text = stringResource(R.string.text_picture_add),
+            text = title,
             style = PetgrowTheme.typography.bold,
             color = black21,
             fontSize = 16.sp,
@@ -285,6 +305,7 @@ fun PictureChooseMessageWidget(selectedImages: Set<GalleryImage>) {
     }
 
 }
+
 @Composable
 fun DateHeader(date: String) {
     Text(
@@ -381,7 +402,6 @@ fun GalleryImageItem(
     }
 }
 
-
 @Composable
 fun PermissionRequiredContent(requestPermission: () -> Unit) {
     Column(
@@ -425,5 +445,108 @@ fun AddNextPhotoButton(
             color = Color.White,
             fontSize = 16.sp,
         )
+    }
+}
+
+@Composable
+fun FolderListContent(
+    folders: List<GalleryFolder>,
+    onFolderClick: (GalleryFolder) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(folders) { folder ->
+            FolderItem(
+                folder = folder,
+                onClick = { onFolderClick(folder) }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun FolderItem(
+    folder: GalleryFolder,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = Color.Gray.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable { onClick() }
+    ) {
+        // 배경 이미지 (썸네일)
+        if (folder.thumbnailUri != null) {
+            GlideImage(
+                model = folder.thumbnailUri,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop,
+                loading = placeholder(ColorPainter(Color.Gray.copy(alpha = 0.3f))),
+                failure = placeholder(ColorPainter(Color.Red.copy(alpha = 0.3f)))
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Color.Gray.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            )
+        }
+
+        // 어두운 오버레이
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color.Black.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+        )
+
+        // 텍스트 정보
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Text(
+                text = folder.name,
+                style = PetgrowTheme.typography.medium,
+                color = Color.White,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "${folder.imageCount}개",
+                style = PetgrowTheme.typography.regular,
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
+            )
+        }
     }
 }

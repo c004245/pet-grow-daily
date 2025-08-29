@@ -132,11 +132,6 @@ class AddViewModel @Inject constructor(
         }
     }
 
-    fun reloadImages() {
-        loadImages()
-    }
-
-
     private suspend fun uploadImageToStorage(uri: Uri, userId: String): String {
         var retryCount = 0
         val maxRetries = 3
@@ -198,6 +193,182 @@ class AddViewModel @Inject constructor(
         }
     }
 
+    fun reloadImages() {
+        loadImages()
+    }
+
+    // 폴더 선택 시 호출
+    fun selectFolder(folder: GalleryFolder) {
+        _uiState.update {
+            it.copy(
+                selectedFolder = folder,
+                currentView = AddViewType.IMAGE_GRID,
+                isLoading = true
+            )
+        }
+        loadImagesFromFolder(folder.bucketId)
+    }
+
+    // 폴더 목록으로 돌아가기
+    fun navigateToFolderList() {
+        _uiState.update {
+            it.copy(
+                selectedFolder = null,
+                currentView = AddViewType.FOLDER_LIST,
+                images = emptyList()
+            )
+        }
+    }
+
+    // 특정 폴더의 이미지들만 로드
+    private fun loadImagesFromFolder(bucketId: Long) {
+        viewModelScope.launch {
+            val imagesList = mutableListOf<GalleryImage>()
+            val contentResolver = context.contentResolver
+
+            when (bucketId) {
+                -1L -> { // 최근 항목
+                    loadRecentImages(imagesList, contentResolver)
+                }
+
+                -2L -> { // 즐겨찾기
+                    loadFavoriteImages(imagesList, contentResolver)
+                }
+
+                else -> { // 일반 폴더
+                    loadImagesFromBucket(bucketId, imagesList, contentResolver)
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    images = imagesList,
+                    isLoading = false
+                )
+            }
+        }
+    }
+
+    private suspend fun loadRecentImages(
+        imagesList: MutableList<GalleryImage>,
+        contentResolver: android.content.ContentResolver
+    ) {
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN,
+            MediaStore.Images.Media.DATE_ADDED,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+        )
+
+        val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+        val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
+        val selectionArgs = arrayOf((thirtyDaysAgo / 1000).toString())
+        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+        contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )?.use { cursor ->
+            processImageCursor(cursor, imagesList)
+        }
+    }
+
+    private suspend fun loadFavoriteImages(
+        imagesList: MutableList<GalleryImage>,
+        contentResolver: android.content.ContentResolver
+    ) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val projection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.IS_FAVORITE
+            )
+
+            val selection = "${MediaStore.Images.Media.IS_FAVORITE} = ?"
+            val selectionArgs = arrayOf("1")
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+            contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
+                processImageCursor(cursor, imagesList)
+            }
+        }
+    }
+
+    private suspend fun loadImagesFromBucket(
+        bucketId: Long,
+        imagesList: MutableList<GalleryImage>,
+        contentResolver: android.content.ContentResolver
+    ) {
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN,
+            MediaStore.Images.Media.DATE_ADDED,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+        )
+
+        val selection = "${MediaStore.Images.Media.BUCKET_ID} = ?"
+        val selectionArgs = arrayOf(bucketId.toString())
+        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+        contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )?.use { cursor ->
+            processImageCursor(cursor, imagesList)
+        }
+    }
+
+    private fun processImageCursor(
+        cursor: android.database.Cursor,
+        imagesList: MutableList<GalleryImage>
+    ) {
+        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+        val dateTakenColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+        val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+        val bucketDisplayNameColumn =
+            cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+
+        while (cursor.moveToNext()) {
+            val id = cursor.getLong(idColumn)
+            val contentUri = ContentUris.withAppendedId(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                id
+            )
+
+            val dateTaken = cursor.getLongOrNull(dateTakenColumn)
+            val dateAdded = cursor.getLong(dateAddedColumn) * 1000
+            val timestamp = dateTaken ?: dateAdded
+            val formattedDate = formatDate(timestamp)
+            val bucketName = cursor.getString(bucketDisplayNameColumn)
+
+            imagesList.add(
+                GalleryImage(
+                    id = id,
+                    uri = contentUri,
+                    date = formattedDate,
+                    bucketName = bucketName
+                )
+            )
+        }
+    }
+
     private fun loadImages() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -205,19 +376,30 @@ class AddViewModel @Inject constructor(
             val imagesList = mutableListOf<GalleryImage>()
             val contentResolver = context.contentResolver
 
-            val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,
-                MediaStore.Images.Media.DATE_ADDED
-            )
+            val projection = mutableListOf<String>().apply {
+                addAll(
+                    arrayOf(
+                        MediaStore.Images.Media._ID,
+                        MediaStore.Images.Media.DISPLAY_NAME,
+                        MediaStore.Images.Media.DATE_TAKEN,
+                        MediaStore.Images.Media.DATE_ADDED,
+                        MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                        MediaStore.Images.Media.BUCKET_ID
+                    )
+                )
+
+                // Android 10 이상에서만 즐겨찾기 정보 추가
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    add(MediaStore.Images.Media.IS_FAVORITE)
+                }
+            }
 
             val sortOrder =
-                "${MediaStore.Images.Media.DATE_ADDED} DESC, ${MediaStore.Images.Media.DATE_ADDED} DESC"
+                "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
             contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
+                projection.toTypedArray(),
                 null,
                 null,
                 sortOrder
@@ -227,6 +409,25 @@ class AddViewModel @Inject constructor(
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
                 val dateAddedColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                val bucketDisplayNameColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+                val bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID)
+
+                // 즐겨찾기 컬럼은 Android 10+ 에서만 사용
+                val isFavoriteColumn =
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        try {
+                            cursor.getColumnIndexOrThrow(MediaStore.Images.Media.IS_FAVORITE)
+                        } catch (e: Exception) {
+                            -1
+                        }
+                    } else {
+                        -1
+                    }
+
+                val folders = mutableMapOf<Long, MutableList<GalleryImage>>()
+                val favoriteImages = mutableListOf<GalleryImage>()
+                val recentImages = mutableListOf<GalleryImage>()
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
@@ -240,16 +441,88 @@ class AddViewModel @Inject constructor(
 
                     val timestamp = dateTaken ?: dateAdded
                     val formattedDate = formatDate(timestamp)
-                    imagesList.add(GalleryImage(id = id, uri = contentUri, date = formattedDate))
+                    val bucketName = cursor.getString(bucketDisplayNameColumn)
+                    val bucketId = cursor.getLong(bucketIdColumn)
+
+                    // 즐겨찾기 여부 확인
+                    val isFavorite = if (isFavoriteColumn >= 0) {
+                        cursor.getInt(isFavoriteColumn) == 1
+                    } else {
+                        false
+                    }
+
+                    val image = GalleryImage(
+                        id = id,
+                        uri = contentUri,
+                        date = formattedDate,
+                        bucketName = bucketName
+                    )
+
+                    imagesList.add(image)
+
+                    // 일반 폴더별 분류
+                    folders.getOrPut(bucketId) { mutableListOf() }.add(image)
+
+                    // 즐겨찾기 이미지 수집
+                    if (isFavorite) {
+                        favoriteImages.add(image)
+                    }
+
+                    // 최신 항목 수집 (최근 30일)
+                    val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+                    if (timestamp >= thirtyDaysAgo) {
+                        recentImages.add(image)
+                    }
+                }
+
+                val folderList = mutableListOf<GalleryFolder>()
+
+                // 최신 항목 폴더 추가 (이미지가 있는 경우만)
+                if (recentImages.isNotEmpty()) {
+                    folderList.add(
+                        GalleryFolder(
+                            bucketId = -1L, // 특별한 ID로 구분
+                            name = "최근 항목",
+                            imageCount = recentImages.size,
+                            thumbnailUri = recentImages.first().uri
+                        )
+                    )
+                }
+
+                // 즐겨찾기 폴더 추가 (Android 10+ 및 즐겨찾기가 있는 경우만)
+                if (favoriteImages.isNotEmpty()) {
+                    folderList.add(
+                        GalleryFolder(
+                            bucketId = -2L, // 특별한 ID로 구분
+                            name = "즐겨찾기",
+                            imageCount = favoriteImages.size,
+                            thumbnailUri = favoriteImages.first().uri
+                        )
+                    )
+                }
+
+                // 일반 폴더들 추가
+                folderList.addAll(
+                    folders.map { (bucketId, images) ->
+                        GalleryFolder(
+                            bucketId = bucketId,
+                            name = images.first().bucketName,
+                            imageCount = images.size,
+                            thumbnailUri = images.first().uri
+                        )
+                    }
+                )
+
+                _uiState.update {
+                    it.copy(
+                        images = imagesList,
+                        folders = folderList,
+                        isLoading = false
+                    )
                 }
             }
-
-            _uiState.update { it.copy(images = imagesList, isLoading = false) }
-
         }
-
     }
-
 
     private suspend fun optimizeImage(uri: Uri): Uri {
         return withContext(Dispatchers.IO) {
@@ -355,15 +628,29 @@ class AddViewModel @Inject constructor(
     }
 }
 
-
 data class GalleryImage(
     val id: Long,
     val uri: Uri,
-    val date: String
+    val date: String,
+    val bucketName: String = "" // 폴더명 추가
+)
+
+data class GalleryFolder(
+    val bucketId: Long,
+    val name: String,
+    val imageCount: Int,
+    val thumbnailUri: Uri? = null // 대표 이미지
 )
 
 data class AddUiState(
     val images: List<GalleryImage> = emptyList(),
+    val folders: List<GalleryFolder> = emptyList(),
+    val selectedFolder: GalleryFolder? = null,
+    val currentView: AddViewType = AddViewType.FOLDER_LIST,
     val isLoading: Boolean = false
 )
 
+enum class AddViewType {
+    FOLDER_LIST, // 폴더 목록 보기
+    IMAGE_GRID   // 선택된 폴더의 이미지 그리드 보기
+}

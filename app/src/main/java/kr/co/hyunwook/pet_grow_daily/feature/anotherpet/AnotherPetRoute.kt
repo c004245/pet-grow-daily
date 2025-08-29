@@ -1,6 +1,5 @@
 package kr.co.hyunwook.pet_grow_daily.feature.anotherpet
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -9,7 +8,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideSubcomposition
 import com.bumptech.glide.integration.compose.RequestState
-import com.google.accompanist.pager.rememberPagerState
 
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AnotherPetModel
@@ -17,7 +15,6 @@ import kr.co.hyunwook.pet_grow_daily.core.designsystem.component.topappbar.Commo
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.black21
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.grayEF
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.purple6C
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
 import kr.co.hyunwook.pet_grow_daily.feature.album.ShimmerBox
 import androidx.compose.foundation.background
@@ -38,7 +35,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -48,23 +44,24 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.whiteF8
+import kr.co.hyunwook.pet_grow_daily.util.FullScreenImageViewer
 import kr.co.hyunwook.pet_grow_daily.ui.theme.PetgrowTheme
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
 
 @Composable
 fun AnotherPetRoute(
@@ -111,6 +108,10 @@ fun AnotherPetScreen(
 ) {
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(refreshing = isLoading, onRefresh = onRefresh)
+
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageUrls by remember { mutableStateOf(emptyList<String>()) }
+    var fullScreenInitialPage by remember { mutableStateOf(0) }
 
     val shouldLoadMore by remember(anotherImageList.size) {
         derivedStateOf {
@@ -192,7 +193,14 @@ fun AnotherPetScreen(
                 }
 
                 itemsIndexed(anotherImageList) { index, item ->
-                    LookAnotherItem(item)
+                    LookAnotherItem(
+                        item = item,
+                        onImageClick = { imageUrls, initialPage ->
+                            fullScreenImageUrls = imageUrls
+                            fullScreenInitialPage = initialPage
+                            showFullScreenImage = true
+                        }
+                    )
                 }
 
                 if (isLoading && anotherImageList.isNotEmpty()) {
@@ -208,6 +216,15 @@ fun AnotherPetScreen(
                     }
                 }
             }
+        }
+
+        // 풀스크린 이미지 뷰어
+        if (showFullScreenImage) {
+            FullScreenImageViewer(
+                imageUrls = fullScreenImageUrls,
+                initialPage = fullScreenInitialPage,
+                onDismiss = { showFullScreenImage = false }
+            )
         }
     }
 }
@@ -304,7 +321,10 @@ fun LoadingIndicator() {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun LookAnotherItem(item: AnotherPetModel) {
+fun LookAnotherItem(
+    item: AnotherPetModel,
+    onImageClick: (List<String>, Int) -> Unit
+) {
 
     Box(
         modifier = Modifier
@@ -345,7 +365,11 @@ fun LookAnotherItem(item: AnotherPetModel) {
                 ) { page ->
                     GlideSubcomposition(
                         model = imageList[page],
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                onImageClick(imageList, page)
+                            }
                     ) {
                         when (this.state) {
                             RequestState.Loading -> {

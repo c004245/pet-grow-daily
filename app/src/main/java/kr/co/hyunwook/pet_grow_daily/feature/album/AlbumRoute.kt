@@ -3,7 +3,6 @@ package kr.co.hyunwook.pet_grow_daily.feature.album
 import android.util.Log
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideSubcomposition
-import com.bumptech.glide.integration.compose.GlideSubcompositionScope
 import com.bumptech.glide.integration.compose.RequestState
 import kr.co.hyunwook.pet_grow_daily.R
 import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumRecord
@@ -56,7 +55,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -74,14 +72,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import androidx.activity.compose.BackHandler
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import kr.co.hyunwook.pet_grow_daily.util.FullScreenImageViewer
 import kotlin.system.exitProcess
 
 @Composable
@@ -149,6 +144,11 @@ fun AlbumScreen(
 
     var pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
 
+    // 풀스크린 이미지 뷰어 상태
+    var showFullScreenImage by remember { mutableStateOf(false) }
+    var fullScreenImageUrls by remember { mutableStateOf(emptyList<String>()) }
+    var fullScreenInitialPage by remember { mutableStateOf(0) }
+
     LaunchedEffect(selectedTab) {
         pagerState.animateScrollToPage(
             page = if (selectedTab == AlbumTab.LIST) 0 else 1
@@ -215,6 +215,11 @@ fun AlbumScreen(
                                     itemsIndexed(albumRecord) { index, item ->
                                         AlbumCard(
                                             albumRecord = item,
+                                            onImageClick = { imageUrls, initialPage ->
+                                                fullScreenImageUrls = imageUrls
+                                                fullScreenInitialPage = initialPage
+                                                showFullScreenImage = true
+                                            },
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(horizontal = 16.dp)
@@ -232,7 +237,12 @@ fun AlbumScreen(
                         }
                         1 -> {
                             AlbumImageRoute(
-                                navigateToAdd = navigateToAdd
+                                navigateToAdd = navigateToAdd,
+                                onImageClick = { imageUrl ->
+                                    fullScreenImageUrls = listOf(imageUrl)
+                                    fullScreenInitialPage = 0
+                                    showFullScreenImage = true
+                                }
                             )
                         }
                     }
@@ -288,6 +298,15 @@ fun AlbumScreen(
                 }
             }
         }
+
+        // 풀스크린 이미지 뷰어
+        if (showFullScreenImage) {
+            FullScreenImageViewer(
+                imageUrls = fullScreenImageUrls,
+                initialPage = fullScreenInitialPage,
+                onDismiss = { showFullScreenImage = false }
+            )
+        }
     }
 }
 
@@ -329,6 +348,7 @@ fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
 @Composable
 fun AlbumCard(
     albumRecord: AlbumRecord,
+    onImageClick: (List<String>, Int) -> Unit,
     modifier: Modifier
 ) {
     Box(
@@ -370,6 +390,7 @@ fun AlbumCard(
                 AlbumImageWidget(
                     firstImageUri = albumRecord.firstImage,
                     secondImageUri = albumRecord.secondImage,
+                    onImageClick = onImageClick,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -391,6 +412,7 @@ fun AlbumCard(
 fun AlbumImageWidget(
     firstImageUri: String,
     secondImageUri: String,
+    onImageClick: (List<String>, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -420,7 +442,11 @@ fun AlbumImageWidget(
                             painter = this.painter,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    onImageClick(listOf(firstImageUri, secondImageUri), 0)
+                                }
                         )
                     }
 
@@ -459,7 +485,11 @@ fun AlbumImageWidget(
                             painter = this.painter,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable {
+                                    onImageClick(listOf(firstImageUri, secondImageUri), 1)
+                                }
                         )
                     }
 

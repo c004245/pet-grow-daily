@@ -6,6 +6,7 @@ import kr.co.hyunwook.pet_grow_daily.core.database.entity.AlbumImageModel
 import kr.co.hyunwook.pet_grow_daily.feature.album.AlbumViewModel
 import kr.co.hyunwook.pet_grow_daily.feature.album.EmptyAlbumWidget
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun AlbumImageRoute(
     viewModel: AlbumViewModel = hiltViewModel(),
     navigateToAdd: () -> Unit = {},
+    onImageClick: (String) -> Unit = {}
 ) {
 
     val albumImageList by viewModel.albumImageList.collectAsState()
@@ -42,7 +44,8 @@ fun AlbumImageRoute(
     AlbumImageScreen(
         albumImageList = albumImageList,
         isLoading = isLoading,
-        navigateToAdd = navigateToAdd
+        navigateToAdd = navigateToAdd,
+        onImageClick = onImageClick
     )
 }
 
@@ -50,7 +53,8 @@ fun AlbumImageRoute(
 fun AlbumImageScreen(
     albumImageList: List<AlbumImageModel>,
     isLoading: Boolean,
-    navigateToAdd: () -> Unit = {}
+    navigateToAdd: () -> Unit = {},
+    onImageClick: (String) -> Unit = {}
 ){
     if (isLoading) {
         // Lightweight loading placeholder to avoid layout flicker
@@ -71,7 +75,10 @@ fun AlbumImageScreen(
             contentPadding = PaddingValues(1.dp)
         ) {
             items(albumImageList) { albumImage ->
-                AlbumImageGridItem(albumImage)
+                AlbumImageGridItem(
+                    albumImage = albumImage,
+                    onImageClick = onImageClick
+                )
             }
         }
     } else {
@@ -85,7 +92,10 @@ fun AlbumImageScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumImageGridItem(albumImage: AlbumImageModel) {
+fun AlbumImageGridItem(
+    albumImage: AlbumImageModel,
+    onImageClick: (String) -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -95,7 +105,11 @@ fun AlbumImageGridItem(albumImage: AlbumImageModel) {
             model = albumImage.imageUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable {
+                    onImageClick(albumImage.imageUrl)
+                }
         )
 
     }

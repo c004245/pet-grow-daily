@@ -172,9 +172,7 @@ class OrderViewModel @Inject constructor(
         }
     }
 
-    fun clearPaymentRequest() {
-        _paymentData.value = null
-    }
+
 
     fun clearPaymentResult() {
         _paymentResult.value = PaymentResult.Initial

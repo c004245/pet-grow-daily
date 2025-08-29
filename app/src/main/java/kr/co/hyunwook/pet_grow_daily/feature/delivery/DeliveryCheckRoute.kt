@@ -73,6 +73,8 @@ fun DeliveryCheckRoute(
 
     LaunchedEffect(Unit) {
         viewModel.getDeliveryList()
+        // 화면 진입 시 이전 결제 상태 초기화
+        viewModel.clearAllPaymentStates()
     }
 
     LaunchedEffect(Unit) {
@@ -80,10 +82,14 @@ fun DeliveryCheckRoute(
             if (isSuccess) {
                 Log.d("HWO", "주문 저장 완료!")
                 viewModel.addEvent(EventConstants.SHOW_ORDER_DONE_EVENT)
+                // 주문 완료 후 모든 상태 초기화
+                viewModel.clearAllPaymentStates()
                 navigateToOrderDone()
             } else {
                 Log.e("HWO", "주문 저장 실패")
                 showProcessing = false
+                // 실패 시에도 상태 초기화
+                viewModel.clearPaymentResult()
             }
         }
     }
@@ -111,8 +117,14 @@ fun DeliveryCheckRoute(
                 Log.d("HWO", "결제 실패: ${result.message}")
                 showPaymentWebView = false
                 showProcessing = false
+                // 결제 실패 시 상태 초기화
+                viewModel.clearPaymentResult()
                 Toast.makeText(context, "결제에 실패했습니다: ${result.message}", Toast.LENGTH_SHORT)
                     .show()
+            }
+
+            PaymentResult.Initial -> {
+                // Initial 상태일 때는 아무것도 하지 않음
             }
 
             else -> {}
@@ -151,7 +163,7 @@ fun DeliveryCheckRoute(
                 },
                 onBackPressed = {
                     showPaymentWebView = false
-                    viewModel.clearPaymentRequest()
+                    viewModel.clearAllPaymentStates()
                 }
             )
         }

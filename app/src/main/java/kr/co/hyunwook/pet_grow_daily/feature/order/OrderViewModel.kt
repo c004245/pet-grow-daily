@@ -176,6 +176,15 @@ class OrderViewModel @Inject constructor(
         _paymentData.value = null
     }
 
+    fun clearPaymentResult() {
+        _paymentResult.value = PaymentResult.Initial
+    }
+
+    fun clearAllPaymentStates() {
+        _paymentData.value = null
+        _paymentResult.value = PaymentResult.Initial
+    }
+
     //선택한 앨범 리스트
     fun setSelectedAlbumRecords(records: List<AlbumRecord>) {
         _selectedAlbumRecords.value = records

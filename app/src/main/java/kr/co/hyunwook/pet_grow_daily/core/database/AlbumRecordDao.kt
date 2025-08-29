@@ -44,7 +44,7 @@ interface AlbumRecordDao {
                 WHERE date(date/1000, 'unixepoch', 'localtime') = date('now', 'localtime') 
                 AND firstImage != '' 
                 AND secondImage != ''
-            ) >= 2 THEN 1 
+            ) >= 3 THEN 1 
             ELSE 0 
          END
     """

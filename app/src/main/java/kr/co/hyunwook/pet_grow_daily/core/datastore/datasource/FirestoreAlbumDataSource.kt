@@ -36,4 +36,4 @@ interface FirestoreAlbumDataSource {
     suspend fun getTodayUserPhotoCount(): Int
 }
 
-const val ALBUM_CREATE_COMPLETE = 40
+const val ALBUM_CREATE_COMPLETE = 42

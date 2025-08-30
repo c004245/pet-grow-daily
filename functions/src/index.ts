@@ -7,6 +7,10 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
+// 환경변수 로드 (가장 먼저 실행되어야 함)
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import {setGlobalOptions} from "firebase-functions";
 import {onCall} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
@@ -358,3 +362,363 @@ export const sendPushNotification = onCall({
     throw new Error(`푸시 알림 전송에 실패했습니다: ${errorMessage}`);
   }
 });
+
+// 포트원 액세스 토큰 획득
+async function getPortoneAccessToken(): Promise<string> {
+  try {
+    const response = await axios.post('https://api.iamport.kr/users/getToken', {
+      imp_key: process.env.PORTONE_REST_API_KEY,
+      imp_secret: process.env.PORTONE_REST_API_SECRET,
+    });
+
+    if (response.data.code !== 0) {
+      throw new Error(`포트원 인증 실패: ${response.data.message}`);
+    }
+
+    return response.data.response.access_token;
+  } catch (error) {
+    logger.error('포트원 액세스 토큰 획득 실패:', error);
+    throw new Error('포트원 인증에 실패했습니다.');
+  }
+}
+
+// 포트원 결제 정보 조회
+async function getPortonePayment(accessToken: string, impUid: string) {
+  try {
+    const response = await axios.get(`https://api.iamport.kr/payments/${impUid}`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.data.code !== 0) {
+      throw new Error(`결제 정보 조회 실패: ${response.data.message}`);
+    }
+
+    return response.data.response;
+  } catch (error) {
+    logger.error('포트원 결제 정보 조회 실패:', error);
+    throw new Error('결제 정보 조회에 실패했습니다.');
+  }
+}
+
+// 포트원 결제 취소/환불 함수
+async function cancelPortonePayment(accessToken: string, impUid: string, reason: string = "결제 검증 실패") {
+  try {
+    logger.info(`결제 취소 요청 시작 - imp_uid: ${impUid}, reason: ${reason}`);
+    
+    const response = await axios.post('https://api.iamport.kr/payments/cancel', {
+      imp_uid: impUid,
+      reason: reason,
+      amount: undefined, // 전액 취소
+      checksum: undefined // 전액 취소 시 불필요
+    }, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.data.code !== 0) {
+      throw new Error(`결제 취소 실패: ${response.data.message}`);
+    }
+
+    logger.info('결제 취소 성공:', {
+      imp_uid: impUid,
+      cancel_amount: response.data.response.cancel_amount,
+      status: response.data.response.status
+    });
+
+    return response.data.response;
+  } catch (error) {
+    logger.error('결제 취소 실패:', error);
+    throw new Error(`결제 취소 처리에 실패했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+// 결제 검증 Function
+export const verifyPayment = onCall({
+  enforceAppCheck: false,
+  timeoutSeconds: 60,
+}, async (request) => {
+  try {
+    const { impUid, merchantUid, expectedAmount, userId } = request.data;
+
+    logger.info('=== 결제 검증 시작 ===');
+    logger.info('요청 파라미터:', { impUid, merchantUid, expectedAmount, userId });
+
+    // 파라미터 검증
+    if (!impUid || !merchantUid || !expectedAmount || !userId) {
+      const missingParams = [];
+      if (!impUid) missingParams.push('impUid');
+      if (!merchantUid) missingParams.push('merchantUid');
+      if (!expectedAmount) missingParams.push('expectedAmount');
+      if (!userId) missingParams.push('userId');
+      
+      const errorMsg = `필수 파라미터가 누락되었습니다: ${missingParams.join(', ')}`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    logger.info(`결제 검증 시작 - imp_uid: ${impUid}, merchant_uid: ${merchantUid}, expected_amount: ${expectedAmount}, user_id: ${userId}`);
+
+    // 1. 포트원에서 실제 결제 정보 조회
+    logger.info('1단계: 포트원 액세스 토큰 획득 시작');
+    const accessToken = await getPortoneAccessToken();
+    logger.info('1단계: 포트원 액세스 토큰 획득 완료');
+
+    logger.info('2단계: 포트원 결제 정보 조회 시작');
+    const paymentData = await getPortonePayment(accessToken, impUid);
+    logger.info('2단계: 포트원 결제 정보 조회 완료');
+
+    logger.info('포트원에서 조회된 결제 정보:', {
+      status: paymentData.status,
+      amount: paymentData.amount,
+      merchant_uid: paymentData.merchant_uid,
+      pg_provider: paymentData.pg_provider,
+      pay_method: paymentData.pay_method,
+      paid_at: paymentData.paid_at,
+      pg_tid: paymentData.pg_tid
+    });
+
+    // 2. 결제 상태 검증
+    logger.info('3단계: 결제 상태 검증 시작');
+    if (paymentData.status !== 'paid') {
+      const errorMsg = `결제가 완료되지 않았습니다. 상태: ${paymentData.status}`;
+      logger.error('3단계 실패:', errorMsg);
+      throw new Error(errorMsg);
+    }
+    logger.info('3단계: 결제 상태 검증 완료 (상태: paid)');
+
+    // 3. 결제 금액 검증
+    logger.info('4단계: 결제 금액 검증 시작');
+    const expectedAmountInt = parseInt(expectedAmount);
+    logger.info('금액 비교:', {
+      expected: expectedAmountInt,
+      actual: paymentData.amount,
+      expectedType: typeof expectedAmountInt,
+      actualType: typeof paymentData.amount
+    });
+    
+    if (paymentData.amount !== expectedAmountInt) {
+      const errorMsg = `결제 금액이 일치하지 않습니다. 예상: ${expectedAmount}(${expectedAmountInt}), 실제: ${paymentData.amount}`;
+      logger.error('4단계 실패:', errorMsg);
+      throw new Error(errorMsg);
+    }
+    logger.info('4단계: 결제 금액 검증 완료');
+
+    // 4. 주문번호 검증
+    logger.info('5단계: 주문번호 검증 시작');
+    logger.info('주문번호 비교:', {
+      expected: merchantUid,
+      actual: paymentData.merchant_uid
+    });
+    
+    if (paymentData.merchant_uid !== merchantUid) {
+      const errorMsg = `주문번호가 일치하지 않습니다. 예상: ${merchantUid}, 실제: ${paymentData.merchant_uid}`;
+      logger.error('5단계 실패:', errorMsg);
+      throw new Error(errorMsg);
+    }
+    logger.info('5단계: 주문번호 검증 완료');
+
+    // 5. 중복 결제 검증 (Firestore에서 이미 처리된 결제인지 확인)
+    logger.info('6단계: 중복 결제 검증 시작');
+    const existingPayment = await admin.firestore()
+      .collection('payments')
+      .doc(impUid)
+      .get();
+
+    if (existingPayment.exists) {
+      const existingData = existingPayment.data();
+      logger.info('기존 결제 기록 발견:', {
+        impUid,
+        existingStatus: existingData?.status,
+        existingUserId: existingData?.userId,
+        existingVerifiedAt: existingData?.verifiedAt
+      });
+      
+      if (existingData?.status === 'verified') {
+        const errorMsg = '이미 처리된 결제입니다.';
+        logger.error('6단계 실패:', errorMsg);
+        throw new Error(errorMsg);
+      }
+    } else {
+      logger.info('새로운 결제 - 기존 기록 없음');
+    }
+    logger.info('6단계: 중복 결제 검증 완료');
+
+    // 6. 결제 검증 완료 - Firestore에 결제 정보 저장
+    logger.info('7단계: Firestore에 결제 검증 결과 저장 시작');
+    const paymentRecord = {
+      impUid,
+      merchantUid,
+      amount: paymentData.amount,
+      status: 'verified',
+      userId,
+      verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      paymentData: {
+        pg_provider: paymentData.pg_provider,
+        pg_tid: paymentData.pg_tid,
+        pay_method: paymentData.pay_method,
+        paid_at: paymentData.paid_at,
+      },
+    };
+
+    await admin.firestore()
+      .collection('payments')
+      .doc(impUid)
+      .set(paymentRecord);
+    
+    logger.info('7단계: Firestore에 결제 검증 결과 저장 완료');
+    logger.info('저장된 결제 기록:', paymentRecord);
+
+    logger.info(`=== 결제 검증 성공 완료 - imp_uid: ${impUid} ===`);
+
+    const successResult = {
+      success: true,
+      verified: true,
+      impUid,
+      merchantUid,
+      amount: paymentData.amount,
+      paidAt: paymentData.paid_at,
+      message: '결제 검증이 완료되었습니다.',
+    };
+
+    logger.info('클라이언트로 반환할 성공 결과:', successResult);
+    return successResult;
+
+  } catch (error) {
+    logger.error('=== 결제 검증 실패 ===');
+    logger.error('오류 내용:', error);
+    logger.error('오류 스택:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    const { impUid, merchantUid, userId } = request.data;
+    
+    // 검증 실패 기록
+    if (impUid) {
+      logger.info('검증 실패 기록을 Firestore에 저장 시작');
+      const failureRecord = {
+        impUid,
+        merchantUid,
+        userId,
+        status: 'verification_failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        failedAt: admin.firestore.FieldValue.serverTimestamp(),
+        refundStatus: 'pending', // 환불 상태 추가
+      };
+
+      await admin.firestore()
+        .collection('payments')
+        .doc(impUid)
+        .set(failureRecord, { merge: true });
+      
+      logger.info('검증 실패 기록 저장 완료:', failureRecord);
+    }
+
+    // 포트원 결제 취소/환불 처리
+    let refundSuccess = false;
+    if (impUid) {
+      try {
+        logger.info('포트원 결제 취소/환불 처리 시작');
+        const accessToken = await getPortoneAccessToken();
+        await cancelPortonePayment(accessToken, impUid, `결제 검증 실패: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        
+        // 환불 성공 시 Firestore 업데이트
+        await admin.firestore()
+          .collection('payments')
+          .doc(impUid)
+          .update({
+            refundStatus: 'completed',
+            refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        
+        refundSuccess = true;
+        logger.info('포트원 결제 취소/환불 처리 완료');
+      } catch (refundError) {
+        logger.error('결제 취소/환불 처리 실패:', refundError);
+        
+        // 환불 실패 시 Firestore 업데이트
+        await admin.firestore()
+          .collection('payments')
+          .doc(impUid)
+          .update({
+            refundStatus: 'failed',
+            refundError: refundError instanceof Error ? refundError.message : 'Unknown error',
+            refundFailedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+        // 관리자에게 긴급 알림 전송
+        try {
+          await sendAdminAlert({
+            type: 'payment_verification_failed_refund_failed',
+            title: '🚨 긴급: 결제 검증 실패 + 환불 실패',
+            message: `imp_uid: ${impUid}\n검증 실패: ${error instanceof Error ? error.message : 'Unknown error'}\n환불 실패: ${refundError instanceof Error ? refundError.message : 'Unknown error'}\n즉시 수동 환불 처리 필요`,
+            impUid,
+            userId: userId?.toString() || 'unknown',
+          });
+        } catch (alertError) {
+          logger.error('관리자 알림 전송 실패:', alertError);
+        }
+      }
+    }
+
+    // 환불 성공 시에도 관리자에게 알림 (모니터링 목적)
+    if (refundSuccess) {
+      try {
+        await sendAdminAlert({
+          type: 'payment_verification_failed_refund_success',
+          title: '⚠️ 결제 검증 실패 (자동 환불 완료)',
+          message: `imp_uid: ${impUid}\n검증 실패 사유: ${error instanceof Error ? error.message : 'Unknown error'}\n자동 환불 처리 완료`,
+          impUid,
+          userId: userId?.toString() || 'unknown',
+        });
+      } catch (alertError) {
+        logger.error('관리자 알림 전송 실패:', alertError);
+      }
+    }
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const failureResult = {
+      success: false,
+      verified: false,
+      error: errorMessage,
+      message: refundSuccess ? '결제 검증에 실패하여 자동으로 환불 처리되었습니다.' : '결제 검증에 실패했습니다. 고객센터에 문의해주세요.',
+      refundProcessed: refundSuccess,
+    };
+
+    logger.info('클라이언트로 반환할 실패 결과:', failureResult);
+    return failureResult;
+  }
+});
+
+// 관리자 알림 전송 함수
+async function sendAdminAlert(alertData: {
+  type: string;
+  title: string;
+  message: string;
+  impUid: string;
+  userId: string;
+}) {
+  try {
+    logger.info('관리자 알림 전송 시작:', alertData);
+    
+    // 관리자 알림을 Firestore에 저장
+    await admin.firestore()
+      .collection('admin_alerts')
+      .add({
+        ...alertData,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: 'unread',
+        priority: alertData.type.includes('failed') ? 'high' : 'medium',
+      });
+
+    // TODO: 실제 관리자에게 푸시 알림, 이메일, 슬랙 등으로 알림 전송
+    // 예: await sendSlackNotification(alertData);
+    // 예: await sendAdminEmail(alertData);
+    
+    logger.info('관리자 알림 전송 완료');
+  } catch (error) {
+    logger.error('관리자 알림 전송 실패:', error);
+  }
+}

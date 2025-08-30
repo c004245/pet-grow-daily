@@ -123,14 +123,17 @@
     var product = {
         name: '포토북 하드 커버',
         amount: 18000,
-        merchantUid: 'order_' + new Date().getTime(),
+        merchantUid: 'order_' + new Date().getTime(), // (Fallback, 실제 결제에선 updateProductInfo로 대체됨)
         maxPhotoCount: 40,
         imageUrl: 'file:///android_asset/ic_product_advance_main.jpeg'
     };
     function updateProductInfo(name, amount, merchantUid, maxPhotoCount, imageUrl) {
         product.name = name || product.name;
         product.amount = parseInt(amount) || 100;
-        product.merchantUid = merchantUid || ('order_' + new Date().getTime());
+        if (merchantUid) {
+            product.merchantUid = merchantUid;
+            console.log('updateProductInfo: merchantUid set to', merchantUid);
+        }
         product.maxPhotoCount = maxPhotoCount || product.maxPhotoCount;
         product.imageUrl = imageUrl || product.imageUrl;
         
@@ -166,7 +169,7 @@
         IMP.request_pay({
             channelKey: "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
             pay_method: "kakaopay", 
-            merchant_uid: "order_" + new Date().getTime(),
+            merchant_uid: product.merchantUid, // 반드시 갱신된 값 사용!!
             name: product.name,
             amount: product.amount,
             currency: "KRW",

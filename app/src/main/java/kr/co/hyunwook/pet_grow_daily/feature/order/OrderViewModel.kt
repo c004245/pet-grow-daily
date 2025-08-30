@@ -12,7 +12,6 @@ import javax.inject.Inject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.functions.ktx.functions
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -95,6 +94,9 @@ class OrderViewModel @Inject constructor(
     private val _currentOrderProduct = MutableStateFlow<OrderProduct?>(null)
     val currentOrderProduct: StateFlow<OrderProduct?> get() = _currentOrderProduct
 
+    // 결제 검증을 위한 imp_uid 저장
+    private var currentImpUid: String? = null
+
     fun setCurrentOrderProduct(orderProduct: OrderProduct) {
         _currentOrderProduct.value = orderProduct
     }
@@ -159,6 +161,10 @@ class OrderViewModel @Inject constructor(
 
     fun setPaymentResult(result: PaymentResult) {
         _paymentResult.value = result
+        // PaymentResult.Success에서 imp_uid 저장
+        if (result is PaymentResult.Success) {
+            currentImpUid = result.transactionId
+        }
     }
 
     fun saveDeliveryInfo(deliveryInfo: DeliveryInfo) {
@@ -194,6 +200,8 @@ class OrderViewModel @Inject constructor(
     fun saveOrderRecord(selectedDeliveryInfo: DeliveryInfo) {
         viewModelScope.launch {
             try {
+                Log.d("HWO", "=== 주문 저장 프로세스 시작 ===")
+
                 // 실제 사용자 ID 가져오기
                 val userId = getUserIdUseCase.invoke()
 
@@ -209,8 +217,33 @@ class OrderViewModel @Inject constructor(
                     "- 배송지: ${selectedDeliveryInfo.address} -- ${selectedDeliveryInfo.detailAddress}"
                 )
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
+                Log.d("HWO", "- 현재 저장된 imp_uid: $currentImpUid")
+
+                // 결제 서버 검증을 paymentInfo에서 필요한 값만 넘겨서 검증하도록 변경
+                val verificationParams = mapOf(
+                    "impUid" to (currentImpUid ?: ""),
+                    "merchantUid" to (paymentInfo["merchant_uid"] ?: ""),
+                    "expectedAmount" to (paymentInfo["amount"] ?: ""),
+                    "userId" to userId.toString()
+                )
+
+                Log.d("HWO", "서버 검증 요청 파라미터: $verificationParams")
+
+                val verifyResult = verifyPaymentOnServer(verificationParams)
+
+                if (!verifyResult) {
+                    Log.e("HWO", "서버 결제 검증 실패")
+                    Log.e("HWO", "검증 실패한 결제 정보: $paymentInfo")
+                    Log.e("HWO", "검증 실패한 imp_uid: $currentImpUid")
+                    _saveOrderDoneEvent.emit(false)
+                    return@launch
+                }
+
+                Log.d("HWO", "서버 결제 검증 성공 - 주문 생성 진행")
 
                 val fcmToken = getFcmTokenUseCase.invoke().first()
+                Log.d("HWO", "FCM 토큰 획득: ${fcmToken?.take(10)}...")
+
                 val orderId = saveOrderRecordUseCase(
                     selectedAlbumRecords = _selectedAlbumRecords.value,
                     selectedAlbumLayoutType = _selectedAlbumLayout.value,
@@ -230,14 +263,18 @@ class OrderViewModel @Inject constructor(
                         EventConstants.PRODUCT_DISCOUNT_PROPERTY to productAmount
                     )
                 )
+
+                Log.d("HWO", "ZIP 파일 생성 요청 시작")
                 // Firebase Function 호출하여 ZIP 생성 요청 (결과를 기다림)
                 callPdfGenerationFunction(orderId, userId)
 
+                Log.d("HWO", "=== 주문 저장 프로세스 완료 ===")
                 // ZIP 생성이 완료된 후에만 완료 이벤트 발생
                 _saveOrderDoneEvent.emit(true)
             } catch (e: Exception) {
+                Log.e("HWO", "=== 주문 저장 프로세스 실패 ===")
+                Log.e("HWO", "실패 원인: ${e.message}", e)
                 _saveOrderDoneEvent.emit(false)
-                Log.e("HWO", "주문 저장 실패: ${e.message}")
             }
         }
     }
@@ -293,6 +330,81 @@ class OrderViewModel @Inject constructor(
 
                     // 실패로 완료
                     continuation.resumeWithException(e)
+                }
+        }
+    }
+
+    /**
+     * 결제 정보 서버 검증 (Firebase Functions와 연동)
+     */
+    private suspend fun verifyPaymentOnServer(paymentInfo: Map<String, String>): Boolean {
+        return suspendCancellableCoroutine { continuation ->
+            Log.d("HWO", "=== 서버 결제 검증 시작 ===")
+
+            val functionData = hashMapOf<String, Any>()
+            paymentInfo.forEach { (key, value) ->
+                functionData[key] = value
+            }
+
+            Log.d("HWO", "Firebase Functions 호출 준비:")
+            Log.d("HWO", "- 함수명: verifyPayment")
+            Log.d("HWO", "- 전달 데이터: $functionData")
+
+            Firebase.functions
+                .getHttpsCallable("verifyPayment")
+                .call(functionData)
+                .addOnSuccessListener { result ->
+                    Log.d("HWO", "Firebase Functions 호출 성공")
+
+                    val data = result.data as? Map<*, *>
+                    Log.d("HWO", "서버 응답 데이터: $data")
+
+                    val success = data?.get("success") as? Boolean ?: false
+                    val verified = data?.get("verified") as? Boolean ?: false
+                    val message = data?.get("message") as? String
+                    val error = data?.get("error") as? String
+                    val refundProcessed = data?.get("refundProcessed") as? Boolean ?: false
+
+                    Log.d("HWO", "서버 검증 결과 분석:")
+                    Log.d("HWO", "- success: $success")
+                    Log.d("HWO", "- verified: $verified")
+                    Log.d("HWO", "- message: $message")
+                    Log.d("HWO", "- error: $error")
+                    Log.d("HWO", "- refundProcessed: $refundProcessed")
+
+                    val finalResult = success && verified
+
+                    if (finalResult) {
+                        Log.d("HWO", "=== 서버 결제 검증 성공 ===")
+                    } else {
+                        Log.e("HWO", "=== 서버 결제 검증 실패 ===")
+                        Log.e("HWO", "실패 사유: $error")
+
+                        if (refundProcessed) {
+                            Log.w("HWO", "자동 환불 처리 완료")
+                            // 사용자에게 환불 완료 메시지 표시
+                            viewModelScope.launch {
+                                // Toast나 Dialog로 사용자에게 알림
+                                Log.i("HWO", "사용자 알림: 결제 검증 실패로 자동 환불 처리되었습니다.")
+                            }
+                        } else {
+                            Log.e("HWO", "환불 처리 실패 - 고객센터 문의 필요")
+                            viewModelScope.launch {
+                                // 고객센터 문의 안내
+                                Log.e("HWO", "사용자 알림: 결제 처리 중 문제가 발생했습니다. 고객센터에 문의해주세요.")
+                            }
+                        }
+                    }
+
+                    continuation.resume(finalResult)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("HWO", "=== Firebase Functions 호출 실패 ===")
+                    Log.e("HWO", "오류 유형: ${e.javaClass.simpleName}")
+                    Log.e("HWO", "오류 메시지: ${e.message}")
+                    Log.e("HWO", "오류 상세:", e)
+                    Log.e("HWO", "네트워크 오류로 인한 검증 실패 - 고객센터 문의 필요")
+                    continuation.resume(false)
                 }
         }
     }

@@ -87,7 +87,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                                 val fileMonth = fileDate.get(Calendar.MONTH) + 1
                                 val fileDay = fileDate.get(Calendar.DAY_OF_MONTH)
 
-                                Log.d("HWO", "${fileRef.name}: $fileYear-$fileMonth-$fileDay")
 
                                 // 오늘 생성된 파일인지 확인
                                 if (fileYear == todayYear && fileMonth == todayMonth && fileDay == todayDay) {
@@ -165,6 +164,7 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
     }
 
     override suspend fun saveOrderRecord(
+        orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,
         selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
@@ -172,8 +172,6 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         userId: Long,
         fcmToken: String
     ): String {
-        val orderId = "order_${System.currentTimeMillis()}"
-
         try {
             val selectedImageUris = selectedAlbumRecords.flatMap { record ->
                 listOfNotNull(
@@ -184,7 +182,7 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
 
             val contents = selectedAlbumRecords.map { it.content }
 
-            Log.d("HWO", "주문 저장 시작 - OrderId: $orderId")
+            Log.d("HWO", "주문 저장 시작 - 전달받은 OrderId: $orderId")
             Log.d("HWO", "선택된 이미지: ${selectedImageUris.size}개")
 
             val orderMap = hashMapOf(

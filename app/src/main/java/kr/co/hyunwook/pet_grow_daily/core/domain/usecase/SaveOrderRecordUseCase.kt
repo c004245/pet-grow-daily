@@ -10,11 +10,19 @@ class SaveOrderRecordUseCase @Inject constructor(
     private val albumRepository: AlbumRepository
 ) {
     suspend operator fun invoke(
+        orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,
         selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
         paymentInfo: Map<String, String>,
         fcmToken: String,
     ): String =
-        albumRepository.saveOrderRecord(selectedAlbumRecords, selectedAlbumLayoutType, deliveryInfo, paymentInfo, fcmToken)
+        albumRepository.saveOrderRecord(
+            orderId,
+            selectedAlbumRecords,
+            selectedAlbumLayoutType,
+            deliveryInfo,
+            paymentInfo,
+            fcmToken
+        )
 }

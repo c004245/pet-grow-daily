@@ -97,6 +97,9 @@ class OrderViewModel @Inject constructor(
     // 결제 검증을 위한 imp_uid 저장
     private var currentImpUid: String? = null
 
+    // 주문번호 일치를 위한 orderId 저장 (한 번만 생성해서 전체 플로우에서 사용)
+    private var currentOrderId: String? = null
+
     fun setCurrentOrderProduct(orderProduct: OrderProduct) {
         _currentOrderProduct.value = orderProduct
     }
@@ -146,11 +149,14 @@ class OrderViewModel @Inject constructor(
 
 
     fun requestKakaoPayPayment(orderProduct: OrderProduct) {
+        if (currentOrderId == null) {
+            currentOrderId = "order_" + System.currentTimeMillis()
+        }
         val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
 
         val paymentData = mapOf(
             "channelKey" to "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
-            "merchant_uid" to "order_" + System.currentTimeMillis(),
+            "merchant_uid" to currentOrderId!!,
             "name" to orderProduct.productTitle,
             "amount" to "100",
             "m_redirect_url" to "https://pet-grow-daily.web.app/payment-result.html"
@@ -187,6 +193,9 @@ class OrderViewModel @Inject constructor(
     fun clearAllPaymentStates() {
         _paymentData.value = null
         _paymentResult.value = PaymentResult.Initial
+        currentImpUid = null
+        currentOrderId = null // 주문번호도 초기화
+        Log.d("HWO", "결제 상태 초기화 완료 (orderId, imp_uid 포함)")
     }
 
     //선택한 앨범 리스트
@@ -245,6 +254,7 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "FCM 토큰 획득: ${fcmToken?.take(10)}...")
 
                 val orderId = saveOrderRecordUseCase(
+                    orderId = currentOrderId!!, // 생성한 orderId를 전달
                     selectedAlbumRecords = _selectedAlbumRecords.value,
                     selectedAlbumLayoutType = _selectedAlbumLayout.value,
                     deliveryInfo = selectedDeliveryInfo,
@@ -253,6 +263,16 @@ class OrderViewModel @Inject constructor(
                 )
 
                 Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
+                Log.d("HWO", "현재 OrderId(merchant_uid와 일치해야 함): $currentOrderId")
+
+                // 이제 orderId와 currentOrderId가 같아야 함
+                if (orderId != currentOrderId) {
+                    Log.w("HWO", "⚠️ OrderId 불일치 발견! (이 경우는 발생하면 안됨)")
+                    Log.w("HWO", "UseCase 반환 orderId: $orderId")
+                    Log.w("HWO", "결제용 currentOrderId: $currentOrderId")
+                } else {
+                    Log.d("HWO", "✅ OrderId 일치 확인: $orderId = $currentOrderId")
+                }
 
                 val productName = paymentInfo["name"] ?: ""
                 val productAmount = paymentInfo["amount"]?.toIntOrNull() ?: 0
@@ -266,7 +286,7 @@ class OrderViewModel @Inject constructor(
 
                 Log.d("HWO", "ZIP 파일 생성 요청 시작")
                 // Firebase Function 호출하여 ZIP 생성 요청 (결과를 기다림)
-                callPdfGenerationFunction(orderId, userId)
+                callPdfGenerationFunction(currentOrderId!!, userId)
 
                 Log.d("HWO", "=== 주문 저장 프로세스 완료 ===")
                 // ZIP 생성이 완료된 후에만 완료 이벤트 발생
@@ -304,7 +324,7 @@ class OrderViewModel @Inject constructor(
                     // 슬랙 알림 전송
                     viewModelScope.launch {
                         sendSlackNotification(
-                            orderId = orderId,
+                            orderId = orderId, // 결제용 orderId와 동일하게 사용
                             userId = userId,
                             zipUrl = zipUrl ?: "",
                             isSuccess = true
@@ -321,7 +341,7 @@ class OrderViewModel @Inject constructor(
                     // 실패 시에도 슬랙 알림
                     viewModelScope.launch {
                         sendSlackNotification(
-                            orderId = orderId,
+                            orderId = orderId, // 결제용 orderId와 동일하게 사용
                             userId = userId,
                             isSuccess = false,
                             errorMessage = e.message

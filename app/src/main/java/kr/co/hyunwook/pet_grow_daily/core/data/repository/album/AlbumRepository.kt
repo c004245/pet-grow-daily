@@ -19,6 +19,7 @@ interface AlbumRepository {
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
 
     suspend fun saveOrderRecord(
+        orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,
         selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,

@@ -45,6 +45,7 @@ class AlbumRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveOrderRecord(
+        orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,
         selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,
@@ -53,6 +54,7 @@ class AlbumRepositoryImpl @Inject constructor(
     ): String {
         val userId = getUserId()
         return firestoreDataSource.saveOrderRecord(
+            orderId,
             selectedAlbumRecords,
             selectedAlbumLayoutType,
             deliveryInfo,

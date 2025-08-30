@@ -12,6 +12,7 @@ interface FirestoreAlbumDataSource {
     suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long)
 
     suspend fun saveOrderRecord(
+        orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,
         selectedAlbumLayoutType: AlbumLayoutType,
         deliveryInfo: DeliveryInfo,

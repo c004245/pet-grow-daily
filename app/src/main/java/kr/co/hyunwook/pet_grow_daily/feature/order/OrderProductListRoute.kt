@@ -205,13 +205,26 @@ fun OrderProductItem(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = product.productTitle,
-                style = PetgrowTheme.typography.medium,
-                fontSize = 16.sp,
-                lineHeight = 16.sp,
-                color = black21
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    text = product.productTitle,
+                    style = PetgrowTheme.typography.medium,
+                    fontSize = 16.sp,
+                    lineHeight = 16.sp,
+                    color = black21
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "사진 ${needAlbumCount(product.productTitle)}개가 필요해요!",
+                    style = PetgrowTheme.typography.medium,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    color = black21
+                )
+            }
 
 
             Text(
@@ -265,3 +278,11 @@ private fun getProductDrawableResource(productTitle: String): Int {
 }
 
 
+private fun needAlbumCount(productTitle: String): Int {
+    return when {
+        productTitle.contains("인스타북") -> 31
+        productTitle.contains("하드") -> 42
+        productTitle.contains("패브릭") -> 42
+        else -> R.drawable.ic_order_dummy2
+    }
+}

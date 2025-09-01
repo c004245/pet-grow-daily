@@ -18,7 +18,7 @@ interface AlbumRepository {
 
     suspend fun insertAlbumRecord(albumRecord: AlbumRecord)
 
-    suspend fun deleteAlbumRecord(albumRecord: AlbumRecord)
+    suspend fun deleteAlbumRecordWithImages(albumRecord: AlbumRecord)
 
     suspend fun saveOrderRecord(
         orderId: String,

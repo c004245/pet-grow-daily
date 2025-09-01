@@ -8,6 +8,6 @@ class DeleteAlbumRecordUseCase @Inject constructor(
     private val albumRepository: AlbumRepository
 ) {
     suspend operator fun invoke(albumRecord: AlbumRecord) =
-        albumRepository.deleteAlbumRecord(albumRecord)
+        albumRepository.deleteAlbumRecordWithImages(albumRecord)
 
 }

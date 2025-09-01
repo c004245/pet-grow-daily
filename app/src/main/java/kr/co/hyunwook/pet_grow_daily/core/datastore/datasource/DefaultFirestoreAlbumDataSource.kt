@@ -165,10 +165,42 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
         }
     }
 
-    override suspend fun deleteAlbumRecord(userId: Long, dateId: String) {
-        try {
-            Log.d("HWO", "deleteAlbumRecord: userId=$userId, dateId=$dateId")
 
+
+    override suspend fun deleteAlbumRecordWithImages(
+        record: AlbumRecord,
+        userId: Long,
+        dateId: String
+    ) {
+        try {
+            Log.d("HWO", "deleteAlbumRecordWithImages: userId=$userId, dateId=$dateId")
+
+            // Firebase Storage에서 이미지 파일 삭제
+            val storage = Firebase.storage
+
+            // 첫 번째 이미지 삭제
+            if (record.firstImage.isNotEmpty()) {
+                try {
+                    val firstImageRef = storage.getReferenceFromUrl(record.firstImage)
+                    firstImageRef.delete().await()
+                    Log.d("HWO", "첫 번째 이미지 삭제 완료: ${record.firstImage}")
+                } catch (e: Exception) {
+                    Log.e("HWO", "첫 번째 이미지 삭제 실패: ${e.message}", e)
+                }
+            }
+
+            // 두 번째 이미지 삭제
+            if (record.secondImage.isNotEmpty()) {
+                try {
+                    val secondImageRef = storage.getReferenceFromUrl(record.secondImage)
+                    secondImageRef.delete().await()
+                    Log.d("HWO", "두 번째 이미지 삭제 완료: ${record.secondImage}")
+                } catch (e: Exception) {
+                    Log.e("HWO", "두 번째 이미지 삭제 실패: ${e.message}", e)
+                }
+            }
+
+            // Firestore 문서 삭제
             firestore.collection("users")
                 .document(userId.toString())
                 .collection("albums")
@@ -176,9 +208,9 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 .delete()
                 .await()
 
-            Log.d("HWO", "앨범 삭제 완료: $dateId")
+            Log.d("HWO", "앨범 및 이미지 삭제 완료: $dateId")
         } catch (e: Exception) {
-            Log.e("HWO", "앨범 삭제 실패: ${e.message}", e)
+            Log.e("HWO", "앨범 및 이미지 삭제 실패: ${e.message}", e)
             throw e
         }
     }

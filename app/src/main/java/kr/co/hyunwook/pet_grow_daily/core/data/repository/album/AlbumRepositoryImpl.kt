@@ -80,15 +80,15 @@ class AlbumRepositoryImpl @Inject constructor(
 //        }
     }
 
-    override suspend fun deleteAlbumRecord(albumRecord: AlbumRecord) {
+    override suspend fun deleteAlbumRecordWithImages(albumRecord: AlbumRecord) {
         // Room에서 삭제
         albumRecordDao.deleteAlbumRecord(albumRecord.date)
 
-        // Firestore에서도 삭제
+        // Firestore 문서 및 Storage 이미지 삭제
         val userId = getUserId()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dateId = "${dateFormat.format(Date(albumRecord.date))}-${albumRecord.date}"
-        firestoreDataSource.deleteAlbumRecord(userId, dateId)
+        firestoreDataSource.deleteAlbumRecordWithImages(albumRecord, userId, dateId)
     }
 
     override suspend fun getUserAlbumCount(): Int {

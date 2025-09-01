@@ -20,6 +20,10 @@ interface AlbumRecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun savePetProfile(petProfile: PetProfile)
 
+    //삭제
+    @Query("DELETE FROM AlbumRecord WHERE date = :date")
+    suspend fun deleteAlbumRecord(date: Long)
+
     //앨범 데이터 불러오기
     @Query("SELECT * FROM AlbumRecord ORDER BY date DESC")
     fun getAlbumRecord(): Flow<List<AlbumRecord>>

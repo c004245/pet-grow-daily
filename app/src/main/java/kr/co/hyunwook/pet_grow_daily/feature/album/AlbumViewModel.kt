@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.GetAlbumRecordUseCase
+import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.DeleteAlbumRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,7 @@ class AlbumViewModel @Inject constructor(
     private val getAllImageUseCase: GetAllImageUseCase,
     private val getTodayUserPhotoCountUseCase: GetTodayUserPhotoCountUseCase,
     private val getShouldDisableUploadUseCase: GetShouldDisableUploadUseCase,
+    private val deleteAlbumRecordUseCase: DeleteAlbumRecordUseCase,
     private val analytics: Analytics
 ) : ViewModel() {
 
@@ -56,7 +58,14 @@ class AlbumViewModel @Inject constructor(
             Log.d("HWO", "isDisable -> $isDisable -- ")
             _isDisableUpload.value = isDisable
         }
+    }
 
+    fun deleteAlbumRecord(record: AlbumRecord) {
+        viewModelScope.launch {
+            deleteAlbumRecordUseCase(record)
+            getShouldDisableUpload()
+            getTodayUserPhotoCount()
+        }
     }
 
     fun getAlbumRecord() {

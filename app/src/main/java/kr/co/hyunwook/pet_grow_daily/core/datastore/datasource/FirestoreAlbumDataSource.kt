@@ -11,6 +11,8 @@ import kr.co.hyunwook.pet_grow_daily.feature.order.AlbumLayoutType
 interface FirestoreAlbumDataSource {
     suspend fun saveAlbumRecord(record: AlbumRecord, userId: Long)
 
+    suspend fun deleteAlbumRecord(userId: Long, dateId: String)
+
     suspend fun saveOrderRecord(
         orderId: String,
         selectedAlbumRecords: List<AlbumRecord>,

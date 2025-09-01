@@ -48,14 +48,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -71,10 +64,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import androidx.activity.compose.BackHandler
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import kr.co.hyunwook.pet_grow_daily.util.FullScreenImageViewer
 import kotlin.system.exitProcess
@@ -125,7 +127,10 @@ fun AlbumRoute(
         isRecordLoading = isRecordLoading,
         navigateToAdd = navigateToAdd,
         navigateToAnotherPet = navigateToAnotherPet,
-        navigateToOrderProductList  = navigateToOrderProductList
+        navigateToOrderProductList  = navigateToOrderProductList,
+        onDeleteClick = {
+            viewModel.deleteAlbumRecord(it)
+        }
     )
 }
 
@@ -137,7 +142,8 @@ fun AlbumScreen(
     isRecordLoading: Boolean,
     navigateToAdd: () -> Unit = {},
     navigateToAnotherPet: () -> Unit = {},
-    navigateToOrderProductList: () -> Unit
+    navigateToOrderProductList: () -> Unit,
+    onDeleteClick: (AlbumRecord) -> Unit = {},
 ) {
 
     var selectedTab by remember { mutableStateOf(AlbumTab.LIST) }
@@ -148,6 +154,10 @@ fun AlbumScreen(
     var showFullScreenImage by remember { mutableStateOf(false) }
     var fullScreenImageUrls by remember { mutableStateOf(emptyList<String>()) }
     var fullScreenInitialPage by remember { mutableStateOf(0) }
+
+    // 삭제 확인 다이얼로그 상태
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var recordToDelete by remember { mutableStateOf<AlbumRecord?>(null) }
 
     LaunchedEffect(selectedTab) {
         pagerState.animateScrollToPage(
@@ -219,6 +229,10 @@ fun AlbumScreen(
                                                 fullScreenImageUrls = imageUrls
                                                 fullScreenInitialPage = initialPage
                                                 showFullScreenImage = true
+                                            },
+                                            onDeleteClick = {
+                                                recordToDelete = item
+                                                showDeleteDialog = true
                                             },
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -307,6 +321,23 @@ fun AlbumScreen(
                 onDismiss = { showFullScreenImage = false }
             )
         }
+
+        // 삭제 확인 다이얼로그
+        if (showDeleteDialog) {
+            DeleteConfirmDialog(
+                onDeleteConfirm = {
+                    recordToDelete?.let { record ->
+                        onDeleteClick(record)
+                    }
+                    showDeleteDialog = false
+                    recordToDelete = null
+                },
+                onDeleteCancel = {
+                    showDeleteDialog = false
+                    recordToDelete = null
+                }
+            )
+        }
     }
 }
 
@@ -349,6 +380,7 @@ fun AlbumTodayUploadWidget(todayCount: Int, navigateToAnotherPet: () -> Unit) {
 fun AlbumCard(
     albumRecord: AlbumRecord,
     onImageClick: (List<String>, Int) -> Unit,
+    onDeleteClick: (AlbumRecord) -> Unit,
     modifier: Modifier
 ) {
     Box(
@@ -403,6 +435,20 @@ fun AlbumCard(
                 )
             }
         }
+
+        // 삭제 버튼을 오른쪽 상단에 위치
+        Image(
+            painter = painterResource(R.drawable.ic_delete),
+            contentDescription = "delete",
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+                .size(32.dp)
+                .clickable {
+                    onDeleteClick(albumRecord)
+                    // TODO: 삭제 로직 추가
+                }
+        )
     }
 }
 
@@ -811,5 +857,100 @@ fun ShimmerBox(
                 .fillMaxSize()
                 .background(brush)
         )
+    }
+}
+
+@Composable
+fun DeleteConfirmDialog(
+    onDeleteConfirm: () -> Unit,
+    onDeleteCancel: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .clickable { onDeleteCancel() },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    spotColor = Color(0x29000000),
+                    ambientColor = Color(0x29000000)
+                )
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
+                .clickable { /* 다이얼로그 내부 클릭 시 닫히지 않도록 */ }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "이 사진을 삭제할까요?",
+                    style = PetgrowTheme.typography.bold,
+                    fontSize = 18.sp,
+                    color = black21
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "삭제한 후에는 되돌릴 수 없어요.",
+                    style = PetgrowTheme.typography.medium,
+                    fontSize = 14.sp,
+                    color = gray5E
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 취소 버튼
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(grayEF)
+                            .clickable { onDeleteCancel() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "취소",
+                            style = PetgrowTheme.typography.medium,
+                            fontSize = 16.sp,
+                            color = black21
+                        )
+                    }
+
+                    // 삭제 버튼
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFE53E3E))
+                            .clickable { onDeleteConfirm() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "삭제",
+                            style = PetgrowTheme.typography.medium,
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
     }
 }

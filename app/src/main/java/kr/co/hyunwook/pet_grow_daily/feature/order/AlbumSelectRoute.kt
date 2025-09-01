@@ -235,12 +235,10 @@ fun AlbumListSelectWidget(
                 .clickable {
                     //결제 테스트를 위한 주석 필요
                     if (isButtonEnabled) {
-
                         if (currentOrderProduct?.productTitle?.contains("인스타") == true) {
                             navigateToDeliveryInfo(selectedItems)
                         } else {
                             navigateToAlbumLayout(selectedItems)
-
                         }
                     }
                 }

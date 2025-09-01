@@ -74,10 +74,21 @@ class AlbumRepositoryImpl @Inject constructor(
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         albumDataSource.updateLastPhotoDate(today)
 
-        if (albumRecord.isPublic) {
+//        if (albumRecord.isPublic) {
             val userId = getUserId()
             firestoreDataSource.saveAlbumRecord(albumRecord, userId)
-        }
+//        }
+    }
+
+    override suspend fun deleteAlbumRecord(albumRecord: AlbumRecord) {
+        // Room에서 삭제
+        albumRecordDao.deleteAlbumRecord(albumRecord.date)
+
+        // Firestore에서도 삭제
+        val userId = getUserId()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateId = "${dateFormat.format(Date(albumRecord.date))}-${albumRecord.date}"
+        firestoreDataSource.deleteAlbumRecord(userId, dateId)
     }
 
     override suspend fun getUserAlbumCount(): Int {

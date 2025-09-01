@@ -157,9 +157,29 @@ class DefaultFirestoreAlbumDataSource @Inject constructor(
                 .document(userId.toString())
                 .collection("albums")
 
-            userAlbumCollection.add(recordMap).await()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val dateId = "${dateFormat.format(Date(record.date))}-${record.date}"
+            userAlbumCollection.document(dateId).set(recordMap).await()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    override suspend fun deleteAlbumRecord(userId: Long, dateId: String) {
+        try {
+            Log.d("HWO", "deleteAlbumRecord: userId=$userId, dateId=$dateId")
+
+            firestore.collection("users")
+                .document(userId.toString())
+                .collection("albums")
+                .document(dateId)
+                .delete()
+                .await()
+
+            Log.d("HWO", "앨범 삭제 완료: $dateId")
+        } catch (e: Exception) {
+            Log.e("HWO", "앨범 삭제 실패: ${e.message}", e)
+            throw e
         }
     }
 

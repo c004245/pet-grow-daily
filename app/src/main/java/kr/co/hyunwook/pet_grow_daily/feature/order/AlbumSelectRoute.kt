@@ -77,16 +77,18 @@ import androidx.compose.ui.unit.IntSize
 fun AlbumSelectRoute(
     viewModel: OrderViewModel,
     navigateToAlbumLayout: () -> Unit,
-//    navigateToDeliveryRegister: () -> Unit,
-//    navigateToDeliveryCheck: () -> Unit,
+    navigateToDeliveryRegister: () -> Unit,
+    navigateToDeliveryCheck: () -> Unit,
     onBackClick: () -> Unit = {}
 
 ) {
     val albumRecord by viewModel.albumRecord.collectAsState()
     val currentOrderProduct by viewModel.currentOrderProduct.collectAsState()
+    var shouldNavigate by remember { mutableStateOf(false) }
+    val hasDeliveryInfo by viewModel.hasDeliveryInfo.collectAsState()
 
     currentOrderProduct?.let { orderProduct ->
-        Log.d("HWO", "전달받은 상품: ${orderProduct.id}, ${orderProduct.productDiscount}")
+        Log.d("HWO", "전달받은 상품: ${orderProduct.id}, ${orderProduct.productDiscount} -- ${orderProduct.productTitle}")
     }
 
     BackHandler {
@@ -98,6 +100,18 @@ fun AlbumSelectRoute(
     }
 
 
+    LaunchedEffect(hasDeliveryInfo, shouldNavigate) {
+        if (shouldNavigate) {
+            delay(100)
+            if (hasDeliveryInfo) {
+                navigateToDeliveryCheck()
+            } else {
+                navigateToDeliveryRegister()
+            }
+            shouldNavigate = false
+        }
+    }
+
     AlbumSelectScreen(
         albumRecord = albumRecord,
         currentOrderProduct = currentOrderProduct,
@@ -106,6 +120,13 @@ fun AlbumSelectRoute(
             val selectedRecords = selectedItems.map { albumRecord[it] }
             viewModel.setSelectedAlbumRecords(selectedRecords)
             navigateToAlbumLayout()
+        },
+        navigateToDeliveryInfo = { selectedItems ->
+            viewModel.addEvent(EventConstants.CLICK_ALBUM_SELECT_DONE_EVENT)
+            val selectedRecords = selectedItems.map { albumRecord[it] }
+            viewModel.setSelectedAlbumRecords(selectedRecords)
+            viewModel.checkDeliveryInfo()
+            shouldNavigate = true
 
         },
         onBackClick = onBackClick
@@ -116,7 +137,7 @@ fun AlbumSelectRoute(
 fun AlbumSelectScreen(
     albumRecord: List<AlbumRecord>,
     currentOrderProduct: OrderProduct?,
-//    navigateToDeliveryInfo: (Set<Int>) -> Unit,
+    navigateToDeliveryInfo: (Set<Int>) -> Unit,
     navigateToAlbumLayout: (Set<Int>) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -131,8 +152,8 @@ fun AlbumSelectScreen(
             modifier = Modifier.padding(top = 16.dp),
             albumRecordItem = albumRecord,
             currentOrderProduct = currentOrderProduct,
-            navigateToAlbumLayout = navigateToAlbumLayout
-//            navigateToDeliveryInfo = navigateToDeliveryInfo
+            navigateToAlbumLayout = navigateToAlbumLayout,
+            navigateToDeliveryInfo = navigateToDeliveryInfo
         )
     }
 }
@@ -171,7 +192,7 @@ fun AlbumListSelectWidget(
     albumRecordItem: List<AlbumRecord>,
     currentOrderProduct: OrderProduct?,
     navigateToAlbumLayout: (Set<Int>) -> Unit,
-//    navigateToDeliveryInfo: (Set<Int>) -> Unit
+    navigateToDeliveryInfo: (Set<Int>) -> Unit
 ) {
     var selectedItems by remember { mutableStateOf(setOf<Int>()) }
 
@@ -214,7 +235,13 @@ fun AlbumListSelectWidget(
                 .clickable {
                     //결제 테스트를 위한 주석 필요
                     if (isButtonEnabled) {
-                        navigateToAlbumLayout(selectedItems)
+
+                        if (currentOrderProduct?.productTitle?.contains("인스타") == true) {
+                            navigateToDeliveryInfo(selectedItems)
+                        } else {
+                            navigateToAlbumLayout(selectedItems)
+
+                        }
                     }
                 }
                 .clip(RoundedCornerShape(14.dp))

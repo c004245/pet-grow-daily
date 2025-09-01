@@ -251,12 +251,13 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "서버 결제 검증 성공 - 주문 생성 진행")
 
                 val fcmToken = getFcmTokenUseCase.invoke().first()
-                Log.d("HWO", "FCM 토큰 획득: ${fcmToken?.take(10)}...")
+                Log.d("HWO", "FCM 토큰 획득: ${fcmToken} -- ${currentOrderId} -- ${selectedAlbumLayout.value}")
+
 
                 val orderId = saveOrderRecordUseCase(
                     orderId = currentOrderId!!, // 생성한 orderId를 전달
                     selectedAlbumRecords = _selectedAlbumRecords.value,
-                    selectedAlbumLayoutType = _selectedAlbumLayout.value,
+                    selectedAlbumLayoutType = selectedAlbumLayout.value,
                     deliveryInfo = selectedDeliveryInfo,
                     paymentInfo = paymentInfo,
                     fcmToken = fcmToken ?: ""

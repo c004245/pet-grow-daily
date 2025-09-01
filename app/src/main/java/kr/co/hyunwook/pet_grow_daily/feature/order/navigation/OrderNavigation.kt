@@ -85,6 +85,8 @@ fun NavGraphBuilder.orderNavGraph(
 fun NavGraphBuilder.albumSelectNavGraph(
     navigateToAlbumLayout: () -> Unit,
     viewModel: OrderViewModel,
+    navigateToDeliveryCheck: () -> Unit,
+    navigateToDeliveryRegister: () -> Unit,
     onBackClick: () -> Unit
 
 ) {
@@ -118,8 +120,8 @@ fun NavGraphBuilder.albumSelectNavGraph(
     ) { backStackEntry ->
         AlbumSelectRoute(
             viewModel = viewModel,
-//            navigateToDeliveryCheck = navigateToDeliveryCheck,
-//            navigateToDeliveryRegister = navigateToDeliveryRegister,
+            navigateToDeliveryCheck = navigateToDeliveryCheck,
+            navigateToDeliveryRegister = navigateToDeliveryRegister,
             navigateToAlbumLayout = navigateToAlbumLayout,
             onBackClick = onBackClick
         )

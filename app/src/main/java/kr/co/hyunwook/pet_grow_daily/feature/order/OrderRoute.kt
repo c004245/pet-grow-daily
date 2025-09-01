@@ -69,6 +69,7 @@ import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_INSTA_BOOK_COUNT
 import kr.co.hyunwook.pet_grow_daily.util.TODAY_LIMIT_CREATE
 import kr.co.hyunwook.pet_grow_daily.util.formatPrice
+import kotlin.math.round
 
 @Composable
 fun OrderRoute(
@@ -284,7 +285,9 @@ fun ProductInfoWidget(
     orderProduct: OrderProduct
 ) {
 
-    val discountAmount = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
+    val discountPrice = (
+            round((orderProduct.productCost * (100 - orderProduct.productDiscount) / 100.0) / 100.0) * 100
+            ).toInt()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -319,7 +322,7 @@ fun ProductInfoWidget(
             )
             Spacer(Modifier.width(2.dp))
             Text(
-                text = formatPrice(discountAmount),
+                text = formatPrice(discountPrice),
                 color = black21,
                 fontSize = 22.sp,
                 lineHeight = 22.sp,

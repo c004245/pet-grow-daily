@@ -252,6 +252,14 @@ internal fun MainScreen(
                             navigatorEnum = NavigateEnum.ALBUM_LAYOUT
                             navigate(navigator, NavigateEnum.ALBUM_LAYOUT)
                         },
+                        navigateToDeliveryCheck = {
+                            navigatorEnum = NavigateEnum.DELIVERY_CHECK
+                            navigate(navigator, NavigateEnum.DELIVERY_CHECK)
+                        },
+                        navigateToDeliveryRegister = {
+                            navigatorEnum = NavigateEnum.DELIVERY_REGISTER
+                            navigate(navigator, NavigateEnum.DELIVERY_REGISTER)
+                        },
                         viewModel = orderViewModel,
                         onBackClick = {
                             orderViewModel.currentOrderProduct.value?.let { orderProduct ->

@@ -55,6 +55,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import androidx.compose.ui.layout.ContentScale
 import kr.co.hyunwook.pet_grow_daily.core.designsystem.theme.gray5E
 import androidx.activity.compose.BackHandler
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_COUNT
+import kr.co.hyunwook.pet_grow_daily.util.MAX_ALBUM_INSTA_BOOK_COUNT
+import kotlin.math.round
 
 //주문 상품 고를 수 있는 화면
 @Composable
@@ -170,7 +173,9 @@ fun OrderProductItem(
     onItemClick: (OrderProduct) -> Unit
 ) {
 
-    val discountPrice = product.productCost * (100 - product.productDiscount) / 100
+    val discountPrice = (
+            round((product.productCost * (100 - product.productDiscount) / 100.0) / 100.0) * 100
+            ).toInt()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -280,9 +285,9 @@ private fun getProductDrawableResource(productTitle: String): Int {
 
 private fun needAlbumCount(productTitle: String): Int {
     return when {
-        productTitle.contains("인스타북") -> 31
-        productTitle.contains("하드") -> 42
-        productTitle.contains("패브릭") -> 42
+        productTitle.contains("인스타북") -> MAX_ALBUM_INSTA_BOOK_COUNT
+        productTitle.contains("하드") -> MAX_ALBUM_COUNT
+        productTitle.contains("패브릭") -> MAX_ALBUM_COUNT
         else -> R.drawable.ic_order_dummy2
     }
 }

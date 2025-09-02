@@ -538,6 +538,9 @@ class OrderViewModel @Inject constructor(
     fun addEvent(event: String, properties: Map<String, Any>? = null) {
         Log.d("HWO", "addEvent -> $event -- $properties")
         when (event) {
+            EventConstants.SIGN_UP_DONE_EVENT -> {
+                analytics.track(event)
+            }
             EventConstants.CLICK_ORDER_PRODUCT_TYPE_EVENT -> {
                 analytics.track(event, properties)
             }

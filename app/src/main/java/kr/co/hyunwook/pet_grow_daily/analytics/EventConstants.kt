@@ -2,6 +2,8 @@ package kr.co.hyunwook.pet_grow_daily.analytics
 
 object EventConstants {
 
+    //회원가입 완료
+    const val SIGN_UP_DONE_EVENT = "sign_up_done"
     //사진 등록
     const val UPLOAD_IMAGE_EVENT = "upload_image"
     const val IS_PUBLIC_PROPERTY = "is_public"

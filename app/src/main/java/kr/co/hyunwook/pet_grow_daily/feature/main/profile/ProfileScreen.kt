@@ -52,6 +52,8 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kr.co.hyunwook.pet_grow_daily.analytics.EventConstants
+import kr.co.hyunwook.pet_grow_daily.feature.order.OrderViewModel
 
 @Composable
 fun ProfileScreen(
@@ -69,6 +71,7 @@ fun ProfileScreen(
     )
 
 
+    val orderViewModel: OrderViewModel = hiltViewModel()
 
 
     var nameText by remember {
@@ -81,6 +84,7 @@ fun ProfileScreen(
         profileViewModel.saveProfileEvent.collect { isSuccess ->
             isUploading = false
             if (isSuccess) {
+                orderViewModel.addEvent(EventConstants.SIGN_UP_DONE_EVENT)
                 navigateToAlbum()
             } else {
                 Toast.makeText(context, "저장에 실패했습니다.", Toast.LENGTH_SHORT).show()

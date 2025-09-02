@@ -282,27 +282,56 @@ class AddViewModel @Inject constructor(
         contentResolver: android.content.ContentResolver
     ) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            val projection = arrayOf(
+            // IS_FAVORITE 지원 여부 먼저 확인
+            val baseProjection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATE_ADDED,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.IS_FAVORITE
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME
             )
 
-            val selection = "${MediaStore.Images.Media.IS_FAVORITE} = ?"
-            val selectionArgs = arrayOf("1")
-            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            var supportsFavorite = false
+            var finalProjection = baseProjection
 
-            contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )?.use { cursor ->
-                processImageCursor(cursor, imagesList)
+            try {
+                // IS_FAVORITE 컬럼 지원 여부를 실제로 테스트
+                val testProjection = baseProjection + MediaStore.Images.Media.IS_FAVORITE
+                contentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    testProjection,
+                    null,
+                    null,
+                    "${MediaStore.Images.Media.DATE_ADDED} DESC LIMIT 1"
+                )?.use { cursor ->
+                    supportsFavorite = true
+                    finalProjection = testProjection
+                }
+            } catch (e: Exception) {
+                Log.w("AddViewModel", "loadFavoriteImages: IS_FAVORITE 컬럼 미지원: ${e.message}")
+                supportsFavorite = false
+                finalProjection = baseProjection
+            }
+
+            // IS_FAVORITE를 지원하는 경우만 즐겨찾기 쿼리 실행
+            if (supportsFavorite) {
+                val selection = "${MediaStore.Images.Media.IS_FAVORITE} = ?"
+                val selectionArgs = arrayOf("1")
+                val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+                try {
+                    contentResolver.query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        finalProjection,
+                        selection,
+                        selectionArgs,
+                        sortOrder
+                    )?.use { cursor ->
+                        processImageCursor(cursor, imagesList)
+                    }
+                } catch (e: Exception) {
+                    Log.e("AddViewModel", "즐겨찾기 이미지 로딩 실패", e)
+                }
             }
         }
     }
@@ -376,46 +405,65 @@ class AddViewModel @Inject constructor(
             val imagesList = mutableListOf<GalleryImage>()
             val contentResolver = context.contentResolver
 
-            val projection = mutableListOf<String>().apply {
-                addAll(
-                    arrayOf(
-                        MediaStore.Images.Media._ID,
-                        MediaStore.Images.Media.DISPLAY_NAME,
-                        MediaStore.Images.Media.DATE_TAKEN,
-                        MediaStore.Images.Media.DATE_ADDED,
-                        MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                        MediaStore.Images.Media.BUCKET_ID
-                    )
-                )
+            // 기본 projection
+            val baseProjection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.BUCKET_ID
+            )
 
-                // Android 10 이상에서만 즐겨찾기 정보 추가
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    add(MediaStore.Images.Media.IS_FAVORITE)
+            // IS_FAVORITE 지원 여부 확인
+            var supportsFavorite = false
+            var finalProjection = baseProjection
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                try {
+                    // IS_FAVORITE 컬럼 지원 여부를 실제로 테스트
+                    val testProjection = baseProjection + MediaStore.Images.Media.IS_FAVORITE
+                    contentResolver.query(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        testProjection,
+                        null,
+                        null,
+                        "${MediaStore.Images.Media.DATE_ADDED} DESC LIMIT 1"
+                    )?.use { cursor ->
+                        // 쿼리가 성공하면 IS_FAVORITE를 지원한다고 판단
+                        supportsFavorite = true
+                        finalProjection = testProjection
+                        Log.d("AddViewModel", "IS_FAVORITE 컬럼 지원됨")
+                    }
+                } catch (e: Exception) {
+                    Log.w("AddViewModel", "IS_FAVORITE 컬럼 미지원: ${e.message}")
+                    supportsFavorite = false
+                    finalProjection = baseProjection
                 }
             }
 
-            val sortOrder =
-                "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
-            contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection.toTypedArray(),
-                null,
-                null,
-                sortOrder
-            )?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
-                val dateAddedColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
-                val bucketDisplayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-                val bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID)
+            try {
+                contentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    finalProjection,
+                    null,
+                    null,
+                    sortOrder
+                )?.use { cursor ->
+                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                    val dateTakenColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                    val dateAddedColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                    val bucketDisplayNameColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+                    val bucketIdColumn =
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID)
 
-                // 즐겨찾기 컬럼은 Android 10+ 에서만 사용
-                val isFavoriteColumn =
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    // 즐겨찾기 컬럼은 지원하는 경우만 사용
+                    val isFavoriteColumn = if (supportsFavorite) {
                         try {
                             cursor.getColumnIndexOrThrow(MediaStore.Images.Media.IS_FAVORITE)
                         } catch (e: Exception) {
@@ -425,98 +473,112 @@ class AddViewModel @Inject constructor(
                         -1
                     }
 
-                val folders = mutableMapOf<Long, MutableList<GalleryImage>>()
-                val favoriteImages = mutableListOf<GalleryImage>()
-                val recentImages = mutableListOf<GalleryImage>()
+                    val folders = mutableMapOf<Long, MutableList<GalleryImage>>()
+                    val favoriteImages = mutableListOf<GalleryImage>()
+                    val recentImages = mutableListOf<GalleryImage>()
 
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idColumn)
-                    val contentUri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        id
-                    )
-
-                    val dateTaken = cursor.getLongOrNull(dateTakenColumn)
-                    val dateAdded = cursor.getLong(dateAddedColumn) * 1000
-
-                    val timestamp = dateTaken ?: dateAdded
-                    val formattedDate = formatDate(timestamp)
-                    val bucketName = cursor.getString(bucketDisplayNameColumn)
-                    val bucketId = cursor.getLong(bucketIdColumn)
-
-                    // 즐겨찾기 여부 확인
-                    val isFavorite = if (isFavoriteColumn >= 0) {
-                        cursor.getInt(isFavoriteColumn) == 1
-                    } else {
-                        false
-                    }
-
-                    val image = GalleryImage(
-                        id = id,
-                        uri = contentUri,
-                        date = formattedDate,
-                        bucketName = bucketName
-                    )
-
-                    imagesList.add(image)
-
-                    // 일반 폴더별 분류
-                    folders.getOrPut(bucketId) { mutableListOf() }.add(image)
-
-                    // 즐겨찾기 이미지 수집
-                    if (isFavorite) {
-                        favoriteImages.add(image)
-                    }
-
-                    // 최신 항목 수집 (최근 30일)
-                    val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
-                    if (timestamp >= thirtyDaysAgo) {
-                        recentImages.add(image)
-                    }
-                }
-
-                val folderList = mutableListOf<GalleryFolder>()
-
-                // 최신 항목 폴더 추가 (이미지가 있는 경우만)
-                if (recentImages.isNotEmpty()) {
-                    folderList.add(
-                        GalleryFolder(
-                            bucketId = -1L, // 특별한 ID로 구분
-                            name = "최근 항목",
-                            imageCount = recentImages.size,
-                            thumbnailUri = recentImages.first().uri
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getLong(idColumn)
+                        val contentUri = ContentUris.withAppendedId(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            id
                         )
-                    )
-                }
 
-                // 즐겨찾기 폴더 추가 (Android 10+ 및 즐겨찾기가 있는 경우만)
-                if (favoriteImages.isNotEmpty()) {
-                    folderList.add(
-                        GalleryFolder(
-                            bucketId = -2L, // 특별한 ID로 구분
-                            name = "즐겨찾기",
-                            imageCount = favoriteImages.size,
-                            thumbnailUri = favoriteImages.first().uri
+                        val dateTaken = cursor.getLongOrNull(dateTakenColumn)
+                        val dateAdded = cursor.getLong(dateAddedColumn) * 1000
+
+                        val timestamp = dateTaken ?: dateAdded
+                        val formattedDate = formatDate(timestamp)
+                        val bucketName = cursor.getString(bucketDisplayNameColumn)
+                        val bucketId = cursor.getLong(bucketIdColumn)
+
+                        // 즐겨찾기 여부 확인 (지원하는 경우만)
+                        val isFavorite = if (isFavoriteColumn >= 0) {
+                            try {
+                                cursor.getInt(isFavoriteColumn) == 1
+                            } catch (e: Exception) {
+                                false
+                            }
+                        } else {
+                            false
+                        }
+
+                        val image = GalleryImage(
+                            id = id,
+                            uri = contentUri,
+                            date = formattedDate,
+                            bucketName = bucketName
                         )
-                    )
-                }
 
-                // 일반 폴더들 추가
-                folderList.addAll(
-                    folders.map { (bucketId, images) ->
-                        GalleryFolder(
-                            bucketId = bucketId,
-                            name = images.first().bucketName,
-                            imageCount = images.size,
-                            thumbnailUri = images.first().uri
+                        imagesList.add(image)
+
+                        // 일반 폴더별 분류
+                        folders.getOrPut(bucketId) { mutableListOf() }.add(image)
+
+                        // 즐겨찾기 이미지 수집 (지원하는 경우만)
+                        if (isFavorite) {
+                            favoriteImages.add(image)
+                        }
+
+                        // 최신 항목 수집 (최근 30일)
+                        val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+                        if (timestamp >= thirtyDaysAgo) {
+                            recentImages.add(image)
+                        }
+                    }
+
+                    val folderList = mutableListOf<GalleryFolder>()
+
+                    // 최신 항목 폴더 추가 (이미지가 있는 경우만)
+                    if (recentImages.isNotEmpty()) {
+                        folderList.add(
+                            GalleryFolder(
+                                bucketId = -1L, // 특별한 ID로 구분
+                                name = "최근 항목",
+                                imageCount = recentImages.size,
+                                thumbnailUri = recentImages.first().uri
+                            )
                         )
                     }
-                )
 
+                    // 즐겨찾기 폴더 추가 (지원하고 즐겨찾기가 있는 경우만)
+                    if (supportsFavorite && favoriteImages.isNotEmpty()) {
+                        folderList.add(
+                            GalleryFolder(
+                                bucketId = -2L, // 특별한 ID로 구분
+                                name = "즐겨찾기",
+                                imageCount = favoriteImages.size,
+                                thumbnailUri = favoriteImages.first().uri
+                            )
+                        )
+                    }
+
+                    // 일반 폴더들 추가
+                    folderList.addAll(
+                        folders.map { (bucketId, images) ->
+                            GalleryFolder(
+                                bucketId = bucketId,
+                                name = images.first().bucketName,
+                                imageCount = images.size,
+                                thumbnailUri = images.first().uri
+                            )
+                        }
+                    )
+
+                    _uiState.update {
+                        it.copy(
+                            images = imagesList,
+                            folders = folderList,
+                            isLoading = false
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AddViewModel", "이미지 로딩 실패", e)
                 _uiState.update {
                     it.copy(
-                        images = imagesList,
-                        folders = folderList,
+                        images = emptyList(),
+                        folders = emptyList(),
                         isLoading = false
                     )
                 }

@@ -35,7 +35,7 @@ android {
         applicationId = "kr.co.hyunwook.pet_grow_daily"
         minSdk = 24
         targetSdk = 35
-        versionCode = 16
+        versionCode = 17
         versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

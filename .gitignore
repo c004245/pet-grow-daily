@@ -26,3 +26,8 @@ app/google-services.json
 # Build generated files
 app/build/
 **/build/generated/
+
+# Build artifacts
+app/release/
+*.apk
+*.aab

@@ -38,6 +38,7 @@ import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.PostSlackUseCase
 import kr.co.hyunwook.pet_grow_daily.core.domain.usecase.SaveFcmTokenUseCase
 import kr.co.hyunwook.pet_grow_daily.util.alarm.PhotoReminderNotificationManager
 import kotlin.coroutines.resumeWithException
+import kotlin.math.round
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -151,16 +152,27 @@ class OrderViewModel @Inject constructor(
     fun requestKakaoPayPayment(orderProduct: OrderProduct) {
         if (currentOrderId == null) {
             currentOrderId = "order_" + System.currentTimeMillis()
+            Log.d("HWO", "새로운 orderId 생성: $currentOrderId")
+        } else {
+            Log.d("HWO", "기존 orderId 재사용: $currentOrderId")
         }
-        val discountedPrice = orderProduct.productCost * (100 - orderProduct.productDiscount) / 100
+
+        val discountPrice = (
+                round((orderProduct.productCost * (100 - orderProduct.productDiscount) / 100.0) / 100.0) * 100
+                ).toInt()
 
         val paymentData = mapOf(
             "channelKey" to "channel-key-0007adc4-c33d-471c-bd98-1ee0cc2fa7d5",
             "merchant_uid" to currentOrderId!!,
             "name" to orderProduct.productTitle,
-            "amount" to "100",
+            "amount" to discountPrice.toString(),
             "m_redirect_url" to "https://pet-grow-daily.web.app/payment-result.html"
         )
+
+        Log.d("HWO", "결제 요청 데이터 생성:")
+        Log.d("HWO", "- merchant_uid: ${paymentData["merchant_uid"]}")
+        Log.d("HWO", "- amount: ${paymentData["amount"]}")
+        Log.d("HWO", "- name: ${paymentData["name"]}")
 
         _paymentData.value = paymentData
     }
@@ -218,6 +230,13 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "saveOrderRecord - paymentData: ${_paymentData.value}")
                 val paymentInfo = _paymentData.value ?: throw IllegalStateException("결제 정보가 없습니다")
 
+                // orderId 안전성 확보 - paymentInfo의 merchant_uid를 최우선으로 사용
+                val orderId = paymentInfo["merchant_uid"] ?: currentOrderId
+                ?: ("order_" + System.currentTimeMillis()).also {
+                    Log.w("HWO", "orderId가 모두 null이어서 새로 생성: $it")
+                    Log.w("HWO", "이 경우 결제 검증이 실패할 수 있습니다.")
+                }
+
                 Log.d("HWO", "주문 저장 시작:")
                 Log.d("HWO", "- 사용자 ID: $userId")
                 Log.d("HWO", "- 선택된 앨범: ${_selectedAlbumRecords.value.size}개")
@@ -227,11 +246,12 @@ class OrderViewModel @Inject constructor(
                 )
                 Log.d("HWO", "- 결제 정보: $paymentInfo")
                 Log.d("HWO", "- 현재 저장된 imp_uid: $currentImpUid")
+                Log.d("HWO", "- 사용할 orderId: $orderId")
 
                 // 결제 서버 검증을 paymentInfo에서 필요한 값만 넘겨서 검증하도록 변경
                 val verificationParams = mapOf(
                     "impUid" to (currentImpUid ?: ""),
-                    "merchantUid" to (paymentInfo["merchant_uid"] ?: ""),
+                    "merchantUid" to orderId,
                     "expectedAmount" to (paymentInfo["amount"] ?: ""),
                     "userId" to userId.toString()
                 )
@@ -244,6 +264,49 @@ class OrderViewModel @Inject constructor(
                     Log.e("HWO", "서버 결제 검증 실패")
                     Log.e("HWO", "검증 실패한 결제 정보: $paymentInfo")
                     Log.e("HWO", "검증 실패한 imp_uid: $currentImpUid")
+
+                    // 상세한 실패 원인 분석
+                    val failureDetails = StringBuilder().apply {
+                        appendLine("=== 결제 검증 실패 상세 정보 ===")
+                        appendLine("• 사용자 ID: $userId")
+                        appendLine("• merchant_uid (paymentInfo): ${paymentInfo["merchant_uid"]}")
+                        appendLine("• currentOrderId: $currentOrderId")
+                        appendLine("• 최종 사용 orderId: $orderId")
+                        appendLine("• imp_uid: $currentImpUid")
+                        appendLine("• 예상 결제 금액: ${paymentInfo["amount"]}")
+                        appendLine("• 상품명: ${paymentInfo["name"]}")
+
+                        // orderId 불일치 여부 확인
+                        if (paymentInfo["merchant_uid"] != currentOrderId) {
+                            appendLine("⚠️ orderId 불일치 감지:")
+                            appendLine("  - paymentInfo merchant_uid: ${paymentInfo["merchant_uid"]}")
+                            appendLine("  - currentOrderId: $currentOrderId")
+                        }
+
+                        // imp_uid 누락 여부 확인
+                        if (currentImpUid.isNullOrBlank()) {
+                            appendLine("⚠️ imp_uid 누락 또는 비어있음")
+                        }
+
+                        // 금액 정보 확인
+                        val amount = paymentInfo["amount"]
+                        if (amount.isNullOrBlank() || amount == "0") {
+                            appendLine("⚠️ 결제 금액 정보 이상: '$amount'")
+                        }
+
+                        appendLine("==========================")
+                    }.toString()
+
+                    Log.e("HWO", failureDetails)
+
+                    // 결제 검증 실패 시 슬랙 알림 전송 (상세 정보 포함)
+                    sendSlackNotification(
+                        orderId = orderId,
+                        userId = userId,
+                        isSuccess = false,
+                        errorMessage = failureDetails.replace("\n", " | ")
+                    )
+
                     _saveOrderDoneEvent.emit(false)
                     return@launch
                 }
@@ -251,11 +314,11 @@ class OrderViewModel @Inject constructor(
                 Log.d("HWO", "서버 결제 검증 성공 - 주문 생성 진행")
 
                 val fcmToken = getFcmTokenUseCase.invoke().first()
-                Log.d("HWO", "FCM 토큰 획득: ${fcmToken} -- ${currentOrderId} -- ${selectedAlbumLayout.value}")
+                Log.d("HWO", "FCM 토큰 획득: ${fcmToken} -- ${orderId} -- ${selectedAlbumLayout.value}")
 
 
-                val orderId = saveOrderRecordUseCase(
-                    orderId = currentOrderId!!, // 생성한 orderId를 전달
+                val savedOrderId = saveOrderRecordUseCase(
+                    orderId = orderId,
                     selectedAlbumRecords = _selectedAlbumRecords.value,
                     selectedAlbumLayoutType = selectedAlbumLayout.value,
                     deliveryInfo = selectedDeliveryInfo,
@@ -263,16 +326,16 @@ class OrderViewModel @Inject constructor(
                     fcmToken = fcmToken ?: ""
                 )
 
-                Log.d("HWO", "주문 저장 완료 - OrderId: $orderId")
-                Log.d("HWO", "현재 OrderId(merchant_uid와 일치해야 함): $currentOrderId")
+                Log.d("HWO", "주문 저장 완료 - OrderId: $savedOrderId")
+                Log.d("HWO", "현재 OrderId(merchant_uid와 일치해야 함): $orderId")
 
-                // 이제 orderId와 currentOrderId가 같아야 함
-                if (orderId != currentOrderId) {
+                // 이제 orderId와 savedOrderId가 같아야 함
+                if (savedOrderId != orderId) {
                     Log.w("HWO", "⚠️ OrderId 불일치 발견! (이 경우는 발생하면 안됨)")
-                    Log.w("HWO", "UseCase 반환 orderId: $orderId")
-                    Log.w("HWO", "결제용 currentOrderId: $currentOrderId")
+                    Log.w("HWO", "UseCase 반환 orderId: $savedOrderId")
+                    Log.w("HWO", "결제용 orderId: $orderId")
                 } else {
-                    Log.d("HWO", "✅ OrderId 일치 확인: $orderId = $currentOrderId")
+                    Log.d("HWO", "✅ OrderId 일치 확인: $savedOrderId = $orderId")
                 }
 
                 val productName = paymentInfo["name"] ?: ""
@@ -287,7 +350,7 @@ class OrderViewModel @Inject constructor(
 
                 Log.d("HWO", "ZIP 파일 생성 요청 시작")
                 // Firebase Function 호출하여 ZIP 생성 요청 (결과를 기다림)
-                callPdfGenerationFunction(currentOrderId!!, userId)
+                callPdfGenerationFunction(orderId, userId)
 
                 Log.d("HWO", "=== 주문 저장 프로세스 완료 ===")
                 // ZIP 생성이 완료된 후에만 완료 이벤트 발생

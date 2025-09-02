@@ -129,7 +129,7 @@
     };
     function updateProductInfo(name, amount, merchantUid, maxPhotoCount, imageUrl) {
         product.name = name || product.name;
-        product.amount = parseInt(amount) || 100;
+        product.amount = parseInt(amount) || product.amount;
         if (merchantUid) {
             product.merchantUid = merchantUid;
             console.log('updateProductInfo: merchantUid set to', merchantUid);
@@ -149,7 +149,7 @@
             displayMaxPhotoCount = 40;
         } else {
             displayImageUrl = 'file:///android_asset/ic_product_light_main.jpeg';
-            displayMaxPhotoCount = 62;
+            displayMaxPhotoCount = 32;
         }
         
         document.getElementById('photo-count').innerText = '사진 최대 ' + displayMaxPhotoCount + '장 수록';

@@ -73,6 +73,7 @@ fun MyPageRoute(
     val context = LocalContext.current
     val petProfile by viewModel.petProfile.collectAsState()
     val userInfo by viewModel.userInfo.collectAsState()
+    val userId by viewModel.userId.collectAsState()
     val isUpdating by viewModel.isUpdatingProfile.collectAsState()
 
     // 갤러리 런처
@@ -92,6 +93,7 @@ fun MyPageRoute(
     MyPageScreen(
         petProfile = petProfile,
         userInfo = userInfo,
+        userId = userId,
         isUpdating = isUpdating,
         onCameraClick = {
             galleryLauncher.launch("image/*")
@@ -148,6 +150,7 @@ fun MyPageRoute(
 fun MyPageScreen(
     petProfile: PetProfile?,
     userInfo: Pair<String?, String?>,
+    userId: Long?,
     isUpdating: Boolean,
     onCameraClick: () -> Unit,
     onClickService: () -> Unit,
@@ -180,7 +183,7 @@ fun MyPageScreen(
                 }
             )
             Spacer(Modifier.height(16.dp))
-            MyProfileInfo(petProfile, userInfo, onCameraClick)
+            MyProfileInfo(petProfile, userInfo, userId, onCameraClick)
             Spacer(Modifier.height(12.dp))
             AlarmInfo(onClickService, onClickAlarm, onClickDeliveryList)
             Spacer(Modifier.height(12.dp))
@@ -237,6 +240,7 @@ fun MyPageScreen(
 @Composable
 fun MyProfileInfo(petProfile: PetProfile?,
                   userInfo: Pair<String?, String?>,
+                  userId: Long?,
                   onCameraClick: () -> Unit) {
     CommonRoundedBox {
         Row(
@@ -290,12 +294,21 @@ fun MyProfileInfo(petProfile: PetProfile?,
                     text = "${userInfo.first ?: "사용자"}님, 안녕하세요.",
                     style = PetgrowTheme.typography.medium,
                     fontSize = 16.sp,
+                    lineHeight = 16.sp,
                     color = black21
                 )
                 Text(
                     text = "${userInfo.second}",
                     style = PetgrowTheme.typography.regular,
                     fontSize = 13.sp,
+                    lineHeight = 16.sp,
+                    color = gray86
+                )
+                Text(
+                    text = "id: $userId",
+                    style = PetgrowTheme.typography.regular,
+                    fontSize = 11.sp,
+                    lineHeight = 11.sp,
                     color = gray86
                 )
             }

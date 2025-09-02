@@ -62,14 +62,22 @@ class MyPageViewModel @Inject constructor(
     private val _userInfo = MutableStateFlow<Pair<String?, String?>>(value = Pair("견주", "DailyDog"))
     val userInfo: StateFlow<Pair<String?, String?>> = _userInfo.asStateFlow()
 
+    private val _userId = MutableStateFlow<Long?>(null)
+    val userId: StateFlow<Long?> = _userId.asStateFlow()
+
     private val _isUpdatingProfile = MutableStateFlow(false)
     val isUpdatingProfile: StateFlow<Boolean> = _isUpdatingProfile.asStateFlow()
 
     init {
         viewModelScope.launch {
             val userInfoData = getUserInfoUseCase()
+            val userIdData = getUserIdUseCase.invoke()
+
             Log.d("HWO", "userInfoData -> $userInfoData")
+            Log.d("HWO", "userIdData -> $userIdData")
+
             _userInfo.value = userInfoData
+            _userId.value = userIdData
         }
     }
 

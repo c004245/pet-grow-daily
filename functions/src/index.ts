@@ -722,3 +722,260 @@ async function sendAdminAlert(alertData: {
     logger.error('관리자 알림 전송 실패:', error);
   }
 }
+
+// 사용자의 모든 이미지를 ZIP으로 생성하는 Function (관리자/고객센터용)
+export const generateUserImagesZip = onCall({
+  enforceAppCheck: false,
+  timeoutSeconds: 540, // 9분 타임아웃
+  memory: "1GiB",
+}, async (request) => {
+  try {
+    const { userId } = request.data;
+
+    // 파라미터 검증
+    if (!userId) {
+      throw new Error('userId가 필요합니다.');
+    }
+
+    logger.info(`사용자 이미지 ZIP 생성 시작 - UserId: ${userId}`);
+
+    const bucket = admin.storage().bucket();
+    
+    // Storage에서 해당 사용자의 모든 이미지 파일 찾기
+    const [files] = await bucket.getFiles({
+      prefix: `users/albums/album_${userId}_`,
+      delimiter: '/'
+    });
+
+    if (!files || files.length === 0) {
+      throw new Error(`사용자 ${userId}의 이미지를 찾을 수 없습니다.`);
+    }
+
+    logger.info(`발견된 총 파일 개수: ${files.length}`);
+
+    // 이미지 파일만 필터링하고 최신순으로 정렬하여 최대 42개만 선택
+    const sortedFiles = files
+      .filter(file => {
+        const filename = file.name.toLowerCase();
+        return filename.match(/\.(jpg|jpeg|png|webp)$/);
+      })
+      .sort((a, b) => {
+        // 파일명에서 timestamp 추출 (예: album_1515_1755319669689.jpg)
+        const matchA = a.name.match(/_(\d+)\./);
+        const matchB = b.name.match(/_(\d+)\./);
+        
+        // timestamp가 없는 경우 파일 생성시간 사용
+        const tsA = matchA ? parseInt(matchA[1], 10) : (a.metadata?.timeCreated ? new Date(a.metadata.timeCreated).getTime() : 0);
+        const tsB = matchB ? parseInt(matchB[1], 10) : (b.metadata?.timeCreated ? new Date(b.metadata.timeCreated).getTime() : 0);
+        
+        // 최신순 내림차순: 큰 숫자(최근)가 앞으로
+        return tsB - tsA;
+      })
+      .slice(0, 42); // 최대 42개만 선택
+
+    if (sortedFiles.length === 0) {
+      throw new Error(`사용자 ${userId}의 유효한 이미지를 찾을 수 없습니다.`);
+    }
+
+    logger.info(`최종 ZIP에 포함될 이미지 개수: ${sortedFiles.length} (최대 42개 제한)`);
+
+    // 이미지 파일들의 다운로드 URL 생성
+    const imageInfos: Array<{url: string, filename: string}> = [];
+
+    for (const file of sortedFiles) {
+      try {
+        // 다운로드 URL 생성 (1시간 유효)
+        const [url] = await file.getSignedUrl({
+          action: 'read',
+          expires: Date.now() + 60 * 60 * 1000, // 1시간
+        });
+
+        imageInfos.push({
+          url: url,
+          filename: file.name.split('/').pop() || `image_${imageInfos.length + 1}.jpg`
+        });
+
+        logger.info(`이미지 URL 생성 완료: ${file.name}`);
+      } catch (error) {
+        logger.error(`이미지 URL 생성 실패: ${file.name}`, error);
+        continue;
+      }
+    }
+
+    logger.info(`처리할 이미지 개수: ${imageInfos.length}`);
+
+    // ZIP 파일을 스트리밍 방식으로 생성
+    const zipFileName = `user_${userId}_images_${Date.now()}.zip`;
+    const fileName = `user_downloads/${zipFileName}`;
+    
+    await createUserImagesZipStream(imageInfos, bucket, fileName, userId);
+
+    // 공개 URL 생성 (24시간 유효)
+    const file = bucket.file(fileName);
+    const [zipUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 24 * 60 * 60 * 1000, // 24시간
+    });
+
+    // Firestore에 다운로드 기록 저장
+    await admin.firestore()
+      .collection('user_downloads')
+      .add({
+        userId: userId,
+        zipUrl: zipUrl,
+        imageCount: imageInfos.length,
+        fileName: zipFileName,
+        totalFilesFound: files.length,
+        selectedFiles: sortedFiles.length,
+        generatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 24 * 60 * 60 * 1000))
+      });
+
+    logger.info(`사용자 이미지 ZIP 생성 완료 - URL: ${zipUrl}`);
+
+    return {
+      success: true,
+      zipUrl: zipUrl,
+      imageCount: imageInfos.length,
+      totalFilesFound: files.length,
+      fileName: zipFileName,
+      message: `사용자 ${userId}의 최신 이미지 ${imageInfos.length}개가 포함된 ZIP 파일이 생성되었습니다.${files.length > 42 ? ` (총 ${files.length}개 중 최신 42개만 포함)` : ''}`
+    };
+
+  } catch (error) {
+    logger.error('사용자 이미지 ZIP 생성 실패:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`사용자 이미지 ZIP 생성에 실패했습니다: ${errorMessage}`);
+  }
+});
+
+// 스트리밍 방식으로 사용자 이미지 ZIP 생성 (메모리 최적화)
+async function createUserImagesZipStream(
+  imageInfos: Array<{url: string, filename: string}>,
+  bucket: any,
+  destination: string,
+  userId: string
+): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const archive = archiver('zip', {
+        zlib: { level: 6 }
+      });
+
+      const file = bucket.file(destination);
+      const fileStream = file.createWriteStream({
+        metadata: {
+          contentType: 'application/zip',
+          contentDisposition: 'attachment',
+          cacheControl: 'no-cache',
+          metadata: {
+            userId: userId,
+            imageCount: imageInfos.length.toString(),
+            generatedAt: new Date().toISOString()
+          }
+        },
+        resumable: false,
+        validation: false,
+      });
+
+      // 스트림 파이프 연결
+      archive.pipe(fileStream);
+
+      logger.info(`총 ${imageInfos.length}개 이미지 스트리밍 ZIP 생성 시작`);
+
+      // 배치 크기 (메모리 최적화를 위해 작게 설정)
+      const BATCH_SIZE = parseInt(process.env.IMAGE_ZIP_BATCH_SIZE || '3', 10);
+      let processedCount = 0;
+      let successCount = 0;
+      let failCount = 0;
+
+      // 배치별로 처리하여 메모리 사용량 제한
+      for (let batchStart = 0; batchStart < imageInfos.length; batchStart += BATCH_SIZE) {
+        const batchEnd = Math.min(batchStart + BATCH_SIZE, imageInfos.length);
+        const batch = imageInfos.slice(batchStart, batchEnd);
+        
+        logger.info(`배치 처리 중: ${batchStart + 1}-${batchEnd}/${imageInfos.length}`);
+
+        // 배치 내 이미지들을 순차 처리 (병렬 처리 대신 순차로 메모리 안정성 향상)
+        for (let i = 0; i < batch.length; i++) {
+          const imageInfo = batch[i];
+          const globalIndex = batchStart + i;
+          
+          try {
+            const response = await axios.get(imageInfo.url, { 
+              responseType: 'arraybuffer',
+              timeout: 30000, // 타임아웃 단축
+              headers: {
+                'User-Agent': 'Pet-Grow-Daily-User-ZIP-Generator'
+              },
+              maxContentLength: 10 * 1024 * 1024, // 10MB 제한 (더 작게)
+              maxBodyLength: 10 * 1024 * 1024
+            });
+            
+            const imageBuffer = Buffer.from(response.data);
+            
+            // ZIP에 파일 추가 (원본 파일명 사용)
+            const filename = `user_${userId}_${imageInfo.filename}`;
+            archive.append(imageBuffer, { name: filename });
+            
+            logger.info(`이미지 ${globalIndex + 1} 처리 완료: ${filename} (${(imageBuffer.length / 1024 / 1024).toFixed(2)}MB)`);
+            successCount++;
+            
+          } catch (imageError) {
+            logger.error(`이미지 ${globalIndex + 1} 처리 실패: ${imageInfo.filename}`, imageError);
+            failCount++;
+          }
+          
+          processedCount++;
+          
+          // 각 이미지 처리 후 짧은 대기 (메모리 정리)
+          if (i < batch.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+
+        logger.info(`배치 처리 완료. 성공: ${successCount}, 실패: ${failCount}, 전체: ${processedCount}/${imageInfos.length}`);
+
+        // 배치 간 메모리 정리를 위한 대기
+        if (batchStart + BATCH_SIZE < imageInfos.length) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // 강제 가비지 컬렉션 (가능한 경우)
+          if (global.gc) {
+            global.gc();
+          }
+        }
+      }
+
+      logger.info(`모든 이미지 처리 완료. 성공: ${successCount}, 실패: ${failCount}`);
+
+      // 최소 1개 이상의 이미지가 성공적으로 처리되어야 함
+      if (successCount === 0) {
+        throw new Error('처리 가능한 이미지가 없습니다.');
+      }
+
+      // ZIP 파일 완료
+      await archive.finalize();
+
+      // 스트림 완료 대기
+      fileStream.on('finish', () => {
+        logger.info('ZIP 파일 Storage 스트리밍 저장 완료');
+        resolve();
+      });
+
+      fileStream.on('error', (err: Error) => {
+        logger.error('ZIP 파일 Storage 저장 중 에러:', err);
+        reject(err);
+      });
+
+      archive.on('error', (err: Error) => {
+        logger.error('Archiver 에러:', err);
+        reject(err);
+      });
+
+    } catch (error) {
+      logger.error('스트리밍 ZIP 생성 중 오류:', error);
+      reject(error);
+    }
+  });
+}

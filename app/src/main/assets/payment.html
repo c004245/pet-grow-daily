@@ -83,9 +83,17 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             cursor: pointer;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .pay-button:hover {
             background: #ffe066;
+        }
+        .kakaopay-icon {
+            height: 24px;
+            width: auto;
         }
         .result-message {
             margin-top: 28px;
@@ -113,7 +121,8 @@
 
 <div class="kakao-btn-wrap">
     <button class="pay-button" onclick="requestPay()">
-        카카오페이로 결제하기
+        <img class="kakaopay-icon" src="payment_icon_yellow_large.png" alt="카카오페이 아이콘"/>
+        결제하기
     </button>
 </div>
 <script>

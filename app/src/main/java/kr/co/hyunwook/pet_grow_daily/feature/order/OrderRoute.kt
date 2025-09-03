@@ -625,10 +625,39 @@ fun PaymentWebView(
                                         currentUrl,
                                         android.content.Intent.URI_INTENT_SCHEME
                                     )
-                                    context.startActivity(intent)
-                                    return true
+
+                                    // 앱이 설치되어 있는지 확인
+                                    val packageManager = context.packageManager
+                                    val activities = packageManager.queryIntentActivities(
+                                        intent,
+                                        android.content.pm.PackageManager.MATCH_DEFAULT_ONLY
+                                    )
+
+                                    if (activities.isNotEmpty()) {
+                                        // 앱이 설치되어 있으면 실행
+                                        context.startActivity(intent)
+                                        return true
+                                    } else {
+                                        // 카카오톡이 설치되지 않은 경우 Play Store로 이동
+                                        Log.d("HWO", "카카오톡이 설치되지 않음 - Play Store로 이동")
+                                        val playStoreIntent = android.content.Intent(
+                                            android.content.Intent.ACTION_VIEW,
+                                            android.net.Uri.parse("market://details?id=com.kakao.talk")
+                                        )
+                                        try {
+                                            context.startActivity(playStoreIntent)
+                                        } catch (e: Exception) {
+                                            // Play Store 앱이 없는 경우 웹으로
+                                            val webIntent = android.content.Intent(
+                                                android.content.Intent.ACTION_VIEW,
+                                                android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.kakao.talk")
+                                            )
+                                            context.startActivity(webIntent)
+                                        }
+                                        return true
+                                    }
                                 } catch (e: Exception) {
-                                    Log.e("WebView", "Failed to handle intent: $e")
+                                    Log.e("HWO", "Intent 처리 실패: ${e.message}")
                                     return false
                                 }
                             }
@@ -662,17 +691,29 @@ fun PaymentWebView(
                                             "Payment successful via redirect - imp_uid: $impUid"
                                         )
                                         (context as? Activity)?.runOnUiThread {
+                                            Log.d(
+                                                "HWO",
+                                                "Executing onPaymentResult for success on main thread"
+                                            )
                                             onPaymentResult(true, null, impUid)
                                         }
                                     } else {
                                         Log.d("HWO", "Payment failed or cancelled via redirect")
                                         (context as? Activity)?.runOnUiThread {
+                                            Log.d(
+                                                "HWO",
+                                                "Executing onPaymentResult for failure on main thread"
+                                            )
                                             onPaymentResult(false, "결제가 취소되었습니다", null)
                                         }
                                     }
                                 } catch (e: Exception) {
                                     Log.e("HWO", "Error processing payment result redirect: $e")
                                     (context as? Activity)?.runOnUiThread {
+                                        Log.d(
+                                            "HWO",
+                                            "Executing onPaymentResult for failure on main thread"
+                                        )
                                         onPaymentResult(false, "결제 결과 처리 중 오류가 발생했습니다", null)
                                     }
                                 }

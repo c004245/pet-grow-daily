@@ -223,7 +223,7 @@ fun OrderProductItem(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "사진 ${needAlbumCount(product.productTitle)}개가 필요해요!",
+                    text = "${needAlbumCount(product.productTitle)}장이 필요해요!",
                     style = PetgrowTheme.typography.medium,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,

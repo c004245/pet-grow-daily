@@ -753,7 +753,7 @@ export const generateUserImagesZip = onCall({
 
     logger.info(`발견된 총 파일 개수: ${files.length}`);
 
-    // 이미지 파일만 필터링하고 최신순으로 정렬하여 최대 42개만 선택
+    // 이미지 파일만 필터링하고 최신순으로 정렬
     const sortedFiles = files
       .filter(file => {
         const filename = file.name.toLowerCase();
@@ -770,19 +770,21 @@ export const generateUserImagesZip = onCall({
         
         // 최신순 내림차순: 큰 숫자(최근)가 앞으로
         return tsB - tsA;
-      })
-      .slice(0, 42); // 최대 42개만 선택
+      });
 
-    if (sortedFiles.length === 0) {
+    // 100장 이하면 모두 포함, 100장 초과시에만 100장으로 제한
+    const selectedFiles = sortedFiles.length <= 100 ? sortedFiles : sortedFiles.slice(0, 100);
+
+    if (selectedFiles.length === 0) {
       throw new Error(`사용자 ${userId}의 유효한 이미지를 찾을 수 없습니다.`);
     }
 
-    logger.info(`최종 ZIP에 포함될 이미지 개수: ${sortedFiles.length} (최대 42개 제한)`);
+    logger.info(`최종 ZIP에 포함될 이미지 개수: ${selectedFiles.length} ${sortedFiles.length > 100 ? '(최대 100개 제한)' : '(전체 포함)'}`);
 
     // 이미지 파일들의 다운로드 URL 생성
     const imageInfos: Array<{url: string, filename: string}> = [];
 
-    for (const file of sortedFiles) {
+    for (const file of selectedFiles) {
       try {
         // 다운로드 URL 생성 (1시간 유효)
         const [url] = await file.getSignedUrl({
@@ -826,7 +828,7 @@ export const generateUserImagesZip = onCall({
         imageCount: imageInfos.length,
         fileName: zipFileName,
         totalFilesFound: files.length,
-        selectedFiles: sortedFiles.length,
+        selectedFiles: selectedFiles.length,
         generatedAt: admin.firestore.FieldValue.serverTimestamp(),
         expiresAt: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 24 * 60 * 60 * 1000))
       });
@@ -839,7 +841,7 @@ export const generateUserImagesZip = onCall({
       imageCount: imageInfos.length,
       totalFilesFound: files.length,
       fileName: zipFileName,
-      message: `사용자 ${userId}의 최신 이미지 ${imageInfos.length}개가 포함된 ZIP 파일이 생성되었습니다.${files.length > 42 ? ` (총 ${files.length}개 중 최신 42개만 포함)` : ''}`
+      message: `사용자 ${userId}의 최신 이미지 ${imageInfos.length}개가 포함된 ZIP 파일이 생성되었습니다.${files.length > 100 ? ` (총 ${files.length}개 중 최신 100개만 포함)` : ''}`
     };
 
   } catch (error) {
